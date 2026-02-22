@@ -111,21 +111,8 @@
         }
         .time-box .label { font-size: 0.9rem; color: var(--text-light); font-weight: 600;}
 
-        /* 二级菜单 */
-        .sub-nav { display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; background: rgba(0,0,0,0.03); padding: 5px; border-radius: 40px; width: fit-content; margin-left: auto; margin-right: auto;}
-        .sub-btn {
-            background: transparent; border: none; padding: 10px 30px;
-            border-radius: 30px; font-size: 15px; font-weight: 600;
-            color: var(--text-light); cursor: pointer; transition: var(--transition);
-        }
-        .sub-btn.active { background: white; color: #FF512F; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        .sub-content { display: none; animation: slideUp 0.3s ease; }
-        .sub-content.active { display: block; }
-
         /* 奖杯五边形网格 */
-        .trophy-grid { 
-            display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; max-width: 850px; margin: 0 auto;
-        }
+        .trophy-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; max-width: 850px; margin: 0 auto; }
         .trophy-item { 
             background: rgba(255,255,255,0.8); padding: 30px 20px; border-radius: 24px; text-align: center; 
             border: 1px solid rgba(255,255,255,0.5); cursor: pointer; transition: var(--transition);
@@ -145,16 +132,12 @@
         .item-bot-l { grid-column: 1 / 3; } 
         .item-bot-r { grid-column: 3 / 5; } 
 
-        /* ====== 奖杯详情子页 (包含 3:5 高级图片展位) ====== */
+        /* 奖杯详情子页 */
         .td-header { display: flex; align-items: center; gap: 20px; margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px solid rgba(0,0,0,0.05);}
         .td-icon { font-size: 3.5rem; text-shadow: 0 10px 20px rgba(240, 152, 25, 0.3); }
         .td-name { font-size: 2rem; font-weight: 800; background: var(--gradient-orange); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 5px;}
         .td-type { font-size: 1.05rem; color: var(--text-light); font-weight: 600;}
-        
-        /* 图文左右排版容器 */
         .td-body { display: flex; gap: 35px; align-items: flex-start; }
-        
-        /* 比例严格为 3:5 的图片框 */
         .td-image-wrapper {
             flex-shrink: 0; width: 240px; aspect-ratio: 3 / 5; 
             background: rgba(255, 81, 47, 0.04); border: 1px dashed rgba(255, 81, 47, 0.3);
@@ -164,23 +147,68 @@
         }
         .img-placeholder { z-index: 1; font-size: 0.9rem; color: var(--text-light); text-align: center; }
         .img-placeholder span { font-size: 2.5rem; display: block; margin-bottom: 10px; opacity: 0.5;}
-        
-        /* 真实图片 */
-        #td-image { 
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-            object-fit: cover; z-index: 2; opacity: 0; transition: opacity 0.5s ease;
-        }
-        
+        #td-image { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 2; opacity: 0; transition: opacity 0.5s ease; }
         .td-content-wrapper { flex-grow: 1; }
         .td-content p { font-size: 1.05rem; line-height: 1.8; color: var(--text-main); margin-bottom: 15px;}
         .td-content b { color: #E65100; font-size: 1.1rem;}
 
-        .action-btn { 
-            display: block; background: var(--gradient-orange); color: white; padding: 16px 30px; 
-            border-radius: 16px; text-decoration: none; font-weight: bold; font-size: 1.1rem;
-            transition: var(--transition); text-align: center; box-shadow: 0 10px 25px rgba(255, 81, 47, 0.3);
+        /* ====== 全新抽签对阵模块样式 ====== */
+        .portal-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 25px;
         }
-        .action-btn:hover { transform: translateY(-3px); box-shadow: 0 15px 35px rgba(255, 81, 47, 0.4); }
+        .portal-card {
+            background: rgba(255,255,255,0.85); border: 1px solid rgba(255,255,255,0.6);
+            border-radius: 24px; padding: 40px 30px; text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.04); transition: var(--transition);
+            display: flex; flex-direction: column; justify-content: center;
+        }
+        .portal-card:hover { box-shadow: 0 15px 35px rgba(255,81,47,0.1); border-color: rgba(255,81,47,0.2); }
+        .portal-icon { font-size: 3.5rem; margin-bottom: 15px; }
+        .portal-title { font-size: 1.5rem; font-weight: 800; color: var(--text-main); margin-bottom: 10px;}
+        .portal-desc { font-size: 1rem; color: var(--text-light); margin-bottom: 25px;}
+        .portal-alert { color: #E65100; font-weight: bold; font-size: 1.2rem; margin-bottom: 20px;}
+        
+        /* 登录表单 */
+        .login-form { display: flex; flex-direction: column; gap: 12px; max-width: 250px; margin: 0 auto; }
+        .login-input { 
+            padding: 12px 15px; border-radius: 12px; border: 1px solid #ddd;
+            background: #fafafa; font-size: 14px; outline: none; transition: all 0.3s;
+        }
+        .login-input:focus { border-color: #FF512F; box-shadow: 0 0 0 3px rgba(255,81,47,0.1); }
+        .login-btn {
+            background: var(--gradient-orange); color: white; border: none; padding: 12px;
+            border-radius: 12px; font-weight: bold; cursor: pointer; transition: all 0.3s; margin-top: 5px;
+        }
+        .login-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255,81,47,0.3); }
+
+        /* 登录后的 5个抽签系统模块 (横向呼吸放大阵列) */
+        .draw-system-header { text-align: center; margin-bottom: 30px; }
+        .draw-system-header h2 { color: #E65100; font-size: 1.8rem; margin-bottom: 5px;}
+        .draw-system-header p { color: var(--text-light); }
+        
+        .sys-module-grid { 
+            display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; 
+        }
+        .sys-module {
+            background: white; border: 2px solid #f1f5f9; border-radius: 20px;
+            padding: 30px 15px; width: calc(20% - 12px); min-width: 140px; text-align: center;
+            cursor: pointer; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+        }
+        .sys-module:hover {
+            transform: scale(1.1); z-index: 10;
+            border-color: #FF512F; box-shadow: 0 15px 35px rgba(255,81,47,0.2);
+        }
+        .sys-icon { font-size: 2.5rem; margin-bottom: 10px; display: block;}
+        .sys-name { font-size: 1.1rem; font-weight: bold; color: var(--text-main); }
+        /* ==================================== */
+
+        .action-btn { 
+            display: inline-block; background: var(--gradient-orange); color: white; padding: 12px 30px; 
+            border-radius: 30px; text-decoration: none; font-weight: bold; transition: var(--transition);
+        }
+        .action-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(255, 81, 47, 0.3); }
+        
         .empty-state { text-align: center; padding: 50px 20px; color: var(--text-light); }
         .empty-state span { font-size: 3.5rem; display: block; margin-bottom: 20px; opacity: 0.8;}
 
@@ -190,11 +218,13 @@
             .card { padding: 25px 20px; }
             .trophy-grid { display: flex; flex-direction: column; gap: 15px; }
             .item-top, .item-mid-l, .item-mid-r, .item-bot-l, .item-bot-r { transform: none; grid-column: auto; }
-            
-            /* 手机端图文自适应变为上下排版 */
             .td-body { flex-direction: column; align-items: center; gap: 25px; }
             .td-image-wrapper { width: 100%; max-width: 240px; }
             .td-header { flex-direction: column; text-align: center; }
+            
+            /* 手机端抽签入口变为上下排列 */
+            .portal-grid { grid-template-columns: 1fr; }
+            .sys-module { width: calc(50% - 10px); } /* 手机端抽签系统一行两个 */
         }
     </style>
 </head>
@@ -247,26 +277,91 @@
     </div>
 
     <div id="draw" class="page-section">
-        <div class="card">
-            <h2 class="card-header">抽签与对阵表</h2>
-            <div class="sub-nav">
-                <button class="sub-btn active" onclick="switchTab('individual')">单项赛</button>
-                <button class="sub-btn" onclick="switchTab('team')">团体赛</button>
-            </div>
-            <div id="individual" class="sub-content active">
-                <div class="empty-state"><span>🏓</span><p>单项赛抽签结果将于抽签仪式后公布。</p></div>
-            </div>
-            <div id="team" class="sub-content">
-                <div class="empty-state"><span>🏆</span><p>团体赛抽签正在紧锣密鼓筹备中...</p></div>
+        
+        <div id="draw-main-view">
+            <div class="portal-grid">
+                
+                <div class="portal-card">
+                    <div class="portal-icon">🎲</div>
+                    <div class="portal-title">赛事抽签系统</div>
+                    <div class="portal-alert">抽签还未开始，敬请期待！</div>
+                    <p class="portal-desc" style="font-size: 0.85rem;">（仅限组委会管理员登录后操作）</p>
+                    
+                    <form class="login-form" onsubmit="handleLogin(event)">
+                        <input type="text" id="admin-account" class="login-input" placeholder="输入管理员账号" required>
+                        <input type="password" id="admin-password" class="login-input" placeholder="输入密码" required>
+                        <button type="submit" class="login-btn">安全登录系统</button>
+                    </form>
+                </div>
+
+                <div class="portal-card" onclick="openMatchupView()" style="cursor: pointer;">
+                    <div class="portal-icon">📋</div>
+                    <div class="portal-title">对阵结果与赛程</div>
+                    <div class="portal-desc">点击查看各项目详细对阵表及比赛时间安排。</div>
+                    <div><span class="action-btn">进入对阵榜</span></div>
+                </div>
+
             </div>
         </div>
-    </div>
 
+        <div id="draw-system-view" style="display: none;">
+            <div class="card">
+                <div class="draw-system-header">
+                    <h2>⚙️ 管理员抽签控制台</h2>
+                    <p>欢迎登录。请选择需要进行抽签的比赛项目。</p>
+                </div>
+                
+                <div class="sys-module-grid">
+                    <div class="sys-module" onclick="alert('名单尚未就绪，混合团体抽签系统暂未开放。')">
+                        <span class="sys-icon">🛡️</span>
+                        <div class="sys-name">混合团体</div>
+                    </div>
+                    <div class="sys-module" onclick="alert('名单尚未就绪，男子单打抽签系统暂未开放。')">
+                        <span class="sys-icon">🏓</span>
+                        <div class="sys-name">男子单打</div>
+                    </div>
+                    <div class="sys-module" onclick="alert('名单尚未就绪，女子单打抽签系统暂未开放。')">
+                        <span class="sys-icon">🌸</span>
+                        <div class="sys-name">女子单打</div>
+                    </div>
+                    <div class="sys-module" onclick="alert('名单尚未就绪，男子双打抽签系统暂未开放。')">
+                        <span class="sys-icon">🤝</span>
+                        <div class="sys-name">男子双打</div>
+                    </div>
+                    <div class="sys-module" onclick="alert('名单尚未就绪，混合双打抽签系统暂未开放。')">
+                        <span class="sys-icon">💞</span>
+                        <div class="sys-name">混合双打</div>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 40px;">
+                    <button class="login-btn" onclick="logoutAdmin()" style="background: #e2e8f0; color: #64748b;">退出登录返回</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="matchup-detail-view" style="display: none;">
+            <div class="card">
+                <h2 class="card-header">📋 详细对阵表</h2>
+                
+                <div class="empty-state">
+                    <span>⏳</span>
+                    <h3 style="color: #E65100; margin-bottom: 10px;">尚未抽签，敬请期待！</h3>
+                    <p style="font-size: 1rem;">抽签仪式完成后，系统将在此自动公布各项目的详细对阵名单与晋级路线。</p>
+                </div>
+
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="login-btn" onclick="closeMatchupView()" style="background: #e2e8f0; color: #64748b;">返回入口页</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
     <div id="photos" class="page-section">
         <div class="card">
             <h2 class="card-header">光影记录：赛事图集</h2>
             <p style="text-align: center; color: var(--text-light); margin-bottom: 25px; font-size: 1.05rem;">这里记录着赛场上的每一次挥汗与欢呼。</p>
-            <a href="#" target="_blank" class="action-btn">📸 点击进入云端图库直播</a>
+            <div style="text-align: center;"><a href="#" target="_blank" class="action-btn">📸 点击进入云端图库直播</a></div>
         </div>
     </div>
 
@@ -318,7 +413,6 @@
                         <div class="td-type" id="td-type">项目类型</div>
                     </div>
                 </div>
-                
                 <div class="td-body">
                     <div class="td-image-wrapper">
                         <img id="td-image" src="" alt="奖杯实拍" onload="this.style.opacity='1'" onerror="this.style.opacity='0'">
@@ -328,11 +422,9 @@
                         </div>
                     </div>
                     <div class="td-content-wrapper">
-                        <div class="td-content" id="td-content">
-                            </div>
+                        <div class="td-content" id="td-content"></div>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
@@ -347,30 +439,59 @@
 </div>
 
 <script>
-    // 包含第四届最新冠军名单的数据库
-    const trophyData = {
-        'maipu': { 
-            name: '麦普杯', type: '男子单打冠军奖杯', 
-            content: '<b>【精神溯源】</b> 麦普杯象征着个人技艺的卓越与赛场风范，由渤海大学乒乓球队名誉队长、第三任队长姜枫先生于 2023 年 6 月捐赠。此杯专为嘉奖男单项目中技压群雄的冠军选手而设。“麦普”取自姜枫先生英文名“Maple”，寄寓成熟与坚毅之力。<br><br><b>【荣耀传承】</b> 每一届男单冠军的光辉姓名，将永久铭刻于麦普杯之上。2023 年第二届大赛中，刘奚铭首次将名字镌刻于此杯；2024 年第三届大赛，石致远成为麦普杯的第二任获得者；在去年的第四届大赛中，<b>田印广</b>成功夺魁，将其名字留在杯身。<br><br><b>【赛事展望】</b> 赛场上的每一次挥拍都凝聚着平日的汗水。本届大赛的男单桂冠正等待新的优胜者前来摘取，谁将脱颖而出，成为第四位将名字铭刻在麦普杯上的冠军？' 
-        },
-        'ximeng': { 
-            name: '西蒙杯', type: '女子单打冠军奖杯', 
-            content: '<b>【精神溯源】</b> 西蒙杯代表着女选手的优雅风姿与坚韧品格，由渤海大学乒乓球队名誉队长、第四任队长刘奚铭先生于 2024 年 6 月捐赠。此杯专门用于表彰女单比赛中的冠军得主。“西蒙”取自刘奚铭先生英文名“Simon”，寄托了对女队员们不断进步、追求卓越的鼓励与期许。<br><br><b>【荣耀传承】</b> 每一届女单冠军的姓名将荣镌杯身，见证她们的拼搏与荣誉。第三届比赛中，殷紫萱首度捧杯；去年第四届比赛中，<b>邵尔诺</b>表现优异，成为第二位将芳名留在西蒙杯上的优胜者。<br><br><b>【赛事展望】</b> 赛场不分性别，拼搏同样精彩。本届大赛的女单桂冠正静候新主，期待诞生第三位将名字铭刻在西蒙杯上的冠军选手。' 
-        },
-        'bulaifu': { 
-            name: '布莱芙杯', type: '男子双打冠军奖杯', 
-            content: '<b>【精神溯源】</b> 布莱芙杯象征着同伴间的信念与默契配合，由渤海大学乒乓球队首任队长陈欣洋先生于 2024 年 6 月捐赠。此杯用以表彰男双比赛中的冠军组合。“布莱芙”之名源自“欣洋”二字谐音“信仰”的英文“Belief”，寓意搭档间的相互信任与精诚协作是夺冠的基石。<br><br><b>【荣耀传承】</b> 每一届男双冠军组合的姓名将并列镌刻于杯身，共享荣誉。在第三届比赛中，王宗玉与杜沁宇组合首次捧起了此杯；去年第四届大赛，<b>康林哲与田印广</b>凭借默契配合，成为第二组荣镌此杯的搭档。<br><br><b>【赛事展望】</b> 双打考验的不仅是个人技术，更是1+1大于2的默契。本届男双比赛战幕将启，获胜的搭档将成为第三组将名字共同铭刻在布莱芙杯上的冠军组合。' 
-        },
-        'chaos': { 
-            name: '查奥斯杯', type: '混合双打冠军奖杯', 
-            content: '<b>【精神溯源】</b> 查奥斯杯体现了力量与智慧的和谐交融，由渤海大学乒乓球队名誉队长、第二任队长刘丞皓先生于 2024 年 6 月捐赠。此杯旨在授予混合双打项目的最佳搭档。“查奥斯”巧妙地取自刘丞皓先生名字中“丞”的声母与“皓”的韵母，象征比赛中的激情碰撞与策略运用。<br><br><b>【荣耀传承】</b> 每一届混双冠军组合的姓名将镌刻其上，记录赛场上的精彩配合。第三届比赛的康林哲与徐赫遥组合首次加冕；在去年的第四届比赛中，<b>刘士辉与代馨怡</b>荣获佳绩，将名字留在此杯之上。<br><br><b>【赛事展望】</b> 混双赛场充满了变数与策略的较量。本届比赛的优胜搭档，将成为光荣的第三对查奥斯杯得主。' 
-        },
-        'yibu': { 
-            name: '伊布杯', type: '混合团体奖杯', 
-            content: '<b>【精神溯源】</b> 伊布杯象征着团队协作之巅与集体荣耀，由渤海大学乒乓球队名誉队长、第二任队长岳亮先生于 2021 年 6 月惠赠。此杯旨在表彰总结大赛中表现最卓越的团体队伍。“伊布”之名源自岳亮先生英文名“Hibou”，蕴含智慧与坚韧之意。<br><br><b>【荣耀传承】</b> 依循传统，每届团体冠军成员的姓名将共同镌刻于杯身，以彰荣誉。从第一届的“高鹤宁、王贺铭、王艺璇”，到第二届的“刘奚铭、谭程、刘梦昕”，第三届的“杨乐、田印广、张洪洋、代馨怡”，再到去年第四届摘桂的“<b>张洪洋、代馨怡、王治元、朱昶安</b>”，四届冠军队伍的名字已在此铭刻。<br><br><b>【赛事展望】</b> 团队赛始终是对凝聚力与排兵布阵的综合考验。本届大赛的获胜队伍，将成为第五支光荣捧起伊布杯、续写团队辉煌的冠军之师。' 
-        }
+    // ===== 抽签系统安全与交互逻辑 =====
+    
+    // 设定的管理员账号密码库
+    const adminAccounts = {
+        'bhuttt-5th01': '11111111',
+        'bhuttt-5th02': '22222222',
+        'bhuttt-5th03': '33333333'
     };
 
+    function handleLogin(event) {
+        event.preventDefault(); // 阻止表单默认提交刷新网页
+        
+        let acc = document.getElementById('admin-account').value.trim();
+        let pwd = document.getElementById('admin-password').value.trim();
+
+        if (adminAccounts[acc] && adminAccounts[acc] === pwd) {
+            // 登录成功
+            document.getElementById('draw-main-view').style.display = 'none';
+            document.getElementById('draw-system-view').style.display = 'block';
+            document.getElementById('admin-password').value = ''; // 清空密码框保证安全
+        } else {
+            // 登录失败
+            alert('🚫 抱歉，管理员账号或密码错误，请重新输入。');
+        }
+    }
+
+    function logoutAdmin() {
+        document.getElementById('draw-system-view').style.display = 'none';
+        document.getElementById('draw-main-view').style.display = 'block';
+    }
+
+    function openMatchupView() {
+        document.getElementById('draw-main-view').style.display = 'none';
+        document.getElementById('matchup-detail-view').style.display = 'block';
+    }
+
+    function closeMatchupView() {
+        document.getElementById('matchup-detail-view').style.display = 'none';
+        document.getElementById('draw-main-view').style.display = 'block';
+    }
+    // ===================================
+
+
+    // 奖杯数据
+    const trophyData = {
+        'maipu': { name: '麦普杯', type: '男子单打冠军奖杯', content: '<b>【精神溯源】</b> 麦普杯象征着个人技艺的卓越与赛场风范，由渤海大学乒乓球队名誉队长、第三任队长姜枫先生于 2023 年 6 月捐赠。此杯专为嘉奖男单项目中技压群雄的冠军选手而设。“麦普”取自姜枫先生英文名“Maple”，寄寓成熟与坚毅之力。<br><br><b>【荣耀传承】</b> 每一届男单冠军的光辉姓名，将永久铭刻于麦普杯之上。2023 年第二届大赛中，刘奚铭首次将名字镌刻于此杯；2024 年第三届大赛，石致远成为麦普杯的第二任获得者；在去年的第四届大赛中，<b>田印广</b>成功夺魁，将其名字留在杯身。<br><br><b>【赛事展望】</b> 赛场上的每一次挥拍都凝聚着平日的汗水。本届大赛的男单桂冠正等待新的优胜者前来摘取，谁将脱颖而出，成为第四位将名字铭刻在麦普杯上的冠军？' },
+        'ximeng': { name: '西蒙杯', type: '女子单打冠军奖杯', content: '<b>【精神溯源】</b> 西蒙杯代表着女选手的优雅风姿与坚韧品格，由渤海大学乒乓球队名誉队长、第四任队长刘奚铭先生于 2024 年 6 月捐赠。此杯专门用于表彰女单比赛中的冠军得主。“西蒙”取自刘奚铭先生英文名“Simon”，寄托了对女队员们不断进步、追求卓越的鼓励与期许。<br><br><b>【荣耀传承】</b> 每一届女单冠军的姓名将荣镌杯身，见证她们的拼搏与荣誉。第三届比赛中，殷紫萱首度捧杯；去年第四届比赛中，<b>邵尔诺</b>表现优异，成为第二位将芳名留在西蒙杯上的优胜者。<br><br><b>【赛事展望】</b> 赛场不分性别，拼搏同样精彩。本届大赛的女单桂冠正静候新主，期待诞生第三位将名字铭刻在西蒙杯上的冠军选手。' },
+        'bulaifu': { name: '布莱芙杯', type: '男子双打冠军奖杯', content: '<b>【精神溯源】</b> 布莱芙杯象征着同伴间的信念与默契配合，由渤海大学乒乓球队首任队长陈欣洋先生于 2024 年 6 月捐赠。此杯用以表彰男双比赛中的冠军组合。“布莱芙”之名源自“欣洋”二字谐音“信仰”的英文“Belief”，寓意搭档间的相互信任与精诚协作是夺冠的基石。<br><br><b>【荣耀传承】</b> 每一届男双冠军组合的姓名将并列镌刻于杯身，共享荣誉。在第三届比赛中，王宗玉与杜沁宇组合首次捧起了此杯；去年第四届大赛，<b>康林哲与田印广</b>凭借默契配合，成为第二组荣镌此杯的搭档。<br><br><b>【赛事展望】</b> 双打考验的不仅是个人技术，更是1+1大于2的默契。本届男双比赛战幕将启，获胜的搭档将成为第三组将名字共同铭刻在布莱芙杯上的冠军组合。' },
+        'chaos': { name: '查奥斯杯', type: '混合双打冠军奖杯', content: '<b>【精神溯源】</b> 查奥斯杯体现了力量与智慧的和谐交融，由渤海大学乒乓球队名誉队长、第二任队长刘丞皓先生于 2024 年 6 月捐赠。此杯旨在授予混合双打项目的最佳搭档。“查奥斯”巧妙地取自刘丞皓先生名字中“丞”的声母与“皓”的韵母，象征比赛中的激情碰撞与策略运用。<br><br><b>【荣耀传承】</b> 每一届混双冠军组合的姓名将镌刻其上，记录赛场上的精彩配合。第三届比赛的康林哲与徐赫遥组合首次加冕；在去年的第四届比赛中，<b>刘士辉与代馨怡</b>荣获佳绩，将名字留在此杯之上。<br><br><b>【赛事展望】</b> 混双赛场充满了变数与策略的较量。本届比赛的优胜搭档，将成为光荣的第三对查奥斯杯得主。' },
+        'yibu': { name: '伊布杯', type: '混合团体奖杯', content: '<b>【精神溯源】</b> 伊布杯象征着团队协作之巅与集体荣耀，由渤海大学乒乓球队名誉队长、第二任队长岳亮先生于 2021 年 6 月惠赠。此杯旨在表彰总结大赛中表现最卓越的团体队伍。“伊布”之名源自岳亮先生英文名“Hibou”，蕴含智慧与坚韧之意。<br><br><b>【荣耀传承】</b> 依循传统，每届团体冠军成员的姓名将共同镌刻于杯身，以彰荣誉。从第一届的“高鹤宁、王贺铭、王艺璇”，到第二届的“刘奚铭、谭程、刘梦昕”，第三届的“杨乐、田印广、张洪洋、代馨怡”，再到去年第四届摘桂的“<b>张洪洋、代馨怡、王治元、朱昶安</b>”，四届冠军队伍的名字已在此铭刻。<br><br><b>【赛事展望】</b> 团队赛始终是对凝聚力与排兵布阵的综合考验。本届大赛的获胜队伍，将成为第五支光荣捧起伊布杯、续写团队辉煌的冠军之师。' }
+    };
+
+    // 路由控制
     function handleRouting() {
         let hash = window.location.hash.replace('#', '');
         if (!hash) hash = 'home'; 
@@ -389,8 +510,13 @@
             if(section) section.classList.add('active');
             if(nav) nav.classList.add('active');
             
-            if (hash === 'trophies') {
-                hideTrophyDetail();
+            if (hash === 'trophies') hideTrophyDetail();
+            
+            // 如果离开了抽签页面，确保恢复默认的主入口视图
+            if (hash !== 'draw') {
+                document.getElementById('draw-system-view').style.display = 'none';
+                document.getElementById('matchup-detail-view').style.display = 'none';
+                document.getElementById('draw-main-view').style.display = 'block';
             }
         }
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -411,9 +537,8 @@
         document.getElementById('td-type').innerText = trophyData[id].type;
         document.getElementById('td-content').innerHTML = '<p>' + trophyData[id].content + '</p>';
         
-        // 动态加载对应的奖杯图片
         let imgEl = document.getElementById('td-image');
-        imgEl.style.opacity = '0'; // 先隐藏，等加载成功后触发 onload 渐显
+        imgEl.style.opacity = '0'; 
         imgEl.src = './' + id + '.jpg';
     }
 
@@ -422,13 +547,7 @@
         document.getElementById('trophy-list-view').style.display = 'block';
     }
 
-    function switchTab(tabId) {
-        document.querySelectorAll('.sub-btn').forEach(btn => btn.classList.remove('active'));
-        document.querySelectorAll('.sub-content').forEach(content => content.classList.remove('active'));
-        event.target.classList.add('active');
-        document.getElementById(tabId).classList.add('active');
-    }
-
+    // 倒计时
     const countDownDate = new Date("Jun 14, 2026 10:00:00").getTime();
     const timerInterval = setInterval(function() {
         const now = new Date().getTime();
