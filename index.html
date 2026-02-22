@@ -152,10 +152,8 @@
         .td-content p { font-size: 1.05rem; line-height: 1.8; color: var(--text-main); margin-bottom: 15px;}
         .td-content b { color: #E65100; font-size: 1.1rem;}
 
-        /* ====== 抽签对阵模块样式 ====== */
-        .portal-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 25px;
-        }
+        /* 抽签对阵模块样式 */
+        .portal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
         .portal-card {
             background: rgba(255,255,255,0.85); border: 1px solid rgba(255,255,255,0.6);
             border-radius: 24px; padding: 40px 30px; text-align: center;
@@ -167,7 +165,6 @@
         .portal-title { font-size: 1.6rem; font-weight: 800; color: var(--text-main); margin-bottom: 10px;}
         .portal-desc { font-size: 1.05rem; color: var(--text-light); margin-bottom: 25px;}
         
-        /* 登录表单 */
         .login-form { display: flex; flex-direction: column; gap: 12px; max-width: 280px; margin: 0 auto; }
         .login-input { 
             padding: 14px 15px; border-radius: 12px; border: 1px solid #ddd;
@@ -180,27 +177,57 @@
         }
         .login-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255,81,47,0.3); }
 
-        /* 登录后的 5个抽签系统模块 */
         .draw-system-header { text-align: center; margin-bottom: 30px; }
         .draw-system-header h2 { color: #E65100; font-size: 1.8rem; margin-bottom: 5px;}
         .draw-system-header p { color: var(--text-light); }
-        
-        .sys-module-grid { 
-            display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; 
-        }
+        .sys-module-grid { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
         .sys-module {
             background: white; border: 2px solid #f1f5f9; border-radius: 20px;
             padding: 30px 15px; width: calc(20% - 12px); min-width: 140px; text-align: center;
             cursor: pointer; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             box-shadow: 0 5px 15px rgba(0,0,0,0.03);
         }
-        .sys-module:hover {
-            transform: scale(1.1); z-index: 10;
-            border-color: #FF512F; box-shadow: 0 15px 35px rgba(255,81,47,0.2);
-        }
+        .sys-module:hover { transform: scale(1.1); z-index: 10; border-color: #FF512F; box-shadow: 0 15px 35px rgba(255,81,47,0.2); }
         .sys-icon { font-size: 2.5rem; margin-bottom: 10px; display: block;}
         .sys-name { font-size: 1.1rem; font-weight: bold; color: var(--text-main); }
-        /* ==================================== */
+
+        /* ====== 全新图片直播样式 ====== */
+        .photo-banner-card {
+            position: relative;
+            /* 这里是背景图占位符，你需要上传一张名为 photo-bg.jpg 的高清乒乓球图片到 GitHub */
+            background-image: url('./photo-bg.jpg'); 
+            /* 如果没有上传，显示一个默认的深色背景 */
+            background-color: #2A1B18;
+            background-size: cover; background-position: center;
+            border-radius: 24px; overflow: hidden;
+            height: 400px; /* 固定高度以形成横幅感 */
+            display: flex; align-items: center; justify-content: center;
+            text-align: center; box-shadow: var(--shadow-hover);
+        }
+        .photo-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            /* 热血的橙红色渐变蒙版 */
+            background: linear-gradient(to bottom, rgba(42, 27, 24, 0.3) 0%, rgba(230, 81, 0, 0.85) 100%);
+            z-index: 1;
+        }
+        .photo-content { position: relative; z-index: 2; color: white; padding: 20px; }
+        .photo-content h2 {
+            font-family: 'ZhongShan', sans-serif; font-size: 2.8rem; font-weight: normal;
+            margin-bottom: 15px; text-shadow: 0 4px 15px rgba(0,0,0,0.3); letter-spacing: 2px;
+        }
+        .photo-content p { font-size: 1.2rem; margin-bottom: 35px; opacity: 0.95; line-height: 1.8; font-weight: 500;}
+        .photo-action-btn {
+            display: inline-flex; align-items: center; gap: 12px;
+            background: white; color: #E65100; /* 白色背景配深橙色文字 */
+            padding: 16px 45px; border-radius: 50px; text-decoration: none;
+            font-weight: 800; font-size: 1.3rem; transition: var(--transition);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .photo-action-btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4); background: #fff;
+        }
+        /* ============================ */
 
         .action-btn { 
             display: inline-block; background: var(--gradient-orange); color: white; padding: 12px 30px; 
@@ -220,9 +247,14 @@
             .td-body { flex-direction: column; align-items: center; gap: 25px; }
             .td-image-wrapper { width: 100%; max-width: 240px; }
             .td-header { flex-direction: column; text-align: center; }
-            
             .portal-grid { grid-template-columns: 1fr; }
             .sys-module { width: calc(50% - 10px); } 
+            
+            /* 图片直播手机适配 */
+            .photo-banner-card { height: 380px; }
+            .photo-content h2 { font-size: 2rem; }
+            .photo-content p { font-size: 1.05rem; }
+            .photo-action-btn { padding: 14px 35px; font-size: 1.1rem; }
         }
     </style>
 </head>
@@ -275,7 +307,6 @@
     </div>
 
     <div id="draw" class="page-section">
-        
         <div id="draw-main-view">
             <div class="portal-grid">
                 <div class="portal-card" onclick="openDrawLogin()">
@@ -284,7 +315,6 @@
                     <div class="portal-desc">赛事组委会及裁判长专属抽签控制后台。</div>
                     <div><span class="action-btn">进入系统</span></div>
                 </div>
-
                 <div class="portal-card" onclick="openMatchupView()">
                     <div class="portal-icon">📋</div>
                     <div class="portal-title">对阵结果与赛程</div>
@@ -297,18 +327,15 @@
         <div id="draw-login-view" style="display: none;">
             <div class="card" style="max-width: 550px; margin: 0 auto; text-align: center;">
                 <h2 class="card-header" style="justify-content: center;">🎲 赛事抽签系统</h2>
-                
                 <div class="empty-state" style="padding: 20px 20px 10px;">
                     <h3 style="color: #E65100; margin-bottom: 10px; font-size: 1.5rem;">抽签还未开始，敬请期待！</h3>
                     <p style="font-size: 1rem; color: var(--text-light);">本系统仅限组委会管理员登录后执行抽签操作</p>
                 </div>
-                
                 <form class="login-form" onsubmit="handleLogin(event)">
                     <input type="text" id="admin-account" class="login-input" placeholder="输入管理员账号" required>
                     <input type="password" id="admin-password" class="login-input" placeholder="输入验证密码" required>
                     <button type="submit" class="login-btn">安全登录控制台</button>
                 </form>
-
                 <div style="margin-top: 30px; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 20px;">
                     <button class="login-btn" onclick="closeDrawLogin()" style="background: #e2e8f0; color: #64748b; width: 100%; max-width: 280px; box-shadow: none;">&larr; 返回上级大门</button>
                 </div>
@@ -321,30 +348,23 @@
                     <h2>⚙️ 管理员抽签控制台</h2>
                     <p>身份验证成功。请选择需要进行随机抽签的比赛项目。</p>
                 </div>
-                
                 <div class="sys-module-grid">
                     <div class="sys-module" onclick="alert('名单尚未就绪，混合团体抽签系统暂未开放。')">
-                        <span class="sys-icon">🛡️</span>
-                        <div class="sys-name">混合团体</div>
+                        <span class="sys-icon">🛡️</span><div class="sys-name">混合团体</div>
                     </div>
                     <div class="sys-module" onclick="alert('名单尚未就绪，男子单打抽签系统暂未开放。')">
-                        <span class="sys-icon">🏓</span>
-                        <div class="sys-name">男子单打</div>
+                        <span class="sys-icon">🏓</span><div class="sys-name">男子单打</div>
                     </div>
                     <div class="sys-module" onclick="alert('名单尚未就绪，女子单打抽签系统暂未开放。')">
-                        <span class="sys-icon">🌸</span>
-                        <div class="sys-name">女子单打</div>
+                        <span class="sys-icon">🌸</span><div class="sys-name">女子单打</div>
                     </div>
                     <div class="sys-module" onclick="alert('名单尚未就绪，男子双打抽签系统暂未开放。')">
-                        <span class="sys-icon">🤝</span>
-                        <div class="sys-name">男子双打</div>
+                        <span class="sys-icon">🤝</span><div class="sys-name">男子双打</div>
                     </div>
                     <div class="sys-module" onclick="alert('名单尚未就绪，混合双打抽签系统暂未开放。')">
-                        <span class="sys-icon">💞</span>
-                        <div class="sys-name">混合双打</div>
+                        <span class="sys-icon">💞</span><div class="sys-name">混合双打</div>
                     </div>
                 </div>
-
                 <div style="text-align: center; margin-top: 40px;">
                     <button class="login-btn" onclick="logoutAdmin()" style="background: #e2e8f0; color: #64748b; width: 100%; max-width: 250px; box-shadow: none;">&larr; 退出系统</button>
                 </div>
@@ -354,28 +374,31 @@
         <div id="matchup-detail-view" style="display: none;">
             <div class="card">
                 <h2 class="card-header">📋 详细对阵表</h2>
-                
                 <div class="empty-state">
                     <span>⏳</span>
                     <h3 style="color: #E65100; margin-bottom: 10px;">尚未抽签，敬请期待！</h3>
                     <p style="font-size: 1rem;">抽签仪式完成后，系统将在此自动公布各项目的详细对阵名单与晋级路线。</p>
                 </div>
-
                 <div style="text-align: center; margin-top: 20px;">
                     <button class="login-btn" onclick="closeMatchupView()" style="background: #e2e8f0; color: #64748b; width: 100%; max-width: 250px; box-shadow: none;">&larr; 返回上级大门</button>
                 </div>
             </div>
         </div>
-
     </div>
+
+
     <div id="photos" class="page-section">
-        <div class="card">
-            <h2 class="card-header">光影记录：赛事图集</h2>
-            <p style="text-align: center; color: var(--text-light); margin-bottom: 25px; font-size: 1.05rem;">这里记录着赛场上的每一次挥汗与欢呼。</p>
-            <div style="text-align: center;"><a href="#" target="_blank" class="action-btn">📸 点击进入云端图库直播</a></div>
+        <div class="photo-banner-card">
+            <div class="photo-overlay"></div>
+            <div class="photo-content">
+                <h2>光影记录 · 赛事图集</h2>
+                <p>每一次挥拍的激情，每一滴汗水的荣耀。<br>点击下方，直达赛场高光时刻云端现场！</p>
+                <a href="https://alltuu.cc/r/Jr2Q7b" target="_blank" class="photo-action-btn">
+                    <span>📸</span> 进入云端图库直播
+                </a>
+            </div>
         </div>
     </div>
-
     <div id="trophies" class="page-section">
         <div id="trophy-list-view">
             <div class="card">
@@ -450,65 +473,51 @@
 </div>
 
 <script>
-    // ===== 抽签系统安全与交互逻辑 =====
-    
-    // 设定的管理员账号密码库
     const adminAccounts = {
         'bhuttt-5th01': '11111111',
         'bhuttt-5th02': '22222222',
         'bhuttt-5th03': '33333333'
     };
 
-    // 1. 打开抽签登录子页
     function openDrawLogin() {
         document.getElementById('draw-main-view').style.display = 'none';
         document.getElementById('draw-login-view').style.display = 'block';
     }
 
-    // 2. 关闭抽签登录子页 (返回主传送门)
     function closeDrawLogin() {
         document.getElementById('draw-login-view').style.display = 'none';
         document.getElementById('draw-main-view').style.display = 'block';
     }
 
-    // 3. 处理管理员登录
     function handleLogin(event) {
-        event.preventDefault(); // 阻止表单默认提交刷新网页
-        
+        event.preventDefault(); 
         let acc = document.getElementById('admin-account').value.trim();
         let pwd = document.getElementById('admin-password').value.trim();
 
         if (adminAccounts[acc] && adminAccounts[acc] === pwd) {
-            // 登录成功：隐藏登录页，显示控制台
             document.getElementById('draw-login-view').style.display = 'none';
             document.getElementById('draw-system-view').style.display = 'block';
-            document.getElementById('admin-password').value = ''; // 清空密码框保证安全
+            document.getElementById('admin-password').value = ''; 
         } else {
             alert('🚫 抱歉，管理员账号或密码错误，请重新输入。');
         }
     }
 
-    // 4. 退出控制台 (返回主传送门)
     function logoutAdmin() {
         document.getElementById('draw-system-view').style.display = 'none';
         document.getElementById('draw-main-view').style.display = 'block';
     }
 
-    // 5. 打开对阵结果子页
     function openMatchupView() {
         document.getElementById('draw-main-view').style.display = 'none';
         document.getElementById('matchup-detail-view').style.display = 'block';
     }
 
-    // 6. 关闭对阵结果子页 (返回主传送门)
     function closeMatchupView() {
         document.getElementById('matchup-detail-view').style.display = 'none';
         document.getElementById('draw-main-view').style.display = 'block';
     }
-    // ===================================
 
-
-    // 奖杯数据
     const trophyData = {
         'maipu': { name: '麦普杯', type: '男子单打冠军奖杯', content: '<b>【精神溯源】</b> 麦普杯象征着个人技艺的卓越与赛场风范，由渤海大学乒乓球队名誉队长、第三任队长姜枫先生于 2023 年 6 月捐赠。此杯专为嘉奖男单项目中技压群雄的冠军选手而设。“麦普”取自姜枫先生英文名“Maple”，寄寓成熟与坚毅之力。<br><br><b>【荣耀传承】</b> 每一届男单冠军的光辉姓名，将永久铭刻于麦普杯之上。2023 年第二届大赛中，刘奚铭首次将名字镌刻于此杯；2024 年第三届大赛，石致远成为麦普杯的第二任获得者；在去年的第四届大赛中，<b>田印广</b>成功夺魁，将其名字留在杯身。<br><br><b>【赛事展望】</b> 赛场上的每一次挥拍都凝聚着平日的汗水。本届大赛的男单桂冠正等待新的优胜者前来摘取，谁将脱颖而出，成为第四位将名字铭刻在麦普杯上的冠军？' },
         'ximeng': { name: '西蒙杯', type: '女子单打冠军奖杯', content: '<b>【精神溯源】</b> 西蒙杯代表着女选手的优雅风姿与坚韧品格，由渤海大学乒乓球队名誉队长、第四任队长刘奚铭先生于 2024 年 6 月捐赠。此杯专门用于表彰女单比赛中的冠军得主。“西蒙”取自刘奚铭先生英文名“Simon”，寄托了对女队员们不断进步、追求卓越的鼓励与期许。<br><br><b>【荣耀传承】</b> 每一届女单冠军的姓名将荣镌杯身，见证她们的拼搏与荣誉。第三届比赛中，殷紫萱首度捧杯；去年第四届比赛中，<b>邵尔诺</b>表现优异，成为第二位将芳名留在西蒙杯上的优胜者。<br><br><b>【赛事展望】</b> 赛场不分性别，拼搏同样精彩。本届大赛的女单桂冠正静候新主，期待诞生第三位将名字铭刻在西蒙杯上的冠军选手。' },
@@ -517,7 +526,6 @@
         'yibu': { name: '伊布杯', type: '混合团体奖杯', content: '<b>【精神溯源】</b> 伊布杯象征着团队协作之巅与集体荣耀，由渤海大学乒乓球队名誉队长、第二任队长岳亮先生于 2021 年 6 月惠赠。此杯旨在表彰总结大赛中表现最卓越的团体队伍。“伊布”之名源自岳亮先生英文名“Hibou”，蕴含智慧与坚韧之意。<br><br><b>【荣耀传承】</b> 依循传统，每届团体冠军成员的姓名将共同镌刻于杯身，以彰荣誉。从第一届的“高鹤宁、王贺铭、王艺璇”，到第二届的“刘奚铭、谭程、刘梦昕”，第三届的“杨乐、田印广、张洪洋、代馨怡”，再到去年第四届摘桂的“<b>张洪洋、代馨怡、王治元、朱昶安</b>”，四届冠军队伍的名字已在此铭刻。<br><br><b>【赛事展望】</b> 团队赛始终是对凝聚力与排兵布阵的综合考验。本届大赛的获胜队伍，将成为第五支光荣捧起伊布杯、续写团队辉煌的冠军之师。' }
     };
 
-    // 路由控制
     function handleRouting() {
         let hash = window.location.hash.replace('#', '');
         if (!hash) hash = 'home'; 
@@ -538,7 +546,6 @@
             
             if (hash === 'trophies') hideTrophyDetail();
             
-            // 核心修改：如果离开了抽签主模块，强制重置隐藏所有子页面，只露出最初的两扇大门
             if (hash !== 'draw') {
                 document.getElementById('draw-login-view').style.display = 'none';
                 document.getElementById('draw-system-view').style.display = 'none';
@@ -559,11 +566,9 @@
     function showTrophyDetail(id) {
         document.getElementById('trophy-list-view').style.display = 'none';
         document.getElementById('trophy-detail-view').style.display = 'block';
-        
         document.getElementById('td-name').innerText = trophyData[id].name;
         document.getElementById('td-type').innerText = trophyData[id].type;
         document.getElementById('td-content').innerHTML = '<p>' + trophyData[id].content + '</p>';
-        
         let imgEl = document.getElementById('td-image');
         imgEl.style.opacity = '0'; 
         imgEl.src = './' + id + '.jpg';
@@ -574,7 +579,6 @@
         document.getElementById('trophy-list-view').style.display = 'block';
     }
 
-    // 倒计时
     const countDownDate = new Date("Jun 14, 2026 10:00:00").getTime();
     const timerInterval = setInterval(function() {
         const now = new Date().getTime();
