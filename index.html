@@ -152,7 +152,7 @@
         .td-content p { font-size: 1.05rem; line-height: 1.8; color: var(--text-main); margin-bottom: 15px;}
         .td-content b { color: #E65100; font-size: 1.1rem;}
 
-        /* ====== 全新抽签对阵模块样式 ====== */
+        /* ====== 抽签对阵模块样式 ====== */
         .portal-grid {
             display: grid; grid-template-columns: 1fr 1fr; gap: 25px;
         }
@@ -160,28 +160,27 @@
             background: rgba(255,255,255,0.85); border: 1px solid rgba(255,255,255,0.6);
             border-radius: 24px; padding: 40px 30px; text-align: center;
             box-shadow: 0 10px 30px rgba(0,0,0,0.04); transition: var(--transition);
-            display: flex; flex-direction: column; justify-content: center;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer;
         }
-        .portal-card:hover { box-shadow: 0 15px 35px rgba(255,81,47,0.1); border-color: rgba(255,81,47,0.2); }
-        .portal-icon { font-size: 3.5rem; margin-bottom: 15px; }
-        .portal-title { font-size: 1.5rem; font-weight: 800; color: var(--text-main); margin-bottom: 10px;}
-        .portal-desc { font-size: 1rem; color: var(--text-light); margin-bottom: 25px;}
-        .portal-alert { color: #E65100; font-weight: bold; font-size: 1.2rem; margin-bottom: 20px;}
+        .portal-card:hover { box-shadow: 0 15px 35px rgba(255,81,47,0.1); border-color: rgba(255,81,47,0.2); transform: translateY(-3px);}
+        .portal-icon { font-size: 4rem; margin-bottom: 15px; }
+        .portal-title { font-size: 1.6rem; font-weight: 800; color: var(--text-main); margin-bottom: 10px;}
+        .portal-desc { font-size: 1.05rem; color: var(--text-light); margin-bottom: 25px;}
         
         /* 登录表单 */
-        .login-form { display: flex; flex-direction: column; gap: 12px; max-width: 250px; margin: 0 auto; }
+        .login-form { display: flex; flex-direction: column; gap: 12px; max-width: 280px; margin: 0 auto; }
         .login-input { 
-            padding: 12px 15px; border-radius: 12px; border: 1px solid #ddd;
-            background: #fafafa; font-size: 14px; outline: none; transition: all 0.3s;
+            padding: 14px 15px; border-radius: 12px; border: 1px solid #ddd;
+            background: #fafafa; font-size: 15px; outline: none; transition: all 0.3s;
         }
         .login-input:focus { border-color: #FF512F; box-shadow: 0 0 0 3px rgba(255,81,47,0.1); }
         .login-btn {
-            background: var(--gradient-orange); color: white; border: none; padding: 12px;
-            border-radius: 12px; font-weight: bold; cursor: pointer; transition: all 0.3s; margin-top: 5px;
+            background: var(--gradient-orange); color: white; border: none; padding: 14px;
+            border-radius: 12px; font-weight: bold; font-size: 15px; cursor: pointer; transition: all 0.3s; margin-top: 5px;
         }
         .login-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255,81,47,0.3); }
 
-        /* 登录后的 5个抽签系统模块 (横向呼吸放大阵列) */
+        /* 登录后的 5个抽签系统模块 */
         .draw-system-header { text-align: center; margin-bottom: 30px; }
         .draw-system-header h2 { color: #E65100; font-size: 1.8rem; margin-bottom: 5px;}
         .draw-system-header p { color: var(--text-light); }
@@ -222,9 +221,8 @@
             .td-image-wrapper { width: 100%; max-width: 240px; }
             .td-header { flex-direction: column; text-align: center; }
             
-            /* 手机端抽签入口变为上下排列 */
             .portal-grid { grid-template-columns: 1fr; }
-            .sys-module { width: calc(50% - 10px); } /* 手机端抽签系统一行两个 */
+            .sys-module { width: calc(50% - 10px); } 
         }
     </style>
 </head>
@@ -280,27 +278,40 @@
         
         <div id="draw-main-view">
             <div class="portal-grid">
-                
-                <div class="portal-card">
+                <div class="portal-card" onclick="openDrawLogin()">
                     <div class="portal-icon">🎲</div>
                     <div class="portal-title">赛事抽签系统</div>
-                    <div class="portal-alert">抽签还未开始，敬请期待！</div>
-                    <p class="portal-desc" style="font-size: 0.85rem;">（仅限组委会管理员登录后操作）</p>
-                    
-                    <form class="login-form" onsubmit="handleLogin(event)">
-                        <input type="text" id="admin-account" class="login-input" placeholder="输入管理员账号" required>
-                        <input type="password" id="admin-password" class="login-input" placeholder="输入密码" required>
-                        <button type="submit" class="login-btn">安全登录系统</button>
-                    </form>
+                    <div class="portal-desc">赛事组委会及裁判长专属抽签控制后台。</div>
+                    <div><span class="action-btn">进入系统</span></div>
                 </div>
 
-                <div class="portal-card" onclick="openMatchupView()" style="cursor: pointer;">
+                <div class="portal-card" onclick="openMatchupView()">
                     <div class="portal-icon">📋</div>
                     <div class="portal-title">对阵结果与赛程</div>
-                    <div class="portal-desc">点击查看各项目详细对阵表及比赛时间安排。</div>
-                    <div><span class="action-btn">进入对阵榜</span></div>
+                    <div class="portal-desc">查看各项目详细对阵表及比赛时间安排。</div>
+                    <div><span class="action-btn">查看对阵榜</span></div>
                 </div>
+            </div>
+        </div>
 
+        <div id="draw-login-view" style="display: none;">
+            <div class="card" style="max-width: 550px; margin: 0 auto; text-align: center;">
+                <h2 class="card-header" style="justify-content: center;">🎲 赛事抽签系统</h2>
+                
+                <div class="empty-state" style="padding: 20px 20px 10px;">
+                    <h3 style="color: #E65100; margin-bottom: 10px; font-size: 1.5rem;">抽签还未开始，敬请期待！</h3>
+                    <p style="font-size: 1rem; color: var(--text-light);">本系统仅限组委会管理员登录后执行抽签操作</p>
+                </div>
+                
+                <form class="login-form" onsubmit="handleLogin(event)">
+                    <input type="text" id="admin-account" class="login-input" placeholder="输入管理员账号" required>
+                    <input type="password" id="admin-password" class="login-input" placeholder="输入验证密码" required>
+                    <button type="submit" class="login-btn">安全登录控制台</button>
+                </form>
+
+                <div style="margin-top: 30px; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 20px;">
+                    <button class="login-btn" onclick="closeDrawLogin()" style="background: #e2e8f0; color: #64748b; width: 100%; max-width: 280px; box-shadow: none;">&larr; 返回上级大门</button>
+                </div>
             </div>
         </div>
 
@@ -308,7 +319,7 @@
             <div class="card">
                 <div class="draw-system-header">
                     <h2>⚙️ 管理员抽签控制台</h2>
-                    <p>欢迎登录。请选择需要进行抽签的比赛项目。</p>
+                    <p>身份验证成功。请选择需要进行随机抽签的比赛项目。</p>
                 </div>
                 
                 <div class="sys-module-grid">
@@ -335,7 +346,7 @@
                 </div>
 
                 <div style="text-align: center; margin-top: 40px;">
-                    <button class="login-btn" onclick="logoutAdmin()" style="background: #e2e8f0; color: #64748b;">退出登录返回</button>
+                    <button class="login-btn" onclick="logoutAdmin()" style="background: #e2e8f0; color: #64748b; width: 100%; max-width: 250px; box-shadow: none;">&larr; 退出系统</button>
                 </div>
             </div>
         </div>
@@ -351,7 +362,7 @@
                 </div>
 
                 <div style="text-align: center; margin-top: 20px;">
-                    <button class="login-btn" onclick="closeMatchupView()" style="background: #e2e8f0; color: #64748b;">返回入口页</button>
+                    <button class="login-btn" onclick="closeMatchupView()" style="background: #e2e8f0; color: #64748b; width: 100%; max-width: 250px; box-shadow: none;">&larr; 返回上级大门</button>
                 </div>
             </div>
         </div>
@@ -448,6 +459,19 @@
         'bhuttt-5th03': '33333333'
     };
 
+    // 1. 打开抽签登录子页
+    function openDrawLogin() {
+        document.getElementById('draw-main-view').style.display = 'none';
+        document.getElementById('draw-login-view').style.display = 'block';
+    }
+
+    // 2. 关闭抽签登录子页 (返回主传送门)
+    function closeDrawLogin() {
+        document.getElementById('draw-login-view').style.display = 'none';
+        document.getElementById('draw-main-view').style.display = 'block';
+    }
+
+    // 3. 处理管理员登录
     function handleLogin(event) {
         event.preventDefault(); // 阻止表单默认提交刷新网页
         
@@ -455,26 +479,28 @@
         let pwd = document.getElementById('admin-password').value.trim();
 
         if (adminAccounts[acc] && adminAccounts[acc] === pwd) {
-            // 登录成功
-            document.getElementById('draw-main-view').style.display = 'none';
+            // 登录成功：隐藏登录页，显示控制台
+            document.getElementById('draw-login-view').style.display = 'none';
             document.getElementById('draw-system-view').style.display = 'block';
             document.getElementById('admin-password').value = ''; // 清空密码框保证安全
         } else {
-            // 登录失败
             alert('🚫 抱歉，管理员账号或密码错误，请重新输入。');
         }
     }
 
+    // 4. 退出控制台 (返回主传送门)
     function logoutAdmin() {
         document.getElementById('draw-system-view').style.display = 'none';
         document.getElementById('draw-main-view').style.display = 'block';
     }
 
+    // 5. 打开对阵结果子页
     function openMatchupView() {
         document.getElementById('draw-main-view').style.display = 'none';
         document.getElementById('matchup-detail-view').style.display = 'block';
     }
 
+    // 6. 关闭对阵结果子页 (返回主传送门)
     function closeMatchupView() {
         document.getElementById('matchup-detail-view').style.display = 'none';
         document.getElementById('draw-main-view').style.display = 'block';
@@ -512,8 +538,9 @@
             
             if (hash === 'trophies') hideTrophyDetail();
             
-            // 如果离开了抽签页面，确保恢复默认的主入口视图
+            // 核心修改：如果离开了抽签主模块，强制重置隐藏所有子页面，只露出最初的两扇大门
             if (hash !== 'draw') {
+                document.getElementById('draw-login-view').style.display = 'none';
                 document.getElementById('draw-system-view').style.display = 'none';
                 document.getElementById('matchup-detail-view').style.display = 'none';
                 document.getElementById('draw-main-view').style.display = 'block';
