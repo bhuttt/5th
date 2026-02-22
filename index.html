@@ -78,7 +78,7 @@
         }
         .hero-text p { font-size: 1.1rem; opacity: 0.95; font-weight: 500;}
 
-        /* 内容容器与卡片 */
+        /* 内容容器与通用卡片 */
         .container { max-width: 900px; margin: 0 auto; padding: 30px 20px 60px; }
         .page-section { display: none; animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
         .page-section.active { display: block; }
@@ -98,18 +98,51 @@
             background: var(--gradient-orange); border-radius: 6px;
         }
 
-        /* 倒计时 */
+        /* ====== 沉浸式图片背景卡片 (倒计时与简介专用) ====== */
+        .card-with-bg {
+            position: relative; overflow: hidden; border: none; color: white;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+        .card-with-bg::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-size: cover; background-position: center; z-index: 0;
+            transition: transform 0.8s ease;
+        }
+        .card-with-bg:hover::before { transform: scale(1.05); } /* 鼠标悬浮背景微放大特效 */
+        
+        /* 倒计时背景图 */
+        .bg-countdown::before { background-image: url('./bg-countdown.jpg'); background-color: #2A1B18; }
+        /* 简介背景图 */
+        .bg-intro::before { background-image: url('./bg-intro.jpg'); background-color: #2A1B18; }
+        
+        /* 保证文字清晰的深色高级蒙版 */
+        .card-with-bg::after {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(28, 18, 16, 0.75); /* 深色透明遮罩 */
+            z-index: 1; backdrop-filter: blur(2px);
+        }
+        .card-with-bg > * { position: relative; z-index: 2; }
+        .card-with-bg .card-header { color: white; border-left-color: #FF512F; text-shadow: 0 2px 10px rgba(0,0,0,0.5);}
+        .card-with-bg p { color: rgba(255, 255, 255, 0.9); text-shadow: 0 2px 5px rgba(0,0,0,0.5); font-size: 1.05rem;}
+        
+        /* 倒计时在深色背景下的重调样式 */
         .countdown { display: flex; justify-content: center; gap: 15px; text-align: center; flex-wrap: wrap;}
-        .time-box { 
-            background: rgba(255,255,255,0.8); padding: 15px 20px; border-radius: 20px; min-width: 90px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid rgba(255,255,255,0.5);
+        .card-with-bg .time-box { 
+            background: rgba(255, 255, 255, 0.1); padding: 15px 20px; border-radius: 20px; min-width: 90px; 
+            border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(8px);
         }
-        .time-box span { 
+        .card-with-bg .time-box span { 
             display: block; font-size: 2.8rem; font-weight: 900; 
-            background: var(--gradient-orange); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            line-height: 1; margin-bottom: 5px;
+            color: #fff; text-shadow: 0 4px 15px rgba(255,81,47,0.6);
+            line-height: 1; margin-bottom: 5px; background: none; -webkit-text-fill-color: #fff;
         }
-        .time-box .label { font-size: 0.9rem; color: var(--text-light); font-weight: 600;}
+        .card-with-bg .time-box .label { font-size: 0.9rem; color: rgba(255,255,255,0.8); font-weight: 600;}
+
+        /* 简介在深色背景下的精美排版 */
+        .intro-section { margin-bottom: 25px; }
+        .intro-section:last-child { margin-bottom: 0; }
+        .intro-title { color: #FF9A44; font-size: 1.3rem; font-weight: 800; margin-bottom: 10px; text-shadow: 0 2px 5px rgba(0,0,0,0.8);}
+        /* =================================================== */
 
         /* 奖杯五边形网格 */
         .trophy-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; max-width: 850px; margin: 0 auto; }
@@ -191,24 +224,16 @@
         .sys-icon { font-size: 2.5rem; margin-bottom: 10px; display: block;}
         .sys-name { font-size: 1.1rem; font-weight: bold; color: var(--text-main); }
 
-        /* ====== 全新图片直播样式 ====== */
+        /* 图片直播横幅样式 */
         .photo-banner-card {
-            position: relative;
-            /* 这里是背景图占位符，你需要上传一张名为 photo-bg.jpg 的高清乒乓球图片到 GitHub */
-            background-image: url('./photo-bg.jpg'); 
-            /* 如果没有上传，显示一个默认的深色背景 */
-            background-color: #2A1B18;
-            background-size: cover; background-position: center;
-            border-radius: 24px; overflow: hidden;
-            height: 400px; /* 固定高度以形成横幅感 */
-            display: flex; align-items: center; justify-content: center;
+            position: relative; background-image: url('./photo-bg.jpg'); background-color: #2A1B18;
+            background-size: cover; background-position: center; border-radius: 24px; overflow: hidden;
+            height: 400px; display: flex; align-items: center; justify-content: center;
             text-align: center; box-shadow: var(--shadow-hover);
         }
         .photo-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            /* 热血的橙红色渐变蒙版 */
-            background: linear-gradient(to bottom, rgba(42, 27, 24, 0.3) 0%, rgba(230, 81, 0, 0.85) 100%);
-            z-index: 1;
+            background: linear-gradient(to bottom, rgba(42, 27, 24, 0.3) 0%, rgba(230, 81, 0, 0.85) 100%); z-index: 1;
         }
         .photo-content { position: relative; z-index: 2; color: white; padding: 20px; }
         .photo-content h2 {
@@ -217,24 +242,12 @@
         }
         .photo-content p { font-size: 1.2rem; margin-bottom: 35px; opacity: 0.95; line-height: 1.8; font-weight: 500;}
         .photo-action-btn {
-            display: inline-flex; align-items: center; gap: 12px;
-            background: white; color: #E65100; /* 白色背景配深橙色文字 */
+            display: inline-flex; align-items: center; gap: 12px; background: white; color: #E65100; 
             padding: 16px 45px; border-radius: 50px; text-decoration: none;
-            font-weight: 800; font-size: 1.3rem; transition: var(--transition);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            font-weight: 800; font-size: 1.3rem; transition: var(--transition); box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
-        .photo-action-btn:hover {
-            transform: translateY(-5px) scale(1.05);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.4); background: #fff;
-        }
-        /* ============================ */
+        .photo-action-btn:hover { transform: translateY(-5px) scale(1.05); box-shadow: 0 20px 50px rgba(0,0,0,0.4); background: #fff; }
 
-        .action-btn { 
-            display: inline-block; background: var(--gradient-orange); color: white; padding: 12px 30px; 
-            border-radius: 30px; text-decoration: none; font-weight: bold; transition: var(--transition);
-        }
-        .action-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(255, 81, 47, 0.3); }
-        
         .empty-state { text-align: center; padding: 50px 20px; color: var(--text-light); }
         .empty-state span { font-size: 3.5rem; display: block; margin-bottom: 20px; opacity: 0.8;}
 
@@ -249,8 +262,6 @@
             .td-header { flex-direction: column; text-align: center; }
             .portal-grid { grid-template-columns: 1fr; }
             .sys-module { width: calc(50% - 10px); } 
-            
-            /* 图片直播手机适配 */
             .photo-banner-card { height: 380px; }
             .photo-content h2 { font-size: 2rem; }
             .photo-content p { font-size: 1.05rem; }
@@ -284,7 +295,8 @@
 <div class="container">
     
     <div id="home" class="page-section">
-        <div class="card">
+        
+        <div class="card card-with-bg bg-countdown">
             <h2 class="card-header">距大赛开幕还有</h2>
             <div class="countdown">
                 <div class="time-box"><span id="days">00</span><div class="label">天</div></div>
@@ -293,9 +305,24 @@
                 <div class="time-box"><span id="seconds">00</span><div class="label">秒</div></div>
             </div>
         </div>
-        <div class="card">
+
+        <div class="card card-with-bg bg-intro">
             <h2 class="card-header">大赛简介</h2>
-            <p>欢迎来到渤海大学乒乓球队第五届总结大赛！本次大赛旨在弘扬“薪火相传、团结拼搏”的球队精神。届时新老队友将同台竞技，共同见证球队的成长与辉煌。</p>
+            
+            <div class="intro-section">
+                <div class="intro-title">【九载峥嵘，初心铸就丰碑】</div>
+                <p>时光荏苒，初心如磐。欢迎来到渤海大学乒乓球队第五届总结大赛官方主页！自2017年建队至今，渤海大学乒乓球队已走过整整九段波澜壮阔的岁月。九年风雨兼程，九载薪火相传，一代代渤乒人在方寸球台前挥洒汗水，将“团结拼搏”的队魂深深镌刻进每一次挥拍的基因中。如今迎来的第五届总结大赛，不仅是一场体育竞技的巅峰盛会，更是全体渤乒人跨越岁月的一座“光荣里程碑”。</p>
+            </div>
+            
+            <div class="intro-section">
+                <div class="intro-title">【以球为契，共守精神家园】</div>
+                <p>乒乓作响，皆是青春的回音。这方长方形的球台，不仅是现役队员厉兵秣马、展现实力的竞技场，更是一条跨越时间的纽带，紧紧牵引着身在四海的历届校友。我们始终坚信，无论大家毕业多久、走向何方，渤海大学乒乓球队永远是所有人心中最温暖、最不可替代的“精神家园”。每一次传承的奖杯交接，每一次老友的赛场重逢，都在诉说着关于热爱与陪伴的动人故事。</p>
+            </div>
+
+            <div class="intro-section">
+                <div class="intro-title">【马年仲夏，共赴九年之约】</div>
+                <p>从2017年的破浪启航，到丙午马年的仲夏重聚，“九年之约”承载了太多渤乒人的青春记忆与热血情怀。值此盛会，我们满怀热忱地向所有新老队员吹响这份庄重的集结号。在这里，新老交锋不为成败，只为传承；以球会友不论高低，皆是深情。让我们在这个夏天重返母校，共赴这场意义非凡的“九年之约”，在拼搏中绽放耀眼的光芒，共同见证渤海大学乒乓球队迈向更加辉煌的明天！</p>
+            </div>
         </div>
     </div>
 
@@ -313,13 +340,13 @@
                     <div class="portal-icon">🎲</div>
                     <div class="portal-title">赛事抽签系统</div>
                     <div class="portal-desc">赛事组委会及裁判长专属抽签控制后台。</div>
-                    <div><span class="action-btn">进入系统</span></div>
+                    <div><span class="action-btn" style="display:inline-block; background:var(--gradient-orange); color:white; padding:12px 30px; border-radius:30px; text-decoration:none; font-weight:bold; transition:var(--transition);">进入系统</span></div>
                 </div>
                 <div class="portal-card" onclick="openMatchupView()">
                     <div class="portal-icon">📋</div>
                     <div class="portal-title">对阵结果与赛程</div>
                     <div class="portal-desc">查看各项目详细对阵表及比赛时间安排。</div>
-                    <div><span class="action-btn">查看对阵榜</span></div>
+                    <div><span class="action-btn" style="display:inline-block; background:var(--gradient-orange); color:white; padding:12px 30px; border-radius:30px; text-decoration:none; font-weight:bold; transition:var(--transition);">查看对阵榜</span></div>
                 </div>
             </div>
         </div>
@@ -386,7 +413,6 @@
         </div>
     </div>
 
-
     <div id="photos" class="page-section">
         <div class="photo-banner-card">
             <div class="photo-overlay"></div>
@@ -399,6 +425,7 @@
             </div>
         </div>
     </div>
+
     <div id="trophies" class="page-section">
         <div id="trophy-list-view">
             <div class="card">
