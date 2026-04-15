@@ -713,39 +713,56 @@
     function openMatchupView() { document.getElementById('draw-main-view').style.display='none'; document.getElementById('matchup-detail-view').style.display='block'; }
     function closeMatchupView() { document.getElementById('matchup-detail-view').style.display='none'; document.getElementById('draw-main-view').style.display='block'; }
 
+   // ==========================================
+    // 终极全能导出：支持深度扫描照片外链
+    // ==========================================
     function exportRegistrationData() {
-        alert("系统正在深度扫描云端数据，请稍候...");
+        alert("系统正在深度扫描云端数据文件，请稍候...");
         
         fetch(bUrl + "?limit=1000&order=-createdAt", {
             method: 'GET',
-            headers: {'X-Bmob-Application-Id': bId, 'X-Bmob-REST-API-Key': bKey}
+            headers: {
+                'X-Bmob-Application-Id': bId,
+                'X-Bmob-REST-API-Key': bKey,
+                'Content-Type': 'application/json'
+            }
         })
         .then(res => res.json())
         .then(data => {
             let res = data.results;
-            if(!res || res.length === 0) { alert("📭 云端目前空空如也。"); return; }
+            if(!res || res.length === 0) { alert("📭 报告：云端数据库目前空空如也。"); return; }
             
-            let csv = "data:text/csv;charset=utf-8,\uFEFF报名时间,姓名,性别,学院,打法,云端照片外链\n";
+            let csv = "data:text/csv;charset=utf-8,\uFEFF报名时间,姓名,性别,学院,打法,云端高清照片外链\n";
+            
             res.forEach(p => { 
-                // 【全能抓取逻辑】：不管 Bmob 后台列名叫什么，只要有网址就抓出来
-                // 依次检测新版、旧版、以及可能存在的各种字段名
-                let link = p.photoUrl || p.photo || p.photoStatus || "未获取到链接";
+                // 【终极抓取引擎】：深度扫描 4 种可能的 Bmob 链接存放位置
+                let link = "未获取到链接";
                 
-                // 如果抓取到的是 [object Object]，说明抓到了文件对象而非字符串，尝试提取其 URL
-                if (typeof link === 'object' && link.url) link = link.url;
-                
+                // 1. 扫描标准地址位 (字符串形式)
+                if (typeof p.photoUrl === 'string' && p.photoUrl.startsWith('http')) link = p.photoUrl;
+                // 2. 扫描文件对象位 (Bmob File 对象形式)
+                else if (p.photoUrl && typeof p.photoUrl === 'object' && p.photoUrl.url) link = p.photoUrl.url;
+                // 3. 扫描旧版兼容位
+                else if (p.photo && typeof p.photo === 'string' && p.photo.startsWith('http')) link = p.photo;
+                else if (p.photo && typeof p.photo === 'object' && p.photo.url) link = p.photo.url;
+                // 4. 极端情况：如果只有存根文字
+                else if (p.photoStatus === "已上传" || p.photo === "已上传") link = "文件已入库(需从Bmob后台控制台手动提取)";
+
                 csv += `${p.time},${p.name},${p.gender},${p.college},${p.style},${link}\n`; 
             });
             
             const encodedUri = encodeURI(csv);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "渤海大学乒乓球队报名总表_含图版.csv");
+            link.setAttribute("download", "渤海大学乒乓球队第五届报名总表_最终版.csv");
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
         })
-        .catch(err => alert("❌ 导出失败，请检查网络连接"));
+        .catch(err => {
+            console.error("导出异常：", err);
+            alert("❌ 导出失败：请检查网络或管理员密钥。");
+        });
     }
 
     // ---------------------------------------------------------
