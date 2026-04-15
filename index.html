@@ -616,16 +616,17 @@
     }
 
     // 2.3 核心双重提交：先传文件换 URL，再交数据
-    function finalSubmit() {
-        if (!selectedFile) { alert("⚠️ 驳回操作：请先选择并上传您的 1寸免冠照！"); return; }
+   function finalSubmit() {
+        if (!selectedFile) { alert("⚠️ 错误：请先选择照片！"); return; }
         
         document.getElementById('reg-step-2').style.display = 'none';
         document.getElementById('reg-loading').style.display = 'block';
         
         const loadingText = document.querySelector('#reg-loading p');
-        loadingText.innerText = "正在加密上传照片原件至云端 (1/2)...";
+        loadingText.innerText = "正在加密上传照片原件 (1/2)...";
 
-        // Action 1: 上传真实图片到 Bmob File Server
+        // 【关键修复点】：Bmob 文件上传的正式公网接口
+        // 注意：selectedFile.name 必须经过 encodeURIComponent 处理
         fetch(`https://api.bmobcloud.com/2/files/${encodeURIComponent(selectedFile.name)}`, {
             method: 'POST',
             headers: {
@@ -636,30 +637,34 @@
             body: selectedFile
         })
         .then(res => {
-            if (!res.ok) throw new Error("图片服务器拒绝写入");
+            if (!res.ok) return res.text().then(text => { throw new Error(text) });
             return res.json();
         })
         .then(fileData => {
-            // Action 2: 拿到公网访问 URL，装入数据表，发送至文字数据库
+            // 【注意】：Bmob 返回的对象里，图片链接字段叫 'url'
             temp.photoUrl = fileData.url; 
-            loadingText.innerText = "正在将您的档案写入精英阵容库 (2/2)...";
+            loadingText.innerText = "正在录入精英阵容库 (2/2)...";
             
             return fetch(bUrl, {
                 method: 'POST',
-                headers: {'X-Bmob-Application-Id': bId, 'X-Bmob-REST-API-Key': bKey, 'Content-Type': 'application/json'},
+                headers: {
+                    'X-Bmob-Application-Id': bId, 
+                    'X-Bmob-REST-API-Key': bKey, 
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify(temp)
             });
         })
         .then(res => {
             if(res.ok) {
-                document.getElementById('success-msg').innerHTML = `<b style="color:#E65100;">${temp.name}</b> 同学，您的实体档案及照片文件已成功双重归档！`;
+                document.getElementById('success-msg').innerHTML = `<b style="color:#E65100;">${temp.name}</b> 同学，您的资料已成功双重归档！`;
                 document.getElementById('reg-loading').style.display = 'none';
                 document.getElementById('reg-success').style.display = 'block';
-            } else throw new Error("文本数据库写入失败");
+            } else throw new Error("数据入库失败");
         })
         .catch(err => { 
-            console.error(err);
-            alert("❌ 同步中断！请检查网络状态，或确保照片体积不超过 2MB。"); 
+            console.error("提交异常：", err);
+            alert("❌ 同步中断：可能是照片文件过大或网络波动。建议使用 2MB 以内的图片。"); 
             document.getElementById('reg-loading').style.display = 'none'; 
             document.getElementById('reg-step-2').style.display = 'block'; 
         });
