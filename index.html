@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>渤海大学乒乓球队第五届总结大赛官方主页</title>
-    <script src="https://cdn.jsdelivr.net/npm/hydrogen-js-sdk@2.2.3/dist/Bmob-2.2.3.min.js"></script>
     <style>
-        /* ================== 1. 全局样式与沉浸式视觉 ================== */
+        /* ==========================================================================
+           1. 全局配置与 CSS 变量声明
+           ========================================================================== */
         @font-face {
             font-family: 'ZhongShan';
             src: url('./zhongshan.ttf') format('truetype');
@@ -22,23 +23,32 @@
             --white-glass: rgba(255, 255, 255, 0.65);
             --border-glass: rgba(255, 255, 255, 0.6);
             --shadow-soft: 0 12px 30px rgba(0, 0, 0, 0.05);
+            --shadow-hover: 0 20px 40px rgba(255, 81, 47, 0.15);
             --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; }
         
         body { 
             background-color: var(--bg-light); color: var(--text-main); line-height: 1.6; padding-top: 75px;
-            background-image: radial-gradient(at 0% 0%, rgba(255, 81, 47, 0.15) 0px, transparent 60%);
+            /* 高级网格纹理背景 */
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(255, 81, 47, 0.15) 0px, transparent 60%),
+                radial-gradient(at 100% 0%, rgba(240, 152, 25, 0.15) 0px, transparent 60%),
+                radial-gradient(at 50% 100%, rgba(255, 107, 107, 0.1) 0px, transparent 50%);
             background-attachment: fixed;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* ================== 2. 导航栏系统 ================== */
+        /* ==========================================================================
+           2. 顶部导航系统 (毛玻璃特效)
+           ========================================================================== */
         .navbar {
             position: fixed; top: 0; left: 0; width: 100%;
-            background: rgba(253, 248, 244, 0.85); backdrop-filter: blur(15px);
+            background: rgba(253, 248, 244, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
             border-bottom: 1px solid var(--border-glass);
-            z-index: 1000; display: flex; overflow-x: auto; padding: 0 15px;
+            z-index: 1000; display: flex; justify-content: flex-start; padding: 0 15px;
+            overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch;
         }
         .navbar::-webkit-scrollbar { display: none; }
         .nav-links { display: flex; gap: 8px; padding: 16px 0; margin: 0 auto;}
@@ -47,49 +57,129 @@
             color: var(--text-light); text-decoration: none; font-weight: 600; font-size: 15px; padding: 8px 18px; border-radius: 30px;
             cursor: pointer; transition: var(--transition);
         }
+        .nav-item:hover { color: #FF512F; background: rgba(255, 81, 47, 0.08); }
         .nav-item.active { background: var(--gradient-orange); color: white; box-shadow: 0 4px 12px rgba(255, 81, 47, 0.3); }
 
-        /* ================== 3. 页面框架 ================== */
+        /* ==========================================================================
+           3. Hero 首屏展示区
+           ========================================================================== */
         .hero { margin: 20px auto 0; max-width: 900px; padding: 0 20px; }
         .hero-card {
             background: var(--gradient-coral); border-radius: 30px; padding: 40px 30px;
             box-shadow: 0 20px 40px rgba(255, 65, 108, 0.25);
             display: flex; align-items: center; justify-content: center; gap: 25px;
-            color: white; flex-wrap: wrap; text-align: left;
+            color: white; flex-wrap: wrap; text-align: left; position: relative; overflow: hidden;
         }
-        .team-logo { width: 100px; height: 100px; border-radius: 50%; background: white; padding: 8px; object-fit: contain; }
-        .hero-text h1 { font-family: 'ZhongShan', sans-serif; font-size: 3rem; line-height: 1.1; }
+        /* 装饰性光晕 */
+        .hero-card::after { content: ''; position: absolute; top: -50%; right: -20%; width: 300px; height: 300px; background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%); border-radius: 50%; }
+        
+        .team-logo { width: 100px; height: 100px; border-radius: 50%; background: white; padding: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); object-fit: contain; flex-shrink: 0; position: relative; z-index: 2;}
+        .hero-text { position: relative; z-index: 2; }
+        .hero-text h1 { font-family: 'ZhongShan', sans-serif; font-size: 3rem; margin-bottom: 5px; font-weight: normal; letter-spacing: 2px; text-shadow: 0 2px 10px rgba(0,0,0,0.1); line-height: 1.1; }
+        .hero-text p { font-size: 1.1rem; opacity: 0.95; font-weight: 500;}
 
-        .container { max-width: 900px; margin: 0 auto; padding: 30px 20px; }
-        .page-section { display: none; animation: slideUp 0.5s ease; }
+        /* ==========================================================================
+           4. 页面框架与卡片组件
+           ========================================================================== */
+        .container { max-width: 900px; margin: 0 auto; padding: 30px 20px 60px; }
+        .page-section { display: none; animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
         .page-section.active { display: block; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
 
         .card { 
-            background: var(--white-glass); backdrop-filter: blur(12px);
+            background: var(--white-glass); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
             border: 1px solid var(--border-glass); border-radius: 24px; padding: 35px; box-shadow: var(--shadow-soft); margin-bottom: 30px; 
         }
         .card-header { font-size: 1.6rem; color: var(--text-main); margin-bottom: 25px; display: flex; align-items: center; gap: 10px; font-weight: 800; }
-        .card-header::before { content: ''; width: 6px; height: 24px; background: var(--gradient-orange); border-radius: 6px; }
+        .card-header::before { content: ''; display: block; width: 6px; height: 24px; background: var(--gradient-orange); border-radius: 6px; }
 
-        /* ================== 4. 报名表单样式 ================== */
-        .reg-label { display: block; margin-bottom: 8px; font-size: 0.95rem; font-weight: bold; color: var(--text-light); margin-top: 15px; }
-        .login-input { padding: 14px; border-radius: 12px; border: 1px solid #ddd; background: #fafafa; font-size: 15px; width: 100%; outline: none; }
-        .login-input:focus { border-color: #FF512F; box-shadow: 0 0 0 3px rgba(255,81,47,0.1); }
-        .login-btn { background: var(--gradient-orange); color: white; border: none; padding: 14px; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.3s; width: 100%; margin-top: 20px;}
-        .login-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255,81,47,0.2); }
+        /* 沉浸式图片背景卡片 */
+        .card-with-bg { position: relative; overflow: hidden; border: none; color: white; box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
+        .card-with-bg::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; z-index: 0; transition: transform 0.8s ease; }
+        .card-with-bg:hover::before { transform: scale(1.05); } 
+        .bg-countdown::before { background-image: url('./bg-countdown.jpg'); background-color: #2A1B18; }
+        .bg-intro::before { background-image: url('./bg-intro.jpg'); background-color: #2A1B18; }
+        .card-with-bg::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(28, 18, 16, 0.4); z-index: 1; backdrop-filter: blur(2px); }
+        .card-with-bg > * { position: relative; z-index: 2; }
+        
+        .countdown { display: flex; justify-content: center; gap: 15px; text-align: center; flex-wrap: wrap;}
+        .card-with-bg .time-box { background: rgba(255, 255, 255, 0.1); padding: 15px 20px; border-radius: 20px; min-width: 90px; border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(8px); }
+        .card-with-bg .time-box span { display: block; font-size: 2.8rem; font-weight: 900; color: #fff; text-shadow: 0 4px 15px rgba(255,81,47,0.6); line-height: 1; margin-bottom: 5px; }
+        .card-with-bg .time-box .label { font-size: 0.9rem; color: rgba(255,255,255,0.8); font-weight: 600;}
 
+        /* ==========================================================================
+           5. 报名系统表单体系
+           ========================================================================== */
+        .reg-label { display: block; margin-bottom: 8px; font-size: 0.95rem; font-weight: bold; color: var(--text-light); margin-top: 15px; text-align: left;}
+        .login-form { display: flex; flex-direction: column; gap: 12px; margin: 0 auto; }
+        .login-input { padding: 14px 15px; border-radius: 12px; border: 1px solid #ddd; background: #fafafa; font-size: 15px; outline: none; transition: all 0.3s; width: 100%; appearance: none; -webkit-appearance: none;}
+        .login-input:focus { border-color: #FF512F; box-shadow: 0 0 0 3px rgba(255,81,47,0.1); background: #fff;}
+        select.login-input { background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238A736E' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 15px center; background-size: 15px; padding-right: 40px;}
+        
+        .login-btn { background: var(--gradient-orange); color: white; border: none; padding: 14px; border-radius: 12px; font-weight: bold; font-size: 15px; cursor: pointer; transition: all 0.3s; margin-top: 5px; width: 100%;}
+        .login-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255,81,47,0.3); }
+
+        /* 沉浸式照片上传区 */
         .photo-upload-zone {
-            width: 150px; height: 210px; border: 2px dashed #cbd5e1; border-radius: 16px; margin: 20px auto; 
-            display: flex; align-items: center; justify-content: center; background: #fff; cursor: pointer; overflow: hidden;
+            width: 160px; height: 224px; border: 2px dashed #cbd5e1; border-radius: 16px; margin: 25px auto; 
+            position: relative; display: flex; align-items: center; justify-content: center; background: #f8fafc; 
+            overflow: hidden; cursor: pointer; transition: var(--transition); box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
         }
-        .photo-upload-zone img { width: 100%; height: 100%; object-fit: cover; display: none; }
-        .placeholder { text-align: center; color: #94a3b8; font-size: 0.9rem; }
+        .photo-upload-zone:hover { border-color: #FF512F; background: #fff; box-shadow: 0 8px 20px rgba(255,81,47,0.08);}
+        .photo-upload-zone img { width: 100%; height: 100%; object-fit: cover; display: none; z-index: 2; position: relative;}
+        .photo-upload-zone .placeholder { text-align: center; color: #94a3b8; font-size: 0.9rem; z-index: 1;}
+        .photo-upload-zone .placeholder span { font-size: 3rem; display: block; margin-bottom: 12px; color: #cbd5e1; transition: var(--transition);}
+        .photo-upload-zone:hover .placeholder span { color: #FF512F; transform: scale(1.1);}
 
-        /* ================== 5. 后台管理样式 ================== */
-        .sys-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .sys-item { background: white; border: 2px solid #f1f5f9; border-radius: 20px; padding: 30px 10px; text-align: center; cursor: pointer; transition: 0.4s; }
-        .sys-item:hover { border-color: #FF512F; transform: scale(1.03); }
+        /* ==========================================================================
+           6. 管理员后台网格系统
+           ========================================================================== */
+        .portal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
+        .portal-card { background: rgba(255,255,255,0.85); border: 1px solid rgba(255,255,255,0.6); border-radius: 24px; padding: 40px 30px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.04); transition: var(--transition); display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; }
+        .portal-card:hover { transform: translateY(-5px); border-color: rgba(255,81,47,0.2); box-shadow: 0 15px 35px rgba(255,81,47,0.1);}
+        
+        .sys-module-grid { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
+        .sys-module { background: white; border: 2px solid #f1f5f9; border-radius: 20px; padding: 30px 15px; width: calc(33.333% - 15px); min-width: 140px; text-align: center; cursor: pointer; transition: all 0.4s; box-shadow: 0 5px 15px rgba(0,0,0,0.03); }
+        .sys-module:hover { border-color: #FF512F; transform: scale(1.05); box-shadow: 0 15px 30px rgba(255,81,47,0.15);}
+
+        /* ==========================================================================
+           7. 奖杯展厅与横幅图集
+           ========================================================================== */
+        .trophy-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; max-width: 850px; margin: 0 auto; }
+        .trophy-item { background: rgba(255,255,255,0.8); padding: 30px 20px; border-radius: 24px; text-align: center; border: 1px solid rgba(255,255,255,0.5); cursor: pointer; transition: var(--transition); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .trophy-item:hover { transform: translateY(-5px); box-shadow: var(--shadow-hover); border-color: rgba(255,81,47,0.3);}
+        .item-top { grid-column: 2 / 4; transform: scale(1.02); z-index: 2; background: rgba(255,255,255,0.95); border-color: rgba(255,81,47,0.2);}
+        .item-mid-l { grid-column: 1 / 3; } .item-mid-r { grid-column: 3 / 5; } .item-bot-l { grid-column: 1 / 3; } .item-bot-r { grid-column: 3 / 5; } 
+
+        .td-body { display: flex; gap: 35px; align-items: flex-start; }
+        .td-image-wrapper { flex-shrink: 0; width: 240px; aspect-ratio: 3 / 5; background: rgba(255, 81, 47, 0.04); border: 1px dashed rgba(255, 81, 47, 0.3); border-radius: 16px; overflow: hidden; position: relative; display: flex; align-items: center; justify-content: center; }
+        #td-image { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.5s; }
+
+        .photo-banner-card { position: relative; background-image: url('./photo-bg.jpg'); background-color: #2A1B18; background-size: cover; background-position: center; border-radius: 24px; overflow: hidden; height: 400px; display: flex; align-items: center; justify-content: center; text-align: center; box-shadow: var(--shadow-hover); }
+        .photo-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(42, 27, 24, 0.3) 0%, rgba(230, 81, 0, 0.85) 100%); z-index: 1; }
+        .photo-content { position: relative; z-index: 2; color: white; padding: 20px; }
+        .photo-action-btn { display: inline-flex; align-items: center; gap: 12px; background: white; color: #E65100; padding: 16px 45px; border-radius: 50px; text-decoration: none; font-weight: 800; font-size: 1.3rem; transition: var(--transition); box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .photo-action-btn:hover { transform: translateY(-5px) scale(1.05); box-shadow: 0 20px 50px rgba(0,0,0,0.4); background: #fff; }
+
+        .empty-state { text-align: center; padding: 50px 20px; color: var(--text-light); }
+        .empty-state span { font-size: 3.5rem; display: block; margin-bottom: 20px; opacity: 0.8;}
+
+        /* ==========================================================================
+           8. 移动端响应式适配
+           ========================================================================== */
+        @media (max-width: 600px) {
+            .hero-card { flex-direction: column; text-align: center; padding: 30px 20px;}
+            .hero-text h1 { font-size: 2.4rem; }
+            .card { padding: 25px 20px; }
+            .trophy-grid { display: flex; flex-direction: column; gap: 15px; }
+            .item-top, .item-mid-l, .item-mid-r, .item-bot-l, .item-bot-r { grid-column: auto; transform: none; }
+            .td-body { flex-direction: column; align-items: center; }
+            .td-image-wrapper { width: 100%; max-width: 260px; }
+            .photo-banner-card { height: 380px; }
+            .sys-module { width: calc(50% - 10px); }
+            .portal-grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
@@ -97,235 +187,641 @@
 <nav class="navbar">
     <div class="nav-links">
         <a class="nav-item" href="#home" id="nav-home">首页</a>
+        <a class="nav-item" href="#program" id="nav-program">秩序册</a>
         <a class="nav-item" href="#register" id="nav-register">赛事报名</a>
         <a class="nav-item" href="#draw" id="nav-draw">后台管理</a>
-        <a class="nav-item" href="#trophies" id="nav-trophies">荣誉殿堂</a>
+        <a class="nav-item" href="#photos" id="nav-photos">图片直播</a>
+        <a class="nav-item" href="#trophies" id="nav-trophies">奖杯介绍</a>
+        <a class="nav-item" href="#results" id="nav-results">成绩公布</a>
     </div>
 </nav>
 
 <header class="hero">
     <div class="hero-card">
-        <img src="./logo.png" alt="Logo" class="team-logo" onerror="this.style.display='none'">
+        <img src="./logo.png" alt="队徽" class="team-logo" onerror="this.style.display='none'">
         <div class="hero-text">
             <h1>渤海大学乒乓球队</h1>
-            <p>第五届总结大赛官方主页 | 2017 - 2026</p>
+            <p>第五届总结大赛官方主页 | 丙午马年 · 仲夏之约</p>
         </div>
     </div>
 </header>
 
 <div class="container">
+    
     <div id="home" class="page-section active">
-        <div class="card" style="background: rgba(42, 27, 24, 0.8); color: white; border: none;">
-            <h2 class="card-header" style="color: white;">距开幕式倒计时</h2>
-            <div id="countdown-display" style="font-size: 2.5rem; font-weight: 900; text-align: center; letter-spacing: 2px;">
-                <span id="days">00</span>天 <span id="hours">00</span>: <span id="mins">00</span>: <span id="secs">00</span>
+        <div class="card card-with-bg bg-countdown">
+            <h2 class="card-header">距大赛开幕还有</h2>
+            <div class="countdown">
+                <div class="time-box"><span id="days">00</span><div class="label">天</div></div>
+                <div class="time-box"><span id="hours">00</span><div class="label">时</div></div>
+                <div class="time-box"><span id="minutes">00</span><div class="label">分</div></div>
+                <div class="time-box"><span id="seconds">00</span><div class="label">秒</div></div>
             </div>
         </div>
+
+        <div class="card card-with-bg bg-intro">
+            <h2 class="card-header" style="color:white; border-left-color: #FF512F;">大赛简介</h2>
+            <div class="intro-section">
+                <div class="intro-title">【九载峥嵘，初心铸就丰碑】</div>
+                <p>时光荏苒，初心如磐。欢迎来到渤海大学乒乓球队第五届总结大赛官方主页！自2017年建队至今，渤海大学乒乓球队已走过整整九段波澜壮阔的岁月。九年风雨兼程，九载薪火相传，一代代渤乒人在方寸球台前挥洒汗水，将“团结拼搏”的队魂深深镌刻进每一次挥拍的基因中。如今迎来的第五届总结大赛，不仅是一场体育竞技的巅峰盛会，更是全体渤乒人跨越岁月的一座“光荣里程碑”。</p>
+            </div>
+            <div class="intro-section">
+                <div class="intro-title">【以球为契，共守精神家园】</div>
+                <p>乒乓作响，皆是青春的回音。这方长方形的球台，不仅是现役队员厉兵秣马、展现实力的竞技场，更是一条跨越时间的纽带，紧紧牵引着身在四海的历届校友。我们始终坚信，无论大家毕业多久、走向何方，渤海大学乒乓球队永远是所有人心中最温暖、最不可替代的“精神家园”。每一次传承的奖杯交接，每一次老友的赛场重逢，都在诉说着关于热爱与陪伴的动人故事。</p>
+            </div>
+            <div class="intro-section">
+                <div class="intro-title">【马年仲夏，共赴九年之约】</div>
+                <p>从2017年的破浪启航，到丙午马年的仲夏重聚，“九年之约”承载了太多渤乒人的青春记忆与热血情怀。值此盛会，我们满怀热忱地向所有新老队员吹响这份庄重的集结号。在这里，新老交锋不为成败，只为传承；以球会友不论高低，皆是深情。让我们在这个夏天重返母校，共赴这场意义非凡的“九年之约”，共同见证渤海大学乒乓球队迈向更加辉煌的明天！</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="program" class="page-section">
         <div class="card">
-            <h2 class="card-header">大赛简介</h2>
-            <p>自2017年建队至今，渤海大学乒乓球队已走过九载春秋。本次第五届总结大赛，不仅是竞技的赛场，更是新老渤乒人的荣耀集结...</p>
+            <h2 class="card-header">赛事秩序册</h2>
+            <div class="empty-state">
+                <span>📖</span>
+                <p style="font-size: 1.1rem; color: var(--text-main); font-weight: bold;">大赛秩序册正在紧张筹备排版中</p>
+                <p>即将为您呈现完整的赛事规则与日程安排！</p>
+            </div>
         </div>
     </div>
 
     <div id="register" class="page-section">
         <div class="card">
-            <h2 class="card-header">选手报名</h2>
+            <h2 class="card-header">赛事报名系统</h2>
             
             <div id="reg-step-1">
-                <form id="base-info-form" onsubmit="toStep2(event)">
-                    <label class="reg-label">真实姓名</label>
-                    <input type="text" id="reg-name" class="login-input" placeholder="请输入姓名" required>
-                    
-                    <label class="reg-label">代表学院</label>
-                    <select id="reg-college" class="login-input" required>
-                        <option value="数学科学学院">数学科学学院</option>
-                        <option value="控制科学与工程学院">控制科学与工程学院</option>
-                        <option value="计算机科学与人工智能学院">计算机科学与人工智能学院</option>
-                        <option value="文学院">文学院</option>
-                        <option value="物理科学与技术学院">物理科学与技术学院</option>
-                        <option value="法学院">法学院</option>
-                        <option value="个人">个人</option>
+                <div id="reg-status-not-started" style="display:none; text-align:center; padding: 40px 20px;">
+                    <div style="font-size: 3.5rem; margin-bottom: 15px; text-shadow: 0 5px 15px rgba(0,0,0,0.05);">⏳</div>
+                    <h3 style="color:#E65100; font-size:1.6rem; margin-bottom:15px;">报名通道尚未开启</h3>
+                    <p style="color:var(--text-light); margin-bottom: 10px; font-weight: bold;">官方报名时间段：</p>
+                    <p style="color:var(--text-light); margin-bottom: 25px;">2026年4月15日 15:00 - 5月5日 24:00</p>
+                    <p style="color:var(--text-light); margin-bottom: 10px;">距报名开启还有：</p>
+                    <div id="reg-start-countdown" style="font-size: 2rem; font-weight: 900; color: #FF512F; letter-spacing: 1px;">--天 --时 --分 --秒</div>
+                </div>
+
+                <div id="reg-status-ended" style="display:none; text-align:center; padding: 40px 20px;">
+                    <div style="font-size: 3.5rem; margin-bottom: 15px;">🛑</div>
+                    <h3 style="color:#d32f2f; font-size:1.6rem; margin-bottom:15px;">报名通道已永久关闭</h3>
+                    <p style="color:var(--text-main); line-height: 1.8; font-size: 1.1rem;">本届总结大赛报名已于 2026年5月5日 24:00 截止。</p>
+                    <p style="color:var(--text-light); margin-top: 15px;">感谢您的支持与关注，组委会正进行最后的数据统筹。<br>敬请期待分组抽签结果与正赛打响！</p>
+                </div>
+
+                <div id="reg-status-active" style="display:none;">
+                    <form class="login-form" style="max-width: 450px; margin: 0 auto;" onsubmit="goStep2(event)">
+                        <div style="background: rgba(255,81,47,0.08); padding: 15px; border-radius: 12px; margin-bottom: 25px; border: 1px solid rgba(255,81,47,0.2); text-align:center;">
+                            <p style="color:#E65100; font-weight:900; font-size: 1.2rem; margin-bottom: 5px;">赛事报名费：35 元 / 人</p>
+                            <p style="font-size: 0.85rem; color:var(--text-light);">（注：报名费不在此处缴纳，后续将由组委会私下统一收取）</p>
+                        </div>
+                        
+                        <label class="reg-label">真实姓名</label>
+                        <input type="text" id="reg-name" class="login-input" placeholder="请输入您的真实姓名" required>
+                        
+                        <label class="reg-label">性别</label>
+                        <select id="reg-gender" class="login-input" required>
+                            <option value="" disabled selected>请选择您的性别</option>
+                            <option value="男">男</option>
+                            <option value="女">女</option>
+                        </select>
+                        
+                        <label class="reg-label">所属学院</label>
+                        <select id="reg-college" class="login-input" required>
+                            <option value="" disabled selected>请选择您代表的学院</option>
+                            <option value="文学院">文学院</option>
+                            <option value="马克思主义学院">马克思主义学院</option>
+                            <option value="法学院">法学院</option>
+                            <option value="历史文化学院">历史文化学院</option>
+                            <option value="物理科学与技术学院">物理科学与技术学院</option>
+                            <option value="数学科学学院">数学科学学院</option>
+                            <option value="化学学院">化学学院</option>
+                            <option value="材料与环境工程学院">材料与环境工程学院</option>
+                            <option value="食品科学与工程学院">食品科学与工程学院</option>
+                            <option value="计算机科学与人工智能学院">计算机科学与人工智能学院</option>
+                            <option value="控制科学与工程学院">控制科学与工程学院</option>
+                            <option value="经济学院">经济学院</option>
+                            <option value="管理学院">管理学院</option>
+                            <option value="外国语学院">外国语学院</option>
+                            <option value="教育科学学院">教育科学学院</option>
+                            <option value="体育学院">体育学院</option>
+                            <option value="美术学院">美术学院</option>
+                            <option value="音乐学院">音乐学院</option>
+                            <option value="新闻与传播学院">新闻与传播学院</option>
+                            <option value="航运学院">航运学院</option>
+                            <option value="个人">个人</option>
+                        </select>
+                        
+                        <label class="reg-label">主战打法配置</label>
+                        <select id="reg-style" class="login-input" required>
+                            <option value="" disabled selected>请选择您的惯用打法</option>
+                            <option value="右手横板">右手横板</option>
+                            <option value="左手横板">左手横板</option>
+                            <option value="右手直板">右手直板</option>
+                            <option value="左手直板">左手直板</option>
+                            <option value="右手颗粒">右手颗粒</option>
+                            <option value="左手颗粒">左手颗粒</option>
+                            <option value="右手直板+颗粒">右手直板+颗粒</option>
+                            <option value="左手直板+颗粒">左手直板+颗粒</option>
                         </select>
 
-                    <label class="reg-label">打法类型</label>
-                    <select id="reg-style" class="login-input" required>
-                        <option value="右手横板">右手横板</option>
-                        <option value="左手横板">左手横板</option>
-                        <option value="右手直板">右手直板</option>
-                        <option value="左手直板">左手直板</option>
-                        <option value="直板长胶/生胶">直板长胶/生胶</option>
-                    </select>
-                    <button type="submit" class="login-btn">下一步：上传免冠照</button>
-                </form>
+                        <button type="submit" class="login-btn" style="margin-top: 25px;">下一步：验证与上传免冠照</button>
+                    </form>
+                </div>
             </div>
 
             <div id="reg-step-2" style="display:none; text-align:center;">
-                <p class="reg-label">📸 请上传 1 寸近期免冠照（用于精英卡制作）</p>
-                <div class="photo-upload-zone" onclick="document.getElementById('img-file').click()">
-                    <div id="ph-inner" class="placeholder">点击选择照片</div>
-                    <img id="ph-preview" src="">
+                <p style="font-weight:900; margin-bottom:10px; font-size: 1.3rem; color: var(--text-main);">📸 上传 1 寸近期免冠照片</p>
+                <p style="font-size:0.95rem; color:var(--text-light); margin-bottom:20px;">用于为您生成高级专属【精英阵容】展示数据卡片</p>
+                
+                <div class="photo-upload-zone" onclick="document.getElementById('photo-input').click()">
+                    <div id="photo-placeholder" class="placeholder">
+                        <span>👤</span>点击此处<br>选择或拍摄照片
+                    </div>
+                    <img id="photo-preview" src="" alt="免冠照预览">
                 </div>
-                <input type="file" id="img-file" hidden accept="image/*" onchange="handleFile(this)">
-                <button onclick="commitToCloud()" class="login-btn" style="max-width:300px;">确认提交并归档</button>
+                <input type="file" id="photo-input" hidden accept="image/*" onchange="previewPhoto(this)">
+                
+                <button onclick="finalSubmit()" class="login-btn" style="max-width:320px; font-size: 1.1rem; padding: 15px;">提交云端并完成报名</button>
+                <p onclick="backStep1()" style="margin-top:25px; font-size:0.95rem; cursor:pointer; color:var(--text-light); text-decoration: underline;">&larr; 返回修改基本信息</p>
             </div>
 
-            <div id="reg-loading" style="display:none; text-align:center; padding: 40px 0;">
-                <div style="font-size:3rem; animation: spin 1s linear infinite; display:inline-block;">⌛</div>
-                <p id="load-text" style="margin-top:15px; font-weight:bold; color:#E65100;">正在建立云端图片链接...</p>
+            <div id="reg-loading" style="display:none; text-align:center; padding: 60px 0;">
+                <div style="font-size:3.5rem; animation: spin 1s linear infinite; display:inline-block;">⚙️</div>
+                <p style="margin-top:25px; color:#E65100; font-weight:bold; font-size: 1.2rem;">正在加密上传照片原件 (1/2)...</p>
+                <p style="color: var(--text-light); font-size: 0.9rem; margin-top: 10px;">请勿关闭页面或刷新</p>
             </div>
 
-            <div id="reg-done" style="display:none; text-align:center; padding: 30px 0;">
-                <div style="font-size:5rem;">🏆</div>
-                <h3 style="color:#FF512F; font-size:2rem;">报名成功！</h3>
-                <p>您的资料与照片已成功录入渤乒第五届大赛精英库。</p>
-                <button onclick="location.reload()" class="login-btn" style="background:#e2e8f0; color:#475569; width:200px; margin-top:20px;">返回</button>
+            <div id="reg-success" style="display:none; text-align:center; padding: 40px 0;">
+                <div style="font-size:5.5rem; margin-bottom:20px; text-shadow: 0 10px 20px rgba(0,0,0,0.1);">🎖️</div>
+                <h3 style="color:#FF512F; font-size:2.2rem; margin-bottom:15px; font-weight: 900;">报名归档成功！</h3>
+                <p id="success-msg" style="font-size: 1.2rem; font-weight: 500; color: var(--text-main); margin-bottom: 10px; line-height: 1.6;"></p>
+                <p style="font-size: 0.95rem; color: var(--text-light); margin-bottom: 30px;">组委会收到您的信息后将与您联系确认，请保持通讯畅通。</p>
+                <button onclick="resetRegistration()" class="login-btn" style="background:#e2e8f0; color:#475569; width:220px; box-shadow:none;">返回继续帮他人报名</button>
             </div>
         </div>
     </div>
 
     <div id="draw" class="page-section">
-        <div id="admin-login" class="card" style="text-align:center;">
-            <h2 class="card-header" style="justify-content:center;">身份验证</h2>
-            <input type="password" id="adm-pwd" class="login-input" style="max-width:260px; text-align:center;" placeholder="输入组委会安全码">
-            <button class="login-btn" onclick="verifyAdmin()" style="max-width:200px;">登录控制台</button>
+        <div id="draw-main-view">
+            <div class="portal-grid">
+                <div class="portal-card" onclick="openDrawLogin()">
+                    <div class="portal-icon">🎲</div>
+                    <div class="portal-title">赛事后台管理</div>
+                    <div class="portal-desc">管理员专属：登录以执行赛事抽签程序及导出全员报名总表。</div>
+                    <div><span class="action-btn" style="background:var(--gradient-orange); color:white; padding:12px 30px; border-radius:30px; font-weight:bold; display:inline-block; box-shadow: 0 5px 15px rgba(255,81,47,0.3);">安全登入系统</span></div>
+                </div>
+                <div class="portal-card" onclick="openMatchupView()">
+                    <div class="portal-icon">📋</div>
+                    <div class="portal-title">对阵结果与赛程</div>
+                    <div class="portal-desc">全体参赛选手可在此查看各项目详细对阵表及后续比赛时间安排。</div>
+                    <div><span class="action-btn" style="background:var(--gradient-orange); color:white; padding:12px 30px; border-radius:30px; font-weight:bold; display:inline-block; box-shadow: 0 5px 15px rgba(255,81,47,0.3);">查看对阵总榜</span></div>
+                </div>
+            </div>
         </div>
 
-        <div id="admin-board" style="display:none;">
+        <div id="draw-login-view" style="display: none; text-align:center;">
+            <div class="card" style="max-width: 550px; margin: 0 auto;">
+                <h2 class="card-header" style="justify-content: center; font-size: 1.8rem;">🔒 管理员安全验证</h2>
+                <p style="color: var(--text-light); margin-bottom: 25px;">系统严禁非组委会人员尝试操作</p>
+                <form class="login-form" style="max-width: 300px;" onsubmit="handleLogin(event)">
+                    <input type="text" id="admin-account" class="login-input" placeholder="输入组委会授权账号" required>
+                    <input type="password" id="admin-password" class="login-input" placeholder="输入密钥" required>
+                    <button type="submit" class="login-btn" style="margin-top: 15px;">验证身份并进入控制台</button>
+                </form>
+                <div style="margin-top: 35px; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 25px;">
+                    <button class="login-btn" onclick="closeDrawLogin()" style="background:#f1f5f9; color:#64748b; max-width: 250px; box-shadow:none;">&larr; 终止验证返回上一级</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="draw-system-view" style="display: none;">
             <div class="card">
-                <h2 class="card-header">管理核心</h2>
-                <div class="sys-grid">
-                    <div class="sys-item" onclick="doExport()" style="border-color: #FF512F;">
-                        <span style="font-size:2.5rem;">📊</span>
-                        <div style="font-weight:bold; color:#FF512F; margin-top:10px;">导出全员大名单</div>
+                <div class="draw-system-header">
+                    <h2>⚙️ 组委会核心控制台</h2>
+                    <p style="margin-top: 10px;">认证通过。请选择您要执行的高级管理操作：</p>
+                </div>
+                <div class="sys-module-grid">
+                    <div class="sys-module" onclick="exportRegistrationData()">
+                        <span class="sys-icon">📊</span>
+                        <div class="sys-name" style="color: #FF512F;">导出全员报名表<br><span style="font-size:0.8rem; font-weight:normal; color:var(--text-light);">(含图片外链)</span></div>
                     </div>
-                    <div class="sys-item" onclick="alert('抽签模块将在名单确认后开启')">
-                        <span style="font-size:2.5rem;">🎲</span>
-                        <div style="margin-top:10px;">自动分组抽签</div>
+                    <div class="sys-module" onclick="alert('拦截警告：名单仍在收集中，混合团体抽签程序目前处于锁定状态。')">
+                        <span class="sys-icon">🛡️</span><div class="sys-name">混合团体 抽签</div>
+                    </div>
+                    <div class="sys-module" onclick="alert('拦截警告：名单仍在收集中，男子单打抽签程序目前处于锁定状态。')">
+                        <span class="sys-icon">🏓</span><div class="sys-name">男子单打 抽签</div>
+                    </div>
+                    <div class="sys-module" onclick="alert('拦截警告：名单仍在收集中，女子单打抽签程序目前处于锁定状态。')">
+                        <span class="sys-icon">🌸</span><div class="sys-name">女子单打 抽签</div>
+                    </div>
+                    <div class="sys-module" onclick="alert('拦截警告：名单仍在收集中，男子双打抽签程序目前处于锁定状态。')">
+                        <span class="sys-icon">🤝</span><div class="sys-name">男子双打 抽签</div>
+                    </div>
+                    <div class="sys-module" onclick="alert('拦截警告：名单仍在收集中，混合双打抽签程序目前处于锁定状态。')">
+                        <span class="sys-icon">💞</span><div class="sys-name">混合双打 抽签</div>
                     </div>
                 </div>
+                <div style="text-align: center; margin-top: 50px;">
+                    <button class="login-btn" onclick="logoutAdmin()" style="background:#f8fafc; color:#94a3b8; max-width:250px; box-shadow:none; border: 1px solid #e2e8f0;">&larr; 退出系统</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="matchup-detail-view" style="display: none; text-align:center;">
+            <div class="card">
+                <h2 class="card-header" style="justify-content: center;">📋 详细对阵与晋级路线表</h2>
+                <div class="empty-state">
+                    <span style="font-size: 4rem;">⏳</span>
+                    <h3 style="color: #E65100; margin-bottom: 15px;">系统尚未执行抽签</h3>
+                    <p style="font-size: 1.1rem; color: var(--text-main);">抽签仪式完成后，系统将在此自动分项目公布。</p>
+                </div>
+                <button class="login-btn" onclick="closeMatchupView()" style="background:#e2e8f0; color:#64748b; max-width:250px; margin-top: 20px; box-shadow:none;">&larr; 返回上级菜单</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="photos" class="page-section">
+        <div class="photo-banner-card">
+            <div class="photo-overlay"></div>
+            <div class="photo-content">
+                <h2>光影记录 · 赛事云图集</h2>
+                <p>每一次挥拍的激情，每一滴汗水的荣耀。专业摄影，同步传输。<br>点击下方按钮，直达赛场高光时刻云端现场！</p>
+                <a href="https://alltuu.cc/r/Jr2Q7b" target="_blank" class="photo-action-btn">
+                    <span>📸</span> 进入云端高清直播库
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div id="trophies" class="page-section">
+        <div id="trophy-list-view">
+            <div class="card">
+                <h2 class="card-header">荣誉殿堂：五大赛事奖杯</h2>
+                <div class="trophy-grid">
+                    <div class="trophy-item item-top" onclick="openTrophy('yibu')">
+                        <span class="trophy-icon">🏆</span>
+                        <div class="trophy-name">伊布杯</div>
+                        <div class="trophy-type">混合团体流动奖杯</div>
+                        <div class="trophy-badge">✨ 赛事最高团队荣誉</div>
+                    </div>
+                    <div class="trophy-item item-mid-l" onclick="openTrophy('maipu')">
+                        <span class="trophy-icon">🏆</span>
+                        <div class="trophy-name">麦普杯</div>
+                        <div class="trophy-type">男子单打冠军奖杯</div>
+                        <div class="trophy-badge">点击探索详情 &rarr;</div>
+                    </div>
+                    <div class="trophy-item item-mid-r" onclick="openTrophy('ximeng')">
+                        <span class="trophy-icon">🏆</span>
+                        <div class="trophy-name">西蒙杯</div>
+                        <div class="trophy-type">女子单打冠军奖杯</div>
+                        <div class="trophy-badge">点击探索详情 &rarr;</div>
+                    </div>
+                    <div class="trophy-item item-bot-l" onclick="openTrophy('bulaifu')">
+                        <span class="trophy-icon">🏆</span>
+                        <div class="trophy-name">布莱芙杯</div>
+                        <div class="trophy-type">男子双打冠军奖杯</div>
+                        <div class="trophy-badge">点击探索详情 &rarr;</div>
+                    </div>
+                    <div class="trophy-item item-bot-r" onclick="openTrophy('chaos')">
+                        <span class="trophy-icon">🏆</span>
+                        <div class="trophy-name">查奥斯杯</div>
+                        <div class="trophy-type">混合双打冠军奖杯</div>
+                        <div class="trophy-badge">点击探索详情 &rarr;</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="trophy-detail-view" style="display: none;">
+            <div class="card">
+                <div class="td-header">
+                    <div class="td-icon">🏆</div>
+                    <div>
+                        <div class="td-name" id="td-name" style="font-size:2.2rem; font-weight:900;"></div>
+                        <div class="td-type" id="td-type" style="color: var(--text-light); font-weight: bold;"></div>
+                    </div>
+                </div>
+                <div class="td-body">
+                    <div class="td-image-wrapper">
+                        <img id="td-image" src="" alt="奖杯实拍" onload="this.style.opacity=1" onerror="this.style.opacity=0">
+                        <div class="img-placeholder" style="position: absolute; top:50%; left:50%; transform: translate(-50%, -50%); z-index: -1;">
+                            <span style="font-size: 3rem; color: #cbd5e1; display: block; margin-bottom: 10px;">📷</span>奖杯高清实拍图<br>(推荐比例 3:5)
+                        </div>
+                    </div>
+                    <div id="td-content" style="flex:1;"></div>
+                </div>
+                <div style="text-align: center; margin-top: 40px; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 25px;">
+                    <button onclick="hideTrophyDetail()" class="login-btn" style="background:#e2e8f0; color:#64748b; max-width:250px; box-shadow:none;">&larr; 返回奖杯陈列室</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="results" class="page-section">
+        <div class="card">
+            <h2 class="card-header">赛事成绩榜</h2>
+            <div class="empty-state" style="padding: 60px 0;">
+                <span style="font-size: 5rem; margin-bottom: 25px;">🏅</span>
+                <p style="font-size: 1.2rem; color: var(--text-main); font-weight: bold;">比赛尚未开始，战鼓即将擂响！</p>
+                <p style="color: var(--text-light); margin-top: 10px;">所有项目最终名次及积分将在此处进行官方公示。</p>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    // ================== 核心 1：初始化 Bmob SDK ==================
-    // 这是解决跨设备、解决照片转链接的关键
-    Bmob.initialize("2f8e8878894199f42e2a5991d48ab233", "9eaf6a2ec3dea2e9378764f89dc4737a");
+    // ---------------------------------------------------------
+    // 模块 1: 三段式时间控制阀门与倒计时运算
+    // ---------------------------------------------------------
+    const regStart = new Date("Apr 15, 2026 15:00:00").getTime(); // 报名开启阈值
+    const regEnd = new Date("May 5, 2026 23:59:59").getTime();   // 报名关闭阈值
+    const openDate = new Date("Jun 14, 2026 10:00:00").getTime(); // 赛事正赛开幕阈值
 
-    // ================== 核心 2：路由与倒计时 ==================
-    const targetDate = new Date("Jun 14, 2026 10:00:00").getTime();
-    function runTimer() {
+    function updateCountdowns() {
         const now = new Date().getTime();
-        const gap = targetDate - now;
-        if (gap > 0) {
-            document.getElementById("days").innerText = Math.floor(gap / 86400000);
-            document.getElementById("hours").innerText = ('0' + Math.floor((gap % 86400000) / 3600000)).slice(-2);
-            document.getElementById("mins").innerText = ('0' + Math.floor((gap % 3600000) / 60000)).slice(-2);
-            document.getElementById("secs").innerText = ('0' + Math.floor((gap % 60000) / 1000)).slice(-2);
+        
+        // 1.1 主页：赛会开幕倒计时
+        const distOpen = openDate - now;
+        if (distOpen > 0) {
+            document.getElementById("days").innerText = Math.floor(distOpen / 86400000);
+            document.getElementById("hours").innerText = ('0'+Math.floor((distOpen % 86400000) / 3600000)).slice(-2);
+            document.getElementById("minutes").innerText = ('0'+Math.floor((distOpen % 3600000) / 60000)).slice(-2);
+            document.getElementById("seconds").innerText = ('0'+Math.floor((distOpen % 60000) / 1000)).slice(-2);
+        } else {
+            document.querySelector('.countdown').innerHTML = "<h3 style='color: #FF512F; font-size: 2rem; font-weight: 900;'>🔥 第五届总结大赛已燃情开幕！</h3>";
+        }
+
+        // 1.2 报名页：三段式状态门禁动态切换
+        const notStarted = document.getElementById('reg-status-not-started');
+        const active = document.getElementById('reg-status-active');
+        const ended = document.getElementById('reg-status-ended');
+
+        if (now < regStart) {
+            // 状态A：拦截，并计算开启倒计时
+            if(notStarted.style.display !== 'block') { notStarted.style.display = 'block'; active.style.display = 'none'; ended.style.display = 'none'; }
+            const distStart = regStart - now;
+            const d = Math.floor(distStart / 86400000);
+            const h = Math.floor((distStart % 86400000) / 3600000);
+            const m = Math.floor((distStart % 3600000) / 60000);
+            const s = Math.floor((distStart % 60000) / 1000);
+            document.getElementById('reg-start-countdown').innerText = `${d}天 ${h}时 ${m}分 ${s}秒`;
+        } else if (now >= regStart && now <= regEnd) {
+            // 状态B：畅通，表单显示
+            if(active.style.display !== 'block') { notStarted.style.display = 'none'; active.style.display = 'block'; ended.style.display = 'none'; }
+        } else {
+            // 状态C：永久关闭
+            if(ended.style.display !== 'block') { notStarted.style.display = 'none'; active.style.display = 'none'; ended.style.display = 'block'; }
         }
     }
-    setInterval(runTimer, 1000);
+    // 启动时间引擎
+    setInterval(updateCountdowns, 1000);
+    updateCountdowns();
 
-    function route() {
-        const hash = window.location.hash.replace('#', '') || 'home';
-        document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        document.getElementById(hash)?.classList.add('active');
-        document.getElementById('nav-' + hash)?.classList.add('active');
-    }
-    window.onhashchange = route;
-    route();
+    // ---------------------------------------------------------
+    // 模块 2: Bmob 后端云双重直连引擎 (照片外链提取 + 数据上链)
+    // ---------------------------------------------------------
+    const bId = "2f8e8878894199f42e2a5991d48ab233"; // 用户专属 Application ID
+    const bKey = "9eaf6a2ec3dea2e9378764f89dc4737a"; // 用户专属 REST API Key
+    const bUrl = "https://api.bmobcloud.com/1/classes/PlayerReg"; // 数据表路由
+    
+    let temp = {}; // 表单暂存器
+    let selectedFile = null; // 本地图片文件暂存对象
 
-    // ================== 核心 3：照片转链接与云端存储逻辑 ==================
-    let regData = {};
-    let uploadFile = null;
-
-    function toStep2(e) {
+    // 2.1 捕获步骤 1 的信息
+    function goStep2(e) {
         e.preventDefault();
-        regData = {
-            name: document.getElementById('reg-name').value,
+        temp = {
+            name: document.getElementById('reg-name').value.trim(),
+            gender: document.getElementById('reg-gender').value,
             college: document.getElementById('reg-college').value,
             style: document.getElementById('reg-style').value,
-            regDate: new Date().toLocaleString()
+            time: new Date().toLocaleString()
         };
         document.getElementById('reg-step-1').style.display = 'none';
         document.getElementById('reg-step-2').style.display = 'block';
     }
 
-    function handleFile(input) {
+    // 2.2 本地 FileReader 解析并展示图片预览
+    function previewPhoto(input) {
         if (input.files && input.files[0]) {
-            uploadFile = input.files[0];
-            const reader = new FileReader();
+            selectedFile = input.files[0]; 
+            let reader = new FileReader();
             reader.onload = e => {
-                document.getElementById('ph-preview').src = e.target.result;
-                document.getElementById('ph-preview').style.display = 'block';
-                document.getElementById('ph-inner').style.display = 'none';
-            }
-            reader.readAsDataURL(uploadFile);
+                document.getElementById('photo-preview').src = e.target.result;
+                document.getElementById('photo-preview').style.display = 'block';
+                document.getElementById('photo-placeholder').style.display = 'none';
+            };
+            reader.readAsDataURL(selectedFile);
         }
     }
 
-    function commitToCloud() {
-        if (!uploadFile) return alert("⚠️ 请先上传照片！");
+    // 2.3 核心双重提交：先传文件换 URL，再交数据
+    function finalSubmit() {
+        if (!selectedFile) { alert("⚠️ 驳回操作：请先选择并上传您的 1寸免冠照！"); return; }
         
         document.getElementById('reg-step-2').style.display = 'none';
         document.getElementById('reg-loading').style.display = 'block';
-        const st = document.getElementById('load-text');
-
-        // 第一步：利用 SDK 强制上传图片，换取真实的图片 URL
-        st.innerText = "正在打通云端通道，转换照片链接...";
-        const bmobFile = Bmob.File(uploadFile.name, uploadFile);
         
-        bmobFile.save().then(res => {
-            const finalPhotoUrl = res[0].url; // 获取到了实打实的 HTTP 图片链接
-            st.innerText = "链接转换成功，正在归档资料...";
+        const loadingText = document.querySelector('#reg-loading p');
+        loadingText.innerText = "正在加密上传照片原件至云端 (1/2)...";
+
+        // Action 1: 上传真实图片到 Bmob File Server
+        fetch(`https://api.bmobcloud.com/2/files/${encodeURIComponent(selectedFile.name)}`, {
+            method: 'POST',
+            headers: {
+                'X-Bmob-Application-Id': bId,
+                'X-Bmob-REST-API-Key': bKey,
+                'Content-Type': selectedFile.type || 'image/jpeg'
+            },
+            body: selectedFile
+        })
+        .then(res => {
+            if (!res.ok) throw new Error("图片服务器拒绝写入");
+            return res.json();
+        })
+        .then(fileData => {
+            // Action 2: 拿到公网访问 URL，装入数据表，发送至文字数据库
+            temp.photoUrl = fileData.url; 
+            loadingText.innerText = "正在将您的档案写入精英阵容库 (2/2)...";
             
-            // 第二步：将姓名学院等文字，与转换好的图片链接绑定，存入数据库
-            const query = Bmob.Query('PlayerReg');
-            query.set("name", regData.name);
-            query.set("college", regData.college);
-            query.set("style", regData.style);
-            query.set("regTime", regData.regDate);
-            query.set("photoUrl", finalPhotoUrl); // 这里存入的是链接字符串
-            return query.save();
-        }).then(res => {
-            document.getElementById('reg-loading').style.display = 'none';
-            document.getElementById('reg-done').style.display = 'block';
-        }).catch(err => {
-            alert("❌ 失败：请检查网络或照片格式。");
-            document.getElementById('reg-loading').style.display = 'none';
-            document.getElementById('reg-step-2').style.display = 'block';
+            return fetch(bUrl, {
+                method: 'POST',
+                headers: {'X-Bmob-Application-Id': bId, 'X-Bmob-REST-API-Key': bKey, 'Content-Type': 'application/json'},
+                body: JSON.stringify(temp)
+            });
+        })
+        .then(res => {
+            if(res.ok) {
+                document.getElementById('success-msg').innerHTML = `<b style="color:#E65100;">${temp.name}</b> 同学，您的实体档案及照片文件已成功双重归档！`;
+                document.getElementById('reg-loading').style.display = 'none';
+                document.getElementById('reg-success').style.display = 'block';
+            } else throw new Error("文本数据库写入失败");
+        })
+        .catch(err => { 
+            console.error(err);
+            alert("❌ 同步中断！请检查网络状态，或确保照片体积不超过 2MB。"); 
+            document.getElementById('reg-loading').style.display = 'none'; 
+            document.getElementById('reg-step-2').style.display = 'block'; 
         });
     }
 
-    // ================== 核心 4：后台管理与名单导出 ==================
-    function verifyAdmin() {
-        if (document.getElementById('adm-pwd').value === '11111111') {
-            document.getElementById('admin-login').style.display = 'none';
-            document.getElementById('admin-board').style.display = 'block';
-        } else alert("口令错误！");
+    // 2.4 表单控制实用函数
+    function backStep1() { document.getElementById('reg-step-2').style.display = 'none'; document.getElementById('reg-step-1').style.display = 'block'; }
+    function resetRegistration() { 
+        document.getElementById('reg-success').style.display='none'; 
+        document.getElementById('reg-step-1').style.display='block'; 
+        document.querySelector('.login-form').reset(); 
+        temp = {}; 
+        selectedFile = null;
+        document.getElementById('photo-preview').src = '';
+        document.getElementById('photo-preview').style.display = 'none';
+        document.getElementById('photo-placeholder').style.display = 'block';
     }
 
-    function doExport() {
-        alert("系统正在深度拉取云端照片链接，请稍候...");
-        const query = Bmob.Query('PlayerReg');
-        query.limit(1000);
-        query.find().then(results => {
-            if (!results.length) return alert("目前空空如也！");
+    // ---------------------------------------------------------
+    // 模块 3: 后台管理员验证系统与全局 CSV 导出器
+    // ---------------------------------------------------------
+    // 组委会硬编码密钥本
+    const adminAcc = {
+        'bhuttt-5th01': '11111111', 
+        'bhuttt-5th02': '22222222',
+        'bhuttt-5th03': '33333333'
+    };
+
+    function openDrawLogin() { document.getElementById('draw-main-view').style.display='none'; document.getElementById('draw-login-view').style.display='block'; }
+    function closeDrawLogin() { document.getElementById('draw-login-view').style.display='none'; document.getElementById('draw-main-view').style.display='block'; }
+    
+    function handleLogin(e) {
+        e.preventDefault();
+        let a = document.getElementById('admin-account').value.trim();
+        let p = document.getElementById('admin-password').value.trim();
+        if(adminAcc[a] && adminAcc[a] === p) {
+            document.getElementById('draw-login-view').style.display='none';
+            document.getElementById('draw-system-view').style.display='block';
+            document.getElementById('admin-password').value = '';
+        } else {
+            alert("🚫 拦截：无权限访问。账号或安全密钥不匹配！");
+        }
+    }
+    
+    function logoutAdmin() { document.getElementById('draw-system-view').style.display='none'; document.getElementById('draw-main-view').style.display='block'; }
+    function openMatchupView() { document.getElementById('draw-main-view').style.display='none'; document.getElementById('matchup-detail-view').style.display='block'; }
+    function closeMatchupView() { document.getElementById('matchup-detail-view').style.display='none'; document.getElementById('draw-main-view').style.display='block'; }
+
+    // 核心：直接绕过控制台，利用前端发起 GET 请求导出全校名单
+    function exportRegistrationData() {
+        alert("系统收到指令：正在建立安全连接，从 Bmob 云端拉取全员大名单，请等待浏览器下载提示...");
+        
+        // 拉取前 1000 条，按写入时间倒序
+        fetch(bUrl + "?limit=1000&order=-createdAt", {
+            method: 'GET',
+            headers: {'X-Bmob-Application-Id': bId, 'X-Bmob-REST-API-Key': bKey}
+        })
+        .then(res => res.json())
+        .then(data => {
+            let res = data.results;
+            if(!res || res.length === 0) { alert("📭 数据拉取完成：当前数据库容量为 0，暂无人报名。"); return; }
             
-            // 构建 CSV，最后一列是真实的图片链接
-            let csvContent = "data:text/csv;charset=utf-8,\uFEFF报名时间,姓名,学院,打法,照片下载链接\n";
-            results.forEach(p => {
-                csvContent += `${p.regTime},${p.name},${p.college},${p.style},${p.photoUrl || "无链接"}\n`;
+            // 构建带 BOM 头的 CSV (防止 Excel 中文乱码)
+            let csv = "data:text/csv;charset=utf-8,\uFEFF报名时间,姓名,性别,学院,打法,云端证件照链接\n";
+            res.forEach(p => { 
+                // 注意：最后一列导出的是包含 HTTPS 的真实图片 URL，点击即可下载查看
+                csv += `${p.time},${p.name},${p.gender},${p.college},${p.style},${p.photoUrl}\n`; 
             });
             
             const link = document.createElement("a");
-            link.href = encodeURI(csvContent);
-            link.download = "第五届总结大赛_全体名单_含图.csv";
+            link.href = encodeURI(csv);
+            link.download = "第五届总结大赛_全员带图名单_密件.csv";
+            document.body.appendChild(link);
             link.click();
+            document.body.removeChild(link);
+        })
+        .catch(err => {
+            alert("❌ 提取被拒绝：无法连接云端数据库，请检查您的网络连接或管理员密钥状态。");
         });
     }
+
+    // ---------------------------------------------------------
+    // 模块 4: 五大荣誉奖杯数据驱动渲染系统
+    // ---------------------------------------------------------
+    const trophyData = {
+        'maipu': { 
+            name: '麦普杯 (Maple Cup)', 
+            type: '男子单打项目 · 冠军奖杯', 
+            content: '<b>【精神溯源】</b> 麦普杯象征着个人技艺的卓越与赛场风范，由渤海大学乒乓球队名誉队长、第三任队长姜枫先生于 2023 年 6 月捐赠。此杯专为嘉奖男单项目中技压群雄的冠军选手而设。“麦普”取自姜枫先生英文名“Maple”，寄寓成熟与坚毅之力。<br><br><b>【荣耀传承】</b> 每一届男单冠军的光辉姓名，将永久铭刻于麦普杯之上。2023 年第二届大赛中，刘奚铭首次将名字镌刻于此杯；2024 年第三届大赛，石致远成为麦普杯的第二任获得者；在去年的第四届大赛中，<b>田印广</b>成功夺魁，将其名字留在杯身。<br><br><b>【赛事展望】</b> 赛场上的每一次挥拍都凝聚着平日的汗水。本届大赛的男单桂冠正等待新的优胜者前来摘取，谁将脱颖而出，成为第四位将名字铭刻在麦普杯上的冠军？' 
+        },
+        'ximeng': { 
+            name: '西蒙杯 (Simon Cup)', 
+            type: '女子单打项目 · 冠军奖杯', 
+            content: '<b>【精神溯源】</b> 西蒙杯代表着女选手的优雅风姿与坚韧品格，由渤海大学乒乓球队名誉队长、第四任队长刘奚铭先生于 2024 年 6 月捐赠。此杯专门用于表彰女单比赛中的冠军得主。“西蒙”取自刘奚铭先生英文名“Simon”，寄托了对女队员们不断进步、追求卓越的鼓励与期许。<br><br><b>【荣耀传承】</b> 每一届女单冠军的姓名将荣镌杯身，见证她们的拼搏与荣誉。第三届比赛中，殷紫萱首度捧杯；去年第四届比赛中，<b>邵尔诺</b>表现优异，成为第二位将芳名留在西蒙杯上的优胜者。<br><br><b>【赛事展望】</b> 赛场不分性别，拼搏同样精彩。本届大赛的女单桂冠正静候新主，期待诞生第三位将名字铭刻在西蒙杯上的冠军选手。' 
+        },
+        'bulaifu': { 
+            name: '布莱芙杯 (Belief Cup)', 
+            type: '男子双打项目 · 冠军奖杯', 
+            content: '<b>【精神溯源】</b> 布莱芙杯象征着同伴间的信念与默契配合，由渤海大学乒乓球队首任队长陈欣洋先生于 2024 年 6 月捐赠。此杯用以表彰男双比赛中的冠军组合。“布莱芙”之名源自“欣洋”二字谐音“信仰”的英文“Belief”，寓意搭档间的相互信任与精诚协作是夺冠的基石。<br><br><b>【荣耀传承】</b> 每一届男双冠军组合的姓名将并列镌刻于杯身，共享荣誉。在第三届比赛中，王宗玉与杜沁宇组合首次捧起了此杯；去年第四届大赛，<b>康林哲与田印广</b>凭借默契配合，成为第二组荣镌此杯的搭档。<br><br><b>【赛事展望】</b> 双打考验的不仅是个人技术，更是 1+1 大于 2 的默契。本届男双比赛战幕将启，获胜的搭档将成为第三组将名字共同铭刻在布莱芙杯上的冠军组合。' 
+        },
+        'chaos': { 
+            name: '查奥斯杯 (Chaos Cup)', 
+            type: '混合双打项目 · 冠军奖杯', 
+            content: '<b>【精神溯源】</b> 查奥斯杯体现了力量与智慧的和谐交融，由渤海大学乒乓球队名誉队长、第二任队长刘丞皓先生于 2024 年 6 月捐赠。此杯旨在授予混合双打项目的最佳搭档。“查奥斯”巧妙地取自刘丞皓先生名字中“丞”的声母与“皓”的韵母，象征比赛中的激情碰撞与策略运用。<br><br><b>【荣耀传承】</b> 每一届混双冠军组合的姓名将镌刻其上，记录赛场上的精彩配合。第三届比赛的康林哲与徐赫遥组合首次加冕；在去年的第四届比赛中，<b>刘士辉与代馨怡</b>荣获佳绩，将名字留在此杯之上。<br><br><b>【赛事展望】</b> 混双赛场充满了变数与策略的较量。本届比赛的优胜搭档，将成为光荣的第三对查奥斯杯得主。' 
+        },
+        'yibu': { 
+            name: '伊布杯 (Hibou Cup)', 
+            type: '混合团体项目 · 流动奖杯', 
+            content: '<b>【精神溯源】</b> 伊布杯象征着团队协作之巅与集体最高荣誉，由渤海大学乒乓球队名誉队长、第二任队长岳亮先生于 2021 年 6 月惠赠。此杯旨在表彰总结大赛中表现最卓越的团体队伍。“伊布”之名源自岳亮先生英文名“Hibou”，蕴含智慧与坚韧之意。<br><br><b>【荣耀传承】</b> 依循传统，每届团体冠军成员的姓名将共同镌刻于杯身，以彰荣誉。从第一届的“高鹤宁、王贺铭、王艺璇”，到第二届的“刘奚铭、谭程、刘梦昕”，第三届的“杨乐、田印广、张洪洋、代馨怡”，再到去年第四届摘桂的“<b>张洪洋、代馨怡、王治元、朱昶安</b>”，四届冠军队伍的名字已在此铭刻。<br><br><b>【赛事展望】</b> 团队赛始终是对凝聚力与排兵布阵的综合考验。本届大赛的获胜队伍，将成为第五支光荣捧起伊布杯、续写团队辉煌的绝对冠军之师。' 
+        }
+    };
+
+    function openTrophy(id) { window.location.hash = 'trophy-' + id; }
+    
+    function showTrophyDetail(id) {
+        document.getElementById('trophy-list-view').style.display='none';
+        document.getElementById('trophy-detail-view').style.display='block';
+        document.getElementById('td-name').innerText = trophyData[id].name;
+        document.getElementById('td-type').innerText = trophyData[id].type;
+        document.getElementById('td-content').innerHTML = `<p style="font-size: 1.05rem; line-height: 1.8; color: var(--text-main); margin-bottom: 15px;">${trophyData[id].content}</p>`;
+        document.getElementById('td-image').src = `./${id}.jpg`;
+    }
+    
+    function hideTrophyDetail() { document.getElementById('trophy-detail-view').style.display='none'; document.getElementById('trophy-list-view').style.display='block'; }
+
+    // ---------------------------------------------------------
+    // 模块 5: 哈希无刷新路由核心
+    // ---------------------------------------------------------
+    function handleRouting() {
+        // 读取当前锚点，默认指向 home
+        let h = window.location.hash.replace('#', '') || 'home';
+        
+        // 重置所有激活状态
+        document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
+        document.querySelectorAll('.page-section').forEach(e => e.classList.remove('active'));
+        
+        // 捕获奖杯子页面路由
+        if(h.startsWith('trophy-')) {
+            document.getElementById('trophies').classList.add('active');
+            document.getElementById('nav-trophies').classList.add('active');
+            showTrophyDetail(h.split('-')[1]);
+        } else {
+            // 标准主菜单路由
+            document.getElementById(h)?.classList.add('active');
+            document.getElementById('nav-'+h)?.classList.add('active');
+            // 如果不在奖杯页，确保列表视图还原
+            if(h === 'trophies') hideTrophyDetail();
+            
+            // 清理后台系统遗留状态，保证每次进入都是初始页
+            if(h !== 'draw') {
+                document.getElementById('draw-login-view').style.display='none';
+                document.getElementById('draw-system-view').style.display='none';
+                document.getElementById('matchup-detail-view').style.display='none';
+                document.getElementById('draw-main-view').style.display='block';
+            }
+        }
+        // 切换页面后平滑滚回顶部
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    // 监听 URL 变化及首次加载
+    window.addEventListener('hashchange', handleRouting);
+    window.addEventListener('load', handleRouting);
 </script>
 </body>
 </html>
