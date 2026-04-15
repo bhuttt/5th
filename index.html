@@ -725,8 +725,9 @@
             // 构建带 BOM 头的 CSV (防止 Excel 中文乱码)
             let csv = "data:text/csv;charset=utf-8,\uFEFF报名时间,姓名,性别,学院,打法,云端证件照链接\n";
             res.forEach(p => { 
-                // 注意：最后一列导出的是包含 HTTPS 的真实图片 URL，点击即可下载查看
-                csv += `${p.time},${p.name},${p.gender},${p.college},${p.style},${p.photoUrl}\n`; 
+                // 兼容旧版测试数据：如果没有图片链接，就显示“无/旧数据”而不是难看的 undefined
+let safePhoto = p.photoUrl || p.photoStatus || p.photo || "无/旧测试数据";
+csv += `${p.time},${p.name},${p.gender},${p.college},${p.style},${safePhoto}\n`;
             });
             
             const link = document.createElement("a");
