@@ -426,6 +426,202 @@
                 </div>
             </div>
         </div>
+<div id="draw-action-view" style="display: none; text-align:center;">
+            <div class="card" style="max-width: 600px; margin: 0 auto;">
+                <h2 class="card-header" style="justify-content: center;">🌸 女子单打 · 线上抽签直播</h2>
+                
+                <div id="draw-setup-area">
+                    <p style="color: var(--text-main); font-size: 1.1rem; margin-bottom: 20px;">请主持人就位并共享屏幕。<br>系统将按以下名单顺序分配半区签位：<br><b style="color:#FF512F; font-size:1.3rem;">邵尔诺、李子璇、张蓝兮、李沃柔</b></p>
+                    <button class="login-btn" onclick="initWSDraw()" style="font-size: 1.2rem; padding: 15px;">🏁 正式启动抽签引擎</button>
+                    <button class="login-btn" style="background:#f1f5f9; color:#64748b; margin-top: 15px; box-shadow:none;" onclick="closeDrawAction()">返回控制台</button>
+                </div>
+
+                <div id="draw-rolling-area" style="display: none;">
+                    <h3 style="font-size: 1.4rem; color: var(--text-light); margin-bottom: 10px;">当前祈运选手</h3>
+                    <div id="current-draw-player" style="color: #E65100; font-size: 2.5rem; font-weight: 900; letter-spacing: 2px;"></div>
+                    
+                    <div style="margin: 30px auto; width: 220px; height: 160px; background: #f8fafc; border: 4px dashed #FF512F; border-radius: 24px; display: flex; align-items: center; justify-content: center; font-size: 5rem; font-weight: 900; color: #2A1B18; box-shadow: inset 0 10px 20px rgba(0,0,0,0.05);" id="rolling-slot">
+                        ?
+                    </div>
+                    
+                    <button id="roll-btn" class="login-btn" style="font-size: 1.6rem; padding: 20px; border-radius: 50px;" onclick="toggleRoll()">🚀 开始滚动</button>
+                </div>
+
+                <div id="draw-result-area" style="display: none; margin-top: 20px;">
+                    <h3 style="color: #FF512F; font-size: 1.8rem; margin-bottom: 15px;">✅ 本组抽签完毕</h3>
+                    <ul id="draw-result-list" style="list-style: none; padding: 0; font-size: 1.3rem; line-height: 2.2; font-weight: bold; margin-bottom: 30px;"></ul>
+                    <button class="login-btn" onclick="generateBracket()" style="background: #10b981;">一键生成对阵表 (供截图公示)</button>
+                </div>
+            </div>
+        </div>
+        ```
+
+同时，找到控制台里的 **“女子单打 抽签”** 按钮（大约在代码的第 229 行附近），把它的点击事件**解除拦截并指向新界面**：
+
+**将这行原代码：**
+`<div class="sys-module" onclick="alert('拦截警告：名单仍在收集中，女子单打抽签程序目前处于锁定状态。')">`
+**修改为：**
+`<div class="sys-module" onclick="openDrawAction()">`
+
+---
+
+### 💻 第二步：加入核心抽签引擎逻辑 (JavaScript)
+
+滑动到你代码最底部，在 `doExport()` 函数后面，也就是 `</script>` 标签之前，加入这套**极其丝滑的动态抽签算法**：
+
+```javascript
+    // ================== 6. 赛事抽签动效引擎 ==================
+    const wsPlayers = ['邵尔诺', '李子璇', '张蓝兮', '李沃柔'];
+    let wsPositions = ['A1', 'A2', 'B1', 'B2'];
+    let currentDrawIndex = 0;
+    let rollInterval = null;
+    let isRolling = false;
+    let finalResults = {}; 
+
+    // 打开抽签界面 (每次打开都会自动重置，方便你私下无限次测试)
+    function openDrawAction() {
+        document.getElementById('draw-system-view').style.display = 'none';
+        document.getElementById('draw-action-view').style.display = 'block';
+        
+        wsPositions = ['A1', 'A2', 'B1', 'B2'];
+        currentDrawIndex = 0;
+        finalResults = {};
+        
+        document.getElementById('draw-setup-area').style.display = 'block';
+        document.getElementById('draw-rolling-area').style.display = 'none';
+        document.getElementById('draw-result-area').style.display = 'none';
+        document.getElementById('rolling-slot').innerText = '?';
+        document.getElementById('roll-btn').innerText = '🚀 开始滚动';
+        document.getElementById('roll-btn').style.background = 'var(--gradient-orange)';
+    }
+
+    function closeDrawAction() {
+        document.getElementById('draw-action-view').style.display = 'none';
+        document.getElementById('draw-system-view').style.display = 'block';
+    }
+
+    function initWSDraw() {
+        document.getElementById('draw-setup-area').style.display = 'none';
+        document.getElementById('draw-rolling-area').style.display = 'block';
+        document.getElementById('current-draw-player').innerText = wsPlayers[currentDrawIndex];
+    }
+
+    // 核心动效：滚动与刹车
+    function toggleRoll() {
+        const btn = document.getElementById('roll-btn');
+        const slot = document.getElementById('rolling-slot');
+
+        if (!isRolling) {
+            // 踩下油门：开始狂暴滚动
+            isRolling = true;
+            btn.innerText = '🛑 停！(锁定签位)';
+            btn.style.background = '#e11d48'; // 红色危险警告色
+            
+            rollInterval = setInterval(() => {
+                const randomPos = wsPositions[Math.floor(Math.random() * wsPositions.length)];
+                slot.innerText = randomPos;
+            }, 60); // 每 60 毫秒跳动一次，视觉极度紧张
+        } else {
+            // 踩下刹车：数学级绝对公平的停止
+            isRolling = false;
+            clearInterval(rollInterval);
+            btn.innerText = '✅ 已锁定';
+            btn.style.background = '#10b981'; // 绿色安全色
+
+            // 从剩余的签里真·随机抽取一个作为最终结果
+            const finalPosIndex = Math.floor(Math.random() * wsPositions.length);
+            const finalPos = wsPositions[finalPosIndex];
+            slot.innerText = finalPos;
+
+            // 记录到结果字典中，并把这个签位从池子里划掉
+            finalResults[wsPlayers[currentDrawIndex]] = finalPos;
+            wsPositions.splice(finalPosIndex, 1); 
+
+            btn.disabled = true; // 暂时禁用防手抖
+
+            // 延迟 1.5 秒后，自动请出下一位选手
+            setTimeout(() => {
+                currentDrawIndex++;
+                if (currentDrawIndex < wsPlayers.length) {
+                    document.getElementById('current-draw-player').innerText = wsPlayers[currentDrawIndex];
+                    slot.innerText = '?';
+                    btn.innerText = '🚀 开始滚动';
+                    btn.style.background = 'var(--gradient-orange)';
+                    btn.disabled = false;
+                } else {
+                    // 所有人全部抽完，进入结算大屏
+                    document.getElementById('draw-rolling-area').style.display = 'none';
+                    showDrawResults();
+                    btn.disabled = false;
+                }
+            }, 1500);
+        }
+    }
+
+    function showDrawResults() {
+        document.getElementById('draw-result-area').style.display = 'block';
+        const list = document.getElementById('draw-result-list');
+        list.innerHTML = '';
+        for (let player in finalResults) {
+            list.innerHTML += `<li style="border-bottom: 1px dashed #e2e8f0; padding: 12px 0;">${player} 锁定签位 👉 <span style="color:#FF512F; font-size:1.6rem; margin-left: 10px;">${finalResults[player]}</span></li>`;
+        }
+    }
+
+    // 将结果绘制成对阵表图纸
+    function generateBracket() {
+        document.getElementById('draw-action-view').style.display = 'none';
+        document.getElementById('matchup-detail-view').style.display = 'block';
+        
+        // 智能匹配 A1 A2 B1 B2 对应的主人
+        let a1 = Object.keys(finalResults).find(key => finalResults[key] === 'A1');
+        let a2 = Object.keys(finalResults).find(key => finalResults[key] === 'A2');
+        let b1 = Object.keys(finalResults).find(key => finalResults[key] === 'B1');
+        let b2 = Object.keys(finalResults).find(key => finalResults[key] === 'B2');
+
+        const container = document.querySelector('#matchup-detail-view .empty-state');
+        container.innerHTML = `
+            <h3 style="color: #FF512F; margin-bottom: 25px; font-size: 2rem;">🌸 女子单打 官方对阵图</h3>
+            
+            <div style="background: #fff; border: 2px solid #f1f5f9; border-radius: 20px; padding: 25px; text-align: left; box-shadow: 0 10px 40px rgba(0,0,0,0.08); margin: 0 auto; max-width: 450px;">
+                
+                <div style="margin-bottom: 25px;">
+                    <div style="background: rgba(255,81,47,0.1); color: #E65100; font-weight: 900; padding: 10px 15px; border-radius: 10px; margin-bottom: 15px; display:flex; justify-content:space-between;">
+                        <span>上半区 (Upper Half)</span> <span>决赛入场券A</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px dashed #e2e8f0;">
+                        <span style="font-weight: bold; color: #94a3b8; font-size: 1.2rem;">A1</span>
+                        <span style="font-size: 1.4rem; font-weight: 900; color: #2A1B18;">${a1}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 12px;">
+                        <span style="font-weight: bold; color: #94a3b8; font-size: 1.2rem;">A2</span>
+                        <span style="font-size: 1.4rem; font-weight: 900; color: #2A1B18;">${a2}</span>
+                    </div>
+                </div>
+
+                <div>
+                    <div style="background: rgba(255,81,47,0.1); color: #E65100; font-weight: 900; padding: 10px 15px; border-radius: 10px; margin-bottom: 15px; display:flex; justify-content:space-between;">
+                        <span>下半区 (Lower Half)</span> <span>决赛入场券B</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px dashed #e2e8f0;">
+                        <span style="font-weight: bold; color: #94a3b8; font-size: 1.2rem;">B1</span>
+                        <span style="font-size: 1.4rem; font-weight: 900; color: #2A1B18;">${b1}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 12px;">
+                        <span style="font-weight: bold; color: #94a3b8; font-size: 1.2rem;">B2</span>
+                        <span style="font-size: 1.4rem; font-weight: 900; color: #2A1B18;">${b2}</span>
+                    </div>
+                </div>
+                
+            </div>
+            <p style="color: var(--text-light); margin-top: 25px; font-size: 0.95rem; font-weight: bold;">📷 抽签完毕，主持人可直接截取此图发送至赛事群公示。</p>
+        `;
+    }
+
+
+
+
+
+        
 
         <div id="matchup-detail-view" style="display: none; text-align:center;">
             <div class="card">
