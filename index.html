@@ -745,48 +745,54 @@
         renderAdminBracket(currentDrawEvent, drawResults);
     }
 
-    function renderAdminBracket(evtKey, data) {
+   function renderAdminBracket(evtKey, data) {
         openMgmtView('mgmt-matchup-view');
         
         let isEight = Object.keys(data).length > 4;
         const dataString = JSON.stringify(data).replace(/"/g, '&quot;');
         const eventName = EVENT_CONFIG[evtKey].name;
 
+        // 【关键修复】：强大的双向检索，兼顾引擎动态数据和顶部硬编码数据
+        const getPlayer = (pos) => {
+            let nameFromEngine = Object.keys(data).find(key => data[key] === pos);
+            return nameFromEngine || data[pos] || '-';
+        };
+
         let contentHtml = '';
         if (isEight) {
             contentHtml = `
                 <div style="margin-bottom: 20px;">
                     <div style="background: #f8fafc; font-weight: bold; padding: 6px; border-radius: 8px; margin-bottom: 8px; text-align: center; border: 1px solid #e2e8f0;">1/4区</div>
-                    <div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px dashed #e2e8f0;"><span style="color:#FF512F; font-weight:bold;">A1</span><b>${data['A1']||'-'}</b></div>
-                    <div style="display:flex; justify-content:space-between; padding:8px;"><span style="color:#FF512F; font-weight:bold;">A2</span><b>${data['A2']||'-'}</b></div>
+                    <div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px dashed #e2e8f0;"><span style="color:#FF512F; font-weight:bold;">A1</span><b>${getPlayer('A1')}</b></div>
+                    <div style="display:flex; justify-content:space-between; padding:8px;"><span style="color:#FF512F; font-weight:bold;">A2</span><b>${getPlayer('A2')}</b></div>
                 </div>
                 <div style="margin-bottom: 20px;">
                     <div style="background: #f8fafc; font-weight: bold; padding: 6px; border-radius: 8px; margin-bottom: 8px; text-align: center; border: 1px solid #e2e8f0;">2/4区</div>
-                    <div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px dashed #e2e8f0;"><span style="color:#FF512F; font-weight:bold;">B1</span><b>${data['B1']||'-'}</b></div>
-                    <div style="display:flex; justify-content:space-between; padding:8px;"><span style="color:#FF512F; font-weight:bold;">B2</span><b>${data['B2']||'-'}</b></div>
+                    <div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px dashed #e2e8f0;"><span style="color:#FF512F; font-weight:bold;">B1</span><b>${getPlayer('B1')}</b></div>
+                    <div style="display:flex; justify-content:space-between; padding:8px;"><span style="color:#FF512F; font-weight:bold;">B2</span><b>${getPlayer('B2')}</b></div>
                 </div>
                 <div style="margin-bottom: 20px;">
                     <div style="background: #f8fafc; font-weight: bold; padding: 6px; border-radius: 8px; margin-bottom: 8px; text-align: center; border: 1px solid #e2e8f0;">3/4区</div>
-                    <div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px dashed #e2e8f0;"><span style="color:#FF512F; font-weight:bold;">C1</span><b>${data['C1']||'-'}</b></div>
-                    <div style="display:flex; justify-content:space-between; padding:8px;"><span style="color:#FF512F; font-weight:bold;">C2</span><b>${data['C2']||'-'}</b></div>
+                    <div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px dashed #e2e8f0;"><span style="color:#FF512F; font-weight:bold;">C1</span><b>${getPlayer('C1')}</b></div>
+                    <div style="display:flex; justify-content:space-between; padding:8px;"><span style="color:#FF512F; font-weight:bold;">C2</span><b>${getPlayer('C2')}</b></div>
                 </div>
                 <div>
                     <div style="background: #f8fafc; font-weight: bold; padding: 6px; border-radius: 8px; margin-bottom: 8px; text-align: center; border: 1px solid #e2e8f0;">4/4区</div>
-                    <div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px dashed #e2e8f0;"><span style="color:#FF512F; font-weight:bold;">D1</span><b>${data['D1']||'-'}</b></div>
-                    <div style="display:flex; justify-content:space-between; padding:8px;"><span style="color:#FF512F; font-weight:bold;">D2</span><b>${data['D2']||'-'}</b></div>
+                    <div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px dashed #e2e8f0;"><span style="color:#FF512F; font-weight:bold;">D1</span><b>${getPlayer('D1')}</b></div>
+                    <div style="display:flex; justify-content:space-between; padding:8px;"><span style="color:#FF512F; font-weight:bold;">D2</span><b>${getPlayer('D2')}</b></div>
                 </div>
             `;
         } else {
             contentHtml = `
                 <div style="margin-bottom: 25px;">
                     <div style="background: #f8fafc; color: #475569; font-weight: bold; padding: 8px 15px; border-radius: 8px; margin-bottom: 10px; text-align: center; border: 1px solid #e2e8f0;">上半区</div>
-                    <div style="display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px dashed #e2e8f0;"><span style="font-weight: bold; color: #FF512F; font-size: 1.1rem;">A1</span><span style="font-size: 1.1rem; font-weight: bold; color: #2A1B18;">${data['A1']||'-'}</span></div>
-                    <div style="display: flex; justify-content: space-between; padding: 12px;"><span style="font-weight: bold; color: #FF512F; font-size: 1.1rem;">A2</span><span style="font-size: 1.1rem; font-weight: bold; color: #2A1B18;">${data['A2']||'-'}</span></div>
+                    <div style="display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px dashed #e2e8f0;"><span style="font-weight: bold; color: #FF512F; font-size: 1.1rem;">A1</span><span style="font-size: 1.1rem; font-weight: bold; color: #2A1B18;">${getPlayer('A1')}</span></div>
+                    <div style="display: flex; justify-content: space-between; padding: 12px;"><span style="font-weight: bold; color: #FF512F; font-size: 1.1rem;">A2</span><span style="font-size: 1.1rem; font-weight: bold; color: #2A1B18;">${getPlayer('A2')}</span></div>
                 </div>
                 <div>
                     <div style="background: #f8fafc; color: #475569; font-weight: bold; padding: 8px 15px; border-radius: 8px; margin-bottom: 10px; text-align: center; border: 1px solid #e2e8f0;">下半区</div>
-                    <div style="display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px dashed #e2e8f0;"><span style="font-weight: bold; color: #FF512F; font-size: 1.1rem;">B1</span><span style="font-size: 1.1rem; font-weight: bold; color: #2A1B18;">${data['B1']||'-'}</span></div>
-                    <div style="display: flex; justify-content: space-between; padding: 12px;"><span style="font-weight: bold; color: #FF512F; font-size: 1.1rem;">B2</span><span style="font-size: 1.1rem; font-weight: bold; color: #2A1B18;">${data['B2']||'-'}</span></div>
+                    <div style="display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px dashed #e2e8f0;"><span style="font-weight: bold; color: #FF512F; font-size: 1.1rem;">B1</span><span style="font-size: 1.1rem; font-weight: bold; color: #2A1B18;">${getPlayer('B1')}</span></div>
+                    <div style="display: flex; justify-content: space-between; padding: 12px;"><span style="font-weight: bold; color: #FF512F; font-size: 1.1rem;">B2</span><span style="font-size: 1.1rem; font-weight: bold; color: #2A1B18;">${getPlayer('B2')}</span></div>
                 </div>
             `;
         }
@@ -852,8 +858,15 @@
     }
 
     // 完美防换行排版
+  // 生成单个项目的 VS 模块
     function generateSingleVsBlock(eventName, dataObj) {
         let isEight = Object.keys(dataObj).length > 4;
+
+        // 【关键修复】：同样加入双向检索函数，保证对决双方名字准确出现
+        const getPlayer = (pos) => {
+            let nameFromEngine = Object.keys(dataObj).find(key => dataObj[key] === pos);
+            return nameFromEngine || dataObj[pos] || '-';
+        };
         
         let html = `
             <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 25px 15px; margin: 0 auto 25px; max-width: 420px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
@@ -864,9 +877,9 @@
             <div style="margin-bottom: ${marginBot};">
                 <div style="background: ${bg}; color: ${color}; font-weight: bold; padding: 4px 12px; border-radius: 20px; font-size: 0.9rem; border: 1px solid ${border}; display: inline-block; margin-bottom: 12px;">${label}</div>
                 <div style="display: flex; align-items: center; justify-content: center; width: 100%; font-size: 1.05rem; font-weight: 900; color: #2A1B18;">
-                    <div style="width: 44%; text-align: right; line-height: 1.3;">${dataObj[id1]||'-'}</div>
+                    <div style="width: 44%; text-align: right; line-height: 1.3;">${getPlayer(id1)}</div>
                     <div style="width: 12%; text-align: center; color: #cbd5e1; font-style: italic; font-size: 0.9rem;">VS</div>
-                    <div style="width: 44%; text-align: left; line-height: 1.3;">${dataObj[id2]||'-'}</div>
+                    <div style="width: 44%; text-align: left; line-height: 1.3;">${getPlayer(id2)}</div>
                 </div>
             </div>
         `;
