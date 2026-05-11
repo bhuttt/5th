@@ -395,31 +395,17 @@
             </div>
         </div>
 
-        <div id="draw-action-view" style="display: none; text-align:center;">
+      <div id="draw-action-view" style="display: none; text-align:center;">
             <div class="card" style="max-width: 600px; margin: 0 auto;">
-                <h2 class="card-header" style="justify-content: center;">🌸 女子单打 · 线上抽签直播</h2>
+                <h2 class="card-header" style="justify-content: center;">🌸 女子单打 · 线上抽签</h2>
                 
                 <div id="draw-setup-area">
-                    <p style="color: var(--text-main); font-size: 1.1rem; margin-bottom: 20px;">请主持人就位并共享屏幕。<br>系统将按以下名单顺序分配半区签位：<br><b style="color:#FF512F; font-size:1.3rem;">邵尔诺、李子璇、张蓝兮、李沃柔</b></p>
-                    <button class="login-btn" onclick="initWSDraw()" style="font-size: 1.2rem; padding: 15px;">🏁 正式启动抽签引擎</button>
+                    <p style="color: var(--text-light); font-size: 1rem; margin-bottom: 25px;">请主持人就位。抽签不分先后，可由任意选手指定开始与停止。</p>
+                    
+                    <div id="players-draw-grid" style="display: flex; flex-direction: column; gap: 15px;"></div>
+                    
+                    <button id="gen-bracket-btn" class="login-btn" style="display:none; background: #10b981; margin-top: 30px;" onclick="generateBracket()">生成对阵表</button>
                     <button class="login-btn" style="background:#f1f5f9; color:#64748b; margin-top: 15px; box-shadow:none;" onclick="closeDrawAction()">返回控制台</button>
-                </div>
-
-                <div id="draw-rolling-area" style="display: none;">
-                    <h3 style="font-size: 1.4rem; color: var(--text-light); margin-bottom: 10px;">当前祈运选手</h3>
-                    <div id="current-draw-player" style="color: #E65100; font-size: 2.5rem; font-weight: 900; letter-spacing: 2px;"></div>
-                    
-                    <div style="margin: 30px auto; width: 220px; height: 160px; background: #f8fafc; border: 4px dashed #FF512F; border-radius: 24px; display: flex; align-items: center; justify-content: center; font-size: 5rem; font-weight: 900; color: #2A1B18; box-shadow: inset 0 10px 20px rgba(0,0,0,0.05);" id="rolling-slot">
-                        ?
-                    </div>
-                    
-                    <button id="roll-btn" class="login-btn" style="font-size: 1.6rem; padding: 20px; border-radius: 50px;" onclick="toggleRoll()">🚀 开始滚动</button>
-                </div>
-
-                <div id="draw-result-area" style="display: none; margin-top: 20px;">
-                    <h3 style="color: #FF512F; font-size: 1.8rem; margin-bottom: 15px;">✅ 本组抽签完毕</h3>
-                    <ul id="draw-result-list" style="list-style: none; padding: 0; font-size: 1.3rem; line-height: 2.2; font-weight: bold; margin-bottom: 30px;"></ul>
-                    <button class="login-btn" onclick="generateBracket()" style="background: #10b981;">一键生成对阵表 (供截图公示)</button>
                 </div>
             </div>
         </div>
@@ -755,32 +741,34 @@
     window.addEventListener('hashchange', handleRouting);
     window.addEventListener('load', handleRouting);
 
-    // ---------------------------------------------------------
-    // 模块 6: 赛事抽签动效引擎 (新增)
-    // ---------------------------------------------------------
+    // ================== 6. 赛事抽签动效引擎 (并行升级版) ==================
     const wsPlayers = ['邵尔诺', '李子璇', '张蓝兮', '李沃柔'];
     let wsPositions = ['A1', 'A2', 'B1', 'B2'];
-    let currentDrawIndex = 0;
-    let rollInterval = null;
-    let isRolling = false;
     let finalResults = {}; 
+    let rollIntervals = {}; // 独立管理每个人的滚动计时器
 
     function openDrawAction() {
         document.getElementById('draw-system-view').style.display = 'none';
         document.getElementById('draw-action-view').style.display = 'block';
         
-        // 每次进入重置状态，保证无限次私下模拟
+        // 重置所有状态，保障无限次测试
         wsPositions = ['A1', 'A2', 'B1', 'B2'];
-        currentDrawIndex = 0;
         finalResults = {};
+        rollIntervals = {};
+        document.getElementById('gen-bracket-btn').style.display = 'none';
         
-        document.getElementById('draw-setup-area').style.display = 'block';
-        document.getElementById('draw-rolling-area').style.display = 'none';
-        document.getElementById('draw-result-area').style.display = 'none';
-        document.getElementById('rolling-slot').innerText = '?';
-        document.getElementById('roll-btn').innerText = '🚀 开始滚动';
-        document.getElementById('roll-btn').style.background = 'var(--gradient-orange)';
-        document.getElementById('roll-btn').disabled = false;
+        // 动态生成四个人的并行抽签条目
+        const grid = document.getElementById('players-draw-grid');
+        grid.innerHTML = '';
+        wsPlayers.forEach((player, index) => {
+            grid.innerHTML += `
+                <div style="display: flex; align-items: center; justify-content: space-between; background: #f8fafc; padding: 15px 20px; border-radius: 16px; border: 1px solid #e2e8f0;">
+                    <span style="font-size: 1.2rem; font-weight: bold; width: 80px; text-align: left; color: var(--text-main);">${player}</span>
+                    <div id="slot-${index}" style="font-size: 1.6rem; font-weight: 900; color: #FF512F; width: 60px; text-align: center; border: 2px dashed #cbd5e1; border-radius: 8px; background: #fff;">?</div>
+                    <button id="btn-${index}" class="login-btn" style="margin: 0; width: 90px; padding: 10px; font-size: 1rem;" onclick="togglePlayerRoll('${player}', ${index})">开始</button>
+                </div>
+            `;
+        });
     }
 
     function closeDrawAction() {
@@ -788,114 +776,103 @@
         document.getElementById('draw-system-view').style.display = 'block';
     }
 
-    function initWSDraw() {
-        document.getElementById('draw-setup-area').style.display = 'none';
-        document.getElementById('draw-rolling-area').style.display = 'block';
-        document.getElementById('current-draw-player').innerText = wsPlayers[currentDrawIndex];
-    }
+    // 独立控制每个选手的滚动与停止
+    function togglePlayerRoll(player, index) {
+        const btn = document.getElementById(`btn-${index}`);
+        const slot = document.getElementById(`slot-${index}`);
 
-    function toggleRoll() {
-        const btn = document.getElementById('roll-btn');
-        const slot = document.getElementById('rolling-slot');
-
-        if (!isRolling) {
-            // 开始狂暴滚动
-            isRolling = true;
-            btn.innerText = '🛑 停！(锁定签位)';
+        if (!rollIntervals[player]) {
+            // 防御：如果签池空了，直接返回
+            if (wsPositions.length === 0) return;
+            
+            // 开始滚动
+            btn.innerText = '停';
             btn.style.background = '#e11d48'; 
             
-            rollInterval = setInterval(() => {
+            rollIntervals[player] = setInterval(() => {
                 const randomPos = wsPositions[Math.floor(Math.random() * wsPositions.length)];
                 slot.innerText = randomPos;
             }, 60); 
         } else {
-            // 刹车并敲定结果
-            isRolling = false;
-            clearInterval(rollInterval);
-            btn.innerText = '✅ 已锁定';
+            // 停止并锁定签位
+            clearInterval(rollIntervals[player]);
+            btn.innerText = '已锁定';
             btn.style.background = '#10b981'; 
+            btn.disabled = true; 
 
-            // 真·随机抽取
+            // 从签池中随机抓取最终签位
             const finalPosIndex = Math.floor(Math.random() * wsPositions.length);
             const finalPos = wsPositions[finalPosIndex];
             slot.innerText = finalPos;
 
-            // 记录并移出号池
-            finalResults[wsPlayers[currentDrawIndex]] = finalPos;
+            // 记录结果并移出签池
+            finalResults[player] = finalPos;
             wsPositions.splice(finalPosIndex, 1); 
 
-            btn.disabled = true; 
-
-            // 1.5 秒后换下一个人
-            setTimeout(() => {
-                currentDrawIndex++;
-                if (currentDrawIndex < wsPlayers.length) {
-                    document.getElementById('current-draw-player').innerText = wsPlayers[currentDrawIndex];
-                    slot.innerText = '?';
-                    btn.innerText = '🚀 开始滚动';
-                    btn.style.background = 'var(--gradient-orange)';
-                    btn.disabled = false;
-                } else {
-                    document.getElementById('draw-rolling-area').style.display = 'none';
-                    showDrawResults();
-                    btn.disabled = false;
-                }
-            }, 1500);
+            // 判断是否全员抽签完毕，显示生成按钮
+            if (Object.keys(finalResults).length === wsPlayers.length) {
+                document.getElementById('gen-bracket-btn').style.display = 'block';
+            }
         }
     }
 
-    function showDrawResults() {
-        document.getElementById('draw-result-area').style.display = 'block';
-        const list = document.getElementById('draw-result-list');
-        list.innerHTML = '';
-        for (let player in finalResults) {
-            list.innerHTML += `<li style="border-bottom: 1px dashed #e2e8f0; padding: 12px 0;">${player} 锁定签位 👉 <span style="color:#FF512F; font-size:1.6rem; margin-left: 10px;">${finalResults[player]}</span></li>`;
-        }
-    }
-
+    // 生成庄重、简洁的对阵表
     function generateBracket() {
         document.getElementById('draw-action-view').style.display = 'none';
         document.getElementById('matchup-detail-view').style.display = 'block';
         
-        let a1 = Object.keys(finalResults).find(key => finalResults[key] === 'A1');
-        let a2 = Object.keys(finalResults).find(key => finalResults[key] === 'A2');
-        let b1 = Object.keys(finalResults).find(key => finalResults[key] === 'B1');
-        let b2 = Object.keys(finalResults).find(key => finalResults[key] === 'B2');
+        // 匹配签位
+        let a1 = Object.keys(finalResults).find(key => finalResults[key] === 'A1') || '虚位以待';
+        let a2 = Object.keys(finalResults).find(key => finalResults[key] === 'A2') || '虚位以待';
+        let b1 = Object.keys(finalResults).find(key => finalResults[key] === 'B1') || '虚位以待';
+        let b2 = Object.keys(finalResults).find(key => finalResults[key] === 'B2') || '虚位以待';
 
-        const container = document.querySelector('#matchup-detail-view .empty-state');
+        const container = document.getElementById('matchup-detail-view');
+        // 重写整个对阵表视图，包含专属的管理员返回按钮
         container.innerHTML = `
-            <h3 style="color: #FF512F; margin-bottom: 25px; font-size: 2rem;">🌸 女子单打 官方对阵图</h3>
-            <div style="background: #fff; border: 2px solid #f1f5f9; border-radius: 20px; padding: 25px; text-align: left; box-shadow: 0 10px 40px rgba(0,0,0,0.08); margin: 0 auto; max-width: 450px;">
-                <div style="margin-bottom: 25px;">
-                    <div style="background: rgba(255,81,47,0.1); color: #E65100; font-weight: 900; padding: 10px 15px; border-radius: 10px; margin-bottom: 15px; display:flex; justify-content:space-between;">
-                        <span>上半区 (Upper Half)</span> <span>决赛入场券A</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px dashed #e2e8f0;">
-                        <span style="font-weight: bold; color: #94a3b8; font-size: 1.2rem;">A1</span>
-                        <span style="font-size: 1.4rem; font-weight: 900; color: #2A1B18;">${a1}</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; padding: 12px;">
-                        <span style="font-weight: bold; color: #94a3b8; font-size: 1.2rem;">A2</span>
-                        <span style="font-size: 1.4rem; font-weight: 900; color: #2A1B18;">${a2}</span>
+            <div class="card">
+                <h2 class="card-header" style="justify-content: center; font-size: 1.6rem;">女子单打 对阵表</h2>
+                <div class="empty-state" style="padding: 10px 0;">
+                    <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; text-align: left; margin: 0 auto; max-width: 400px; box-shadow: 0 5px 20px rgba(0,0,0,0.03);">
+                        <div style="margin-bottom: 20px;">
+                            <div style="background: #f8fafc; color: #475569; font-weight: bold; padding: 8px 15px; border-radius: 8px; margin-bottom: 10px; text-align: center; border: 1px solid #e2e8f0;">
+                                上半区
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px dashed #e2e8f0;">
+                                <span style="font-weight: bold; color: #FF512F; font-size: 1.1rem;">A1</span>
+                                <span style="font-size: 1.2rem; font-weight: bold; color: #2A1B18;">${a1}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 12px;">
+                                <span style="font-weight: bold; color: #FF512F; font-size: 1.1rem;">A2</span>
+                                <span style="font-size: 1.2rem; font-weight: bold; color: #2A1B18;">${a2}</span>
+                            </div>
+                        </div>
+                        <div>
+                            <div style="background: #f8fafc; color: #475569; font-weight: bold; padding: 8px 15px; border-radius: 8px; margin-bottom: 10px; text-align: center; border: 1px solid #e2e8f0;">
+                                下半区
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px dashed #e2e8f0;">
+                                <span style="font-weight: bold; color: #FF512F; font-size: 1.1rem;">B1</span>
+                                <span style="font-size: 1.2rem; font-weight: bold; color: #2A1B18;">${b1}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 12px;">
+                                <span style="font-weight: bold; color: #FF512F; font-size: 1.1rem;">B2</span>
+                                <span style="font-size: 1.2rem; font-weight: bold; color: #2A1B18;">${b2}</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div>
-                    <div style="background: rgba(255,81,47,0.1); color: #E65100; font-weight: 900; padding: 10px 15px; border-radius: 10px; margin-bottom: 15px; display:flex; justify-content:space-between;">
-                        <span>下半区 (Lower Half)</span> <span>决赛入场券B</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px dashed #e2e8f0;">
-                        <span style="font-weight: bold; color: #94a3b8; font-size: 1.2rem;">B1</span>
-                        <span style="font-size: 1.4rem; font-weight: 900; color: #2A1B18;">${b1}</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; padding: 12px;">
-                        <span style="font-weight: bold; color: #94a3b8; font-size: 1.2rem;">B2</span>
-                        <span style="font-size: 1.4rem; font-weight: 900; color: #2A1B18;">${b2}</span>
-                    </div>
-                </div>
+                <button class="login-btn" onclick="backToDrawSystem()" style="background:#e2e8f0; color:#64748b; max-width:250px; margin-top: 20px; box-shadow:none;">返回</button>
             </div>
-            <p style="color: var(--text-light); margin-top: 25px; font-size: 0.95rem; font-weight: bold;">📷 抽签完毕，主持人可直接截取此图发送至赛事群公示。</p>
         `;
     }
+
+    // 专属的管理员返回函数（直接返回抽签控制台）
+    function backToDrawSystem() {
+        document.getElementById('matchup-detail-view').style.display = 'none';
+        document.getElementById('draw-system-view').style.display = 'block';
+    }
+    
 </script>
 </body>
 </html>
