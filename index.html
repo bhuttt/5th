@@ -670,25 +670,30 @@
 
     function previewBracket() { currentViewerIsAdmin = true; renderCleanBracket(wsResults, true); }
 
-    // 管理员：将抽签结果正式推送到 Bmob 数据库 (MatchupData表)
+    // 【修复版】管理员：正式推送到 Bmob 数据库
     function publishBracket() {
         if(!confirm("确定要正式发布到官网并公示吗？这将覆盖云端的旧数据。")) return;
-        
+
         const btn = document.getElementById('publish-bracket-btn');
         const originalText = btn.innerText;
-        btn.innerText = '⏳ 正在同步至云端...';
+        btn.innerText = '⏳ 正在同步...';
         btn.disabled = true;
 
         const q = Bmob.Query("MatchupData");
-        q.equalTo("category", "===", "WS");
+        // 避开 Bmob 针对空表的查询报错，直接拉取全部数据
         q.find().then(res => {
+            // 在前端寻找有没有女单(WS)的数据
+            const existingRecord = res.find(item => item.category === "WS");
+            
             const entry = Bmob.Query("MatchupData");
-            if (res.length > 0) {
-                // 【关键修复点】：Bmob SDK 正确的更新覆盖语法是指定 id
-                entry.set("id", res[0].objectId);
+            if (existingRecord) {
+                // 如果有旧数据，指定 ID 覆盖更新
+                entry.set("id", existingRecord.objectId); 
             }
+            
+            // 写入新数据：将对象强转为字符串，保证 100% 存入成功
             entry.set("category", "WS"); 
-            entry.set("results", wsResults); 
+            entry.set("matchData", JSON.stringify(wsResults)); 
             return entry.save();
         }).then(() => { 
             btn.innerText = originalText;
@@ -699,31 +704,50 @@
         }).catch(err => {
             btn.innerText = originalText;
             btn.disabled = false;
-            console.error("Bmob同步报错详情:", err);
-            alert("❌ 同步失败，请检查网络或刷新重试！");
-        });
-    }
-    // 观众：从 Bmob 数据库拉取抽签结果
-    function openPublicBracket() {
-        currentViewerIsAdmin = false; 
-        openMgmtView('mgmt-matchup-view');
-        document.getElementById('bracket-render-area').innerHTML = '<div style="padding: 60px 0;"><span style="font-size: 4rem;">⏳</span><h3 style="color: #E65100; margin-top: 15px;">正在连接云端对阵库...</h3></div>';
-        
-        const q = Bmob.Query("MatchupData");
-        q.equalTo("category", "===", "WS");
-        q.find().then(res => {
-            if(res.length > 0 && res[0].results) {
-                renderCleanBracket(res[0].results, false);
-            } else {
-                document.getElementById('bracket-render-area').innerHTML = '<div style="padding: 60px 0;"><span style="font-size: 4rem;">⏳</span><h3 style="color: #E65100; margin-top: 15px;">抽签仪式尚未完成</h3><p>请关注组委会群内通知</p></div>';
-                setupSmartBackButton();
-            }
-        }).catch(err => {
-            document.getElementById('bracket-render-area').innerHTML = '<div style="padding: 60px 0;"><span style="font-size: 4rem;">❌</span><h3 style="color: #E65100; margin-top: 15px;">网络连接失败</h3><p>请刷新重试</p></div>';
-            setupSmartBackButton();
+            console.error("同步异常:", err);
+            alert("❌ 同步失败，请检查网络或刷新页面！"); 
         });
     }
 
+    // 【修复版】观众：从 Bmob 数据库拉取抽签结果
+    function openPublicBracket() {
+        currentViewerIsAdmin = false; 
+        openMgmtView('mgmt-matchup-view');
+        
+        document.getElementById('bracket-render-area').innerHTML = `
+            <div style="padding: 60px 0;">
+                <span style="font-size: 4rem;">⏳</span>
+                <h3 style="color: #E65100; margin-top: 15px;">正在连接云端对阵库...</h3>
+            </div>`;
+        
+        const q = Bmob.Query("MatchupData");
+        // 同样避开查询报错，全量拉取后在前端过滤
+        q.find().then(res => {
+            const existingRecord = res.find(item => item.category === "WS");
+            
+            if(existingRecord && existingRecord.matchData) {
+                // 将字符串还原为抽签对象
+                const parsedData = JSON.parse(existingRecord.matchData);
+                renderCleanBracket(parsedData, false);
+            } else {
+                document.getElementById('bracket-render-area').innerHTML = `
+                    <div style="padding: 60px 0;">
+                        <span style="font-size: 4rem;">⏳</span>
+                        <h3 style="color: #E65100; margin-top: 15px;">抽签仪式尚未完成</h3>
+                        <p>请关注组委会群内通知</p>
+                    </div>`;
+                setupSmartBackButton();
+            }
+        }).catch(err => {
+            document.getElementById('bracket-render-area').innerHTML = `
+                <div style="padding: 60px 0;">
+                    <span style="font-size: 4rem;">❌</span>
+                    <h3 style="color: #e11d48; margin-top: 15px;">网络连接失败</h3>
+                    <p>请刷新页面重试</p>
+                </div>`;
+            setupSmartBackButton();
+        });
+    }
     function renderCleanBracket(data, fromAdmin = true) {
         if(fromAdmin) openMgmtView('mgmt-matchup-view');
         
