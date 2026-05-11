@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>渤海大学乒乓球队第五届总结大赛官方主页</title>
+    <script src="https://cdn.jsdelivr.net/npm/hydrogen-js-sdk@2.2.3/dist/Bmob-2.2.3.min.js"></script>
     <style>
         /* ==========================================================================
            1. 全局配置与 CSS 变量声明
@@ -31,7 +32,6 @@
         
         body { 
             background-color: var(--bg-light); color: var(--text-main); line-height: 1.6; padding-top: 75px;
-            /* 高级网格纹理背景 */
             background-image: 
                 radial-gradient(at 0% 0%, rgba(255, 81, 47, 0.15) 0px, transparent 60%),
                 radial-gradient(at 100% 0%, rgba(240, 152, 25, 0.15) 0px, transparent 60%),
@@ -40,9 +40,6 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* ==========================================================================
-           2. 顶部导航系统 (毛玻璃特效)
-           ========================================================================== */
         .navbar {
             position: fixed; top: 0; left: 0; width: 100%;
             background: rgba(253, 248, 244, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
@@ -60,9 +57,6 @@
         .nav-item:hover { color: #FF512F; background: rgba(255, 81, 47, 0.08); }
         .nav-item.active { background: var(--gradient-orange); color: white; box-shadow: 0 4px 12px rgba(255, 81, 47, 0.3); }
 
-        /* ==========================================================================
-           3. Hero 首屏展示区
-           ========================================================================== */
         .hero { margin: 20px auto 0; max-width: 900px; padding: 0 20px; }
         .hero-card {
             background: var(--gradient-coral); border-radius: 30px; padding: 40px 30px;
@@ -70,7 +64,6 @@
             display: flex; align-items: center; justify-content: center; gap: 25px;
             color: white; flex-wrap: wrap; text-align: left; position: relative; overflow: hidden;
         }
-        /* 装饰性光晕 */
         .hero-card::after { content: ''; position: absolute; top: -50%; right: -20%; width: 300px; height: 300px; background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%); border-radius: 50%; }
         
         .team-logo { width: 100px; height: 100px; border-radius: 50%; background: white; padding: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); object-fit: contain; flex-shrink: 0; position: relative; z-index: 2;}
@@ -78,9 +71,6 @@
         .hero-text h1 { font-family: 'ZhongShan', sans-serif; font-size: 3rem; margin-bottom: 5px; font-weight: normal; letter-spacing: 2px; text-shadow: 0 2px 10px rgba(0,0,0,0.1); line-height: 1.1; }
         .hero-text p { font-size: 1.1rem; opacity: 0.95; font-weight: 500;}
 
-        /* ==========================================================================
-           4. 页面框架与卡片组件
-           ========================================================================== */
         .container { max-width: 900px; margin: 0 auto; padding: 30px 20px 60px; }
         .page-section { display: none; animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
         .page-section.active { display: block; }
@@ -94,12 +84,11 @@
         .card-header { font-size: 1.6rem; color: var(--text-main); margin-bottom: 25px; display: flex; align-items: center; gap: 10px; font-weight: 800; }
         .card-header::before { content: ''; display: block; width: 6px; height: 24px; background: var(--gradient-orange); border-radius: 6px; }
 
-        /* 沉浸式图片背景卡片 */
         .card-with-bg { position: relative; overflow: hidden; border: none; color: white; box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
         .card-with-bg::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; z-index: 0; transition: transform 0.8s ease; }
         .card-with-bg:hover::before { transform: scale(1.05); } 
-        .bg-countdown::before { background-image: url('./bg-countdown.jpg'); background-color: #2A1B18; }
-        .bg-intro::before { background-image: url('./bg-intro.jpg'); background-color: #2A1B18; }
+        .bg-countdown::before { background-color: #2A1B18; }
+        .bg-intro::before { background-color: #2A1B18; }
         .card-with-bg::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(28, 18, 16, 0.4); z-index: 1; backdrop-filter: blur(2px); }
         .card-with-bg > * { position: relative; z-index: 2; }
         
@@ -108,9 +97,6 @@
         .card-with-bg .time-box span { display: block; font-size: 2.8rem; font-weight: 900; color: #fff; text-shadow: 0 4px 15px rgba(255,81,47,0.6); line-height: 1; margin-bottom: 5px; }
         .card-with-bg .time-box .label { font-size: 0.9rem; color: rgba(255,255,255,0.8); font-weight: 600;}
 
-        /* ==========================================================================
-           5. 报名系统表单体系
-           ========================================================================== */
         .reg-label { display: block; margin-bottom: 8px; font-size: 0.95rem; font-weight: bold; color: var(--text-light); margin-top: 15px; text-align: left;}
         .login-form { display: flex; flex-direction: column; gap: 12px; margin: 0 auto; }
         .login-input { padding: 14px 15px; border-radius: 12px; border: 1px solid #ddd; background: #fafafa; font-size: 15px; outline: none; transition: all 0.3s; width: 100%; appearance: none; -webkit-appearance: none;}
@@ -119,22 +105,14 @@
         
         .login-btn { background: var(--gradient-orange); color: white; border: none; padding: 14px; border-radius: 12px; font-weight: bold; font-size: 15px; cursor: pointer; transition: all 0.3s; margin-top: 5px; width: 100%;}
         .login-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255,81,47,0.3); }
+        .login-btn:disabled { background: #ccc; cursor: not-allowed; box-shadow: none; transform: none; }
 
-        /* 沉浸式照片上传区 */
-        .photo-upload-zone {
-            width: 160px; height: 224px; border: 2px dashed #cbd5e1; border-radius: 16px; margin: 25px auto; 
-            position: relative; display: flex; align-items: center; justify-content: center; background: #f8fafc; 
-            overflow: hidden; cursor: pointer; transition: var(--transition); box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
-        }
+        .photo-upload-zone { width: 160px; height: 224px; border: 2px dashed #cbd5e1; border-radius: 16px; margin: 25px auto; position: relative; display: flex; align-items: center; justify-content: center; background: #f8fafc; overflow: hidden; cursor: pointer; transition: var(--transition); box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); }
         .photo-upload-zone:hover { border-color: #FF512F; background: #fff; box-shadow: 0 8px 20px rgba(255,81,47,0.08);}
         .photo-upload-zone img { width: 100%; height: 100%; object-fit: cover; display: none; z-index: 2; position: relative;}
         .photo-upload-zone .placeholder { text-align: center; color: #94a3b8; font-size: 0.9rem; z-index: 1;}
         .photo-upload-zone .placeholder span { font-size: 3rem; display: block; margin-bottom: 12px; color: #cbd5e1; transition: var(--transition);}
-        .photo-upload-zone:hover .placeholder span { color: #FF512F; transform: scale(1.1);}
 
-        /* ==========================================================================
-           6. 管理员后台网格系统
-           ========================================================================== */
         .portal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
         .portal-card { background: rgba(255,255,255,0.85); border: 1px solid rgba(255,255,255,0.6); border-radius: 24px; padding: 40px 30px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.04); transition: var(--transition); display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; }
         .portal-card:hover { transform: translateY(-5px); border-color: rgba(255,81,47,0.2); box-shadow: 0 15px 35px rgba(255,81,47,0.1);}
@@ -143,9 +121,6 @@
         .sys-module { background: white; border: 2px solid #f1f5f9; border-radius: 20px; padding: 30px 15px; width: calc(33.333% - 15px); min-width: 140px; text-align: center; cursor: pointer; transition: all 0.4s; box-shadow: 0 5px 15px rgba(0,0,0,0.03); }
         .sys-module:hover { border-color: #FF512F; transform: scale(1.05); box-shadow: 0 15px 30px rgba(255,81,47,0.15);}
 
-        /* ==========================================================================
-           7. 奖杯展厅与横幅图集
-           ========================================================================== */
         .trophy-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; max-width: 850px; margin: 0 auto; }
         .trophy-item { background: rgba(255,255,255,0.8); padding: 30px 20px; border-radius: 24px; text-align: center; border: 1px solid rgba(255,255,255,0.5); cursor: pointer; transition: var(--transition); display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .trophy-item:hover { transform: translateY(-5px); box-shadow: var(--shadow-hover); border-color: rgba(255,81,47,0.3);}
@@ -156,7 +131,7 @@
         .td-image-wrapper { flex-shrink: 0; width: 240px; aspect-ratio: 3 / 5; background: rgba(255, 81, 47, 0.04); border: 1px dashed rgba(255, 81, 47, 0.3); border-radius: 16px; overflow: hidden; position: relative; display: flex; align-items: center; justify-content: center; }
         #td-image { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.5s; }
 
-        .photo-banner-card { position: relative; background-image: url('./photo-bg.jpg'); background-color: #2A1B18; background-size: cover; background-position: center; border-radius: 24px; overflow: hidden; height: 400px; display: flex; align-items: center; justify-content: center; text-align: center; box-shadow: var(--shadow-hover); }
+        .photo-banner-card { position: relative; background-color: #2A1B18; background-size: cover; background-position: center; border-radius: 24px; overflow: hidden; height: 400px; display: flex; align-items: center; justify-content: center; text-align: center; box-shadow: var(--shadow-hover); }
         .photo-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(42, 27, 24, 0.3) 0%, rgba(230, 81, 0, 0.85) 100%); z-index: 1; }
         .photo-content { position: relative; z-index: 2; color: white; padding: 20px; }
         .photo-action-btn { display: inline-flex; align-items: center; gap: 12px; background: white; color: #E65100; padding: 16px 45px; border-radius: 50px; text-decoration: none; font-weight: 800; font-size: 1.3rem; transition: var(--transition); box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
@@ -165,9 +140,6 @@
         .empty-state { text-align: center; padding: 50px 20px; color: var(--text-light); }
         .empty-state span { font-size: 3.5rem; display: block; margin-bottom: 20px; opacity: 0.8;}
 
-        /* ==========================================================================
-           8. 移动端响应式适配
-           ========================================================================== */
         @media (max-width: 600px) {
             .hero-card { flex-direction: column; text-align: center; padding: 30px 20px;}
             .hero-text h1 { font-size: 2.4rem; }
@@ -223,15 +195,11 @@
             <h2 class="card-header" style="color:white; border-left-color: #FF512F;">大赛简介</h2>
             <div class="intro-section">
                 <div class="intro-title">【九载峥嵘，初心铸就丰碑】</div>
-                <p>时光荏苒，初心如磐。欢迎来到渤海大学乒乓球队第五届总结大赛官方主页！自2017年建队至今，渤海大学乒乓球队已走过整整九段波澜壮阔的岁月。九年风雨兼程，九载薪火相传，一代代渤乒人在方寸球台前挥洒汗水，将“团结拼搏”的队魂深深镌刻进每一次挥拍的基因中。如今迎来的第五届总结大赛，不仅是一场体育竞技的巅峰盛会，更是全体渤乒人跨越岁月的一座“光荣里程碑”。</p>
+                <p>时光荏苒，初心如磐。欢迎来到渤海大学乒乓球队第五届总结大赛官方主页！自2017年建队至今，渤海大学乒乓球队已走过整整九段波澜壮阔的岁月。九年风雨兼程，一代代渤乒人在方寸球台前挥洒汗水。如今迎来的第五届总结大赛，不仅是一场体育竞技的巅峰盛会，更是全体渤乒人跨越岁月的一座“光荣里程碑”。</p>
             </div>
-            <div class="intro-section">
-                <div class="intro-title">【以球为契，共守精神家园】</div>
-                <p>乒乓作响，皆是青春的回音。这方长方形的球台，不仅是现役队员厉兵秣马、展现实力的竞技场，更是一条跨越时间的纽带，紧紧牵引着身在四海的历届校友。我们始终坚信，无论大家毕业多久、走向何方，渤海大学乒乓球队永远是所有人心中最温暖、最不可替代的“精神家园”。每一次传承的奖杯交接，每一次老友的赛场重逢，都在诉说着关于热爱与陪伴的动人故事。</p>
-            </div>
-            <div class="intro-section">
+            <div class="intro-section" style="margin-top: 15px;">
                 <div class="intro-title">【马年仲夏，共赴九年之约】</div>
-                <p>从2017年的破浪启航，到丙午马年的仲夏重聚，“九年之约”承载了太多渤乒人的青春记忆与热血情怀。值此盛会，我们满怀热忱地向所有新老队员吹响这份庄重的集结号。在这里，新老交锋不为成败，只为传承；以球会友不论高低，皆是深情。让我们在这个夏天重返母校，共赴这场意义非凡的“九年之约”，共同见证渤海大学乒乓球队迈向更加辉煌的明天！</p>
+                <p>从2017年的破浪启航，到丙午马年的仲夏重聚，“九年之约”承载了太多渤乒人的青春记忆与热血情怀。值此盛会，我们满怀热忱地向所有新老队员吹响这份庄重的集结号。在这里，新老交锋不为成败，只为传承；以球会友不论高低，皆是深情。</p>
             </div>
         </div>
     </div>
@@ -408,11 +376,11 @@
                     <div class="sys-module" onclick="alert('拦截警告：名单仍在收集中，混合团体抽签程序目前处于锁定状态。')">
                         <span class="sys-icon">🛡️</span><div class="sys-name">混合团体 抽签</div>
                     </div>
+                    <div class="sys-module" onclick="openDrawAction()" style="border-color: #FF512F;">
+                        <span class="sys-icon">🌸</span><div class="sys-name" style="color:#FF512F; font-weight:bold;">女子单打 抽签</div>
+                    </div>
                     <div class="sys-module" onclick="alert('拦截警告：名单仍在收集中，男子单打抽签程序目前处于锁定状态。')">
                         <span class="sys-icon">🏓</span><div class="sys-name">男子单打 抽签</div>
-                    </div>
-                    <div class="sys-module" onclick="alert('拦截警告：名单仍在收集中，女子单打抽签程序目前处于锁定状态。')">
-                        <span class="sys-icon">🌸</span><div class="sys-name">女子单打 抽签</div>
                     </div>
                     <div class="sys-module" onclick="alert('拦截警告：名单仍在收集中，男子双打抽签程序目前处于锁定状态。')">
                         <span class="sys-icon">🤝</span><div class="sys-name">男子双打 抽签</div>
@@ -426,7 +394,8 @@
                 </div>
             </div>
         </div>
-<div id="draw-action-view" style="display: none; text-align:center;">
+
+        <div id="draw-action-view" style="display: none; text-align:center;">
             <div class="card" style="max-width: 600px; margin: 0 auto;">
                 <h2 class="card-header" style="justify-content: center;">🌸 女子单打 · 线上抽签直播</h2>
                 
@@ -454,174 +423,6 @@
                 </div>
             </div>
         </div>
-        ```
-
-同时，找到控制台里的 **“女子单打 抽签”** 按钮（大约在代码的第 229 行附近），把它的点击事件**解除拦截并指向新界面**：
-
-**将这行原代码：**
-`<div class="sys-module" onclick="alert('拦截警告：名单仍在收集中，女子单打抽签程序目前处于锁定状态。')">`
-**修改为：**
-`<div class="sys-module" onclick="openDrawAction()">`
-
----
-
-### 💻 第二步：加入核心抽签引擎逻辑 (JavaScript)
-
-滑动到你代码最底部，在 `doExport()` 函数后面，也就是 `</script>` 标签之前，加入这套**极其丝滑的动态抽签算法**：
-
-```javascript
-    // ================== 6. 赛事抽签动效引擎 ==================
-    const wsPlayers = ['邵尔诺', '李子璇', '张蓝兮', '李沃柔'];
-    let wsPositions = ['A1', 'A2', 'B1', 'B2'];
-    let currentDrawIndex = 0;
-    let rollInterval = null;
-    let isRolling = false;
-    let finalResults = {}; 
-
-    // 打开抽签界面 (每次打开都会自动重置，方便你私下无限次测试)
-    function openDrawAction() {
-        document.getElementById('draw-system-view').style.display = 'none';
-        document.getElementById('draw-action-view').style.display = 'block';
-        
-        wsPositions = ['A1', 'A2', 'B1', 'B2'];
-        currentDrawIndex = 0;
-        finalResults = {};
-        
-        document.getElementById('draw-setup-area').style.display = 'block';
-        document.getElementById('draw-rolling-area').style.display = 'none';
-        document.getElementById('draw-result-area').style.display = 'none';
-        document.getElementById('rolling-slot').innerText = '?';
-        document.getElementById('roll-btn').innerText = '🚀 开始滚动';
-        document.getElementById('roll-btn').style.background = 'var(--gradient-orange)';
-    }
-
-    function closeDrawAction() {
-        document.getElementById('draw-action-view').style.display = 'none';
-        document.getElementById('draw-system-view').style.display = 'block';
-    }
-
-    function initWSDraw() {
-        document.getElementById('draw-setup-area').style.display = 'none';
-        document.getElementById('draw-rolling-area').style.display = 'block';
-        document.getElementById('current-draw-player').innerText = wsPlayers[currentDrawIndex];
-    }
-
-    // 核心动效：滚动与刹车
-    function toggleRoll() {
-        const btn = document.getElementById('roll-btn');
-        const slot = document.getElementById('rolling-slot');
-
-        if (!isRolling) {
-            // 踩下油门：开始狂暴滚动
-            isRolling = true;
-            btn.innerText = '🛑 停！(锁定签位)';
-            btn.style.background = '#e11d48'; // 红色危险警告色
-            
-            rollInterval = setInterval(() => {
-                const randomPos = wsPositions[Math.floor(Math.random() * wsPositions.length)];
-                slot.innerText = randomPos;
-            }, 60); // 每 60 毫秒跳动一次，视觉极度紧张
-        } else {
-            // 踩下刹车：数学级绝对公平的停止
-            isRolling = false;
-            clearInterval(rollInterval);
-            btn.innerText = '✅ 已锁定';
-            btn.style.background = '#10b981'; // 绿色安全色
-
-            // 从剩余的签里真·随机抽取一个作为最终结果
-            const finalPosIndex = Math.floor(Math.random() * wsPositions.length);
-            const finalPos = wsPositions[finalPosIndex];
-            slot.innerText = finalPos;
-
-            // 记录到结果字典中，并把这个签位从池子里划掉
-            finalResults[wsPlayers[currentDrawIndex]] = finalPos;
-            wsPositions.splice(finalPosIndex, 1); 
-
-            btn.disabled = true; // 暂时禁用防手抖
-
-            // 延迟 1.5 秒后，自动请出下一位选手
-            setTimeout(() => {
-                currentDrawIndex++;
-                if (currentDrawIndex < wsPlayers.length) {
-                    document.getElementById('current-draw-player').innerText = wsPlayers[currentDrawIndex];
-                    slot.innerText = '?';
-                    btn.innerText = '🚀 开始滚动';
-                    btn.style.background = 'var(--gradient-orange)';
-                    btn.disabled = false;
-                } else {
-                    // 所有人全部抽完，进入结算大屏
-                    document.getElementById('draw-rolling-area').style.display = 'none';
-                    showDrawResults();
-                    btn.disabled = false;
-                }
-            }, 1500);
-        }
-    }
-
-    function showDrawResults() {
-        document.getElementById('draw-result-area').style.display = 'block';
-        const list = document.getElementById('draw-result-list');
-        list.innerHTML = '';
-        for (let player in finalResults) {
-            list.innerHTML += `<li style="border-bottom: 1px dashed #e2e8f0; padding: 12px 0;">${player} 锁定签位 👉 <span style="color:#FF512F; font-size:1.6rem; margin-left: 10px;">${finalResults[player]}</span></li>`;
-        }
-    }
-
-    // 将结果绘制成对阵表图纸
-    function generateBracket() {
-        document.getElementById('draw-action-view').style.display = 'none';
-        document.getElementById('matchup-detail-view').style.display = 'block';
-        
-        // 智能匹配 A1 A2 B1 B2 对应的主人
-        let a1 = Object.keys(finalResults).find(key => finalResults[key] === 'A1');
-        let a2 = Object.keys(finalResults).find(key => finalResults[key] === 'A2');
-        let b1 = Object.keys(finalResults).find(key => finalResults[key] === 'B1');
-        let b2 = Object.keys(finalResults).find(key => finalResults[key] === 'B2');
-
-        const container = document.querySelector('#matchup-detail-view .empty-state');
-        container.innerHTML = `
-            <h3 style="color: #FF512F; margin-bottom: 25px; font-size: 2rem;">🌸 女子单打 官方对阵图</h3>
-            
-            <div style="background: #fff; border: 2px solid #f1f5f9; border-radius: 20px; padding: 25px; text-align: left; box-shadow: 0 10px 40px rgba(0,0,0,0.08); margin: 0 auto; max-width: 450px;">
-                
-                <div style="margin-bottom: 25px;">
-                    <div style="background: rgba(255,81,47,0.1); color: #E65100; font-weight: 900; padding: 10px 15px; border-radius: 10px; margin-bottom: 15px; display:flex; justify-content:space-between;">
-                        <span>上半区 (Upper Half)</span> <span>决赛入场券A</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px dashed #e2e8f0;">
-                        <span style="font-weight: bold; color: #94a3b8; font-size: 1.2rem;">A1</span>
-                        <span style="font-size: 1.4rem; font-weight: 900; color: #2A1B18;">${a1}</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; padding: 12px;">
-                        <span style="font-weight: bold; color: #94a3b8; font-size: 1.2rem;">A2</span>
-                        <span style="font-size: 1.4rem; font-weight: 900; color: #2A1B18;">${a2}</span>
-                    </div>
-                </div>
-
-                <div>
-                    <div style="background: rgba(255,81,47,0.1); color: #E65100; font-weight: 900; padding: 10px 15px; border-radius: 10px; margin-bottom: 15px; display:flex; justify-content:space-between;">
-                        <span>下半区 (Lower Half)</span> <span>决赛入场券B</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px dashed #e2e8f0;">
-                        <span style="font-weight: bold; color: #94a3b8; font-size: 1.2rem;">B1</span>
-                        <span style="font-size: 1.4rem; font-weight: 900; color: #2A1B18;">${b1}</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; padding: 12px;">
-                        <span style="font-weight: bold; color: #94a3b8; font-size: 1.2rem;">B2</span>
-                        <span style="font-size: 1.4rem; font-weight: 900; color: #2A1B18;">${b2}</span>
-                    </div>
-                </div>
-                
-            </div>
-            <p style="color: var(--text-light); margin-top: 25px; font-size: 0.95rem; font-weight: bold;">📷 抽签完毕，主持人可直接截取此图发送至赛事群公示。</p>
-        `;
-    }
-
-
-
-
-
-        
 
         <div id="matchup-detail-view" style="display: none; text-align:center;">
             <div class="card">
@@ -729,14 +530,13 @@
     // ---------------------------------------------------------
     // 模块 1: 三段式时间控制阀门与倒计时运算
     // ---------------------------------------------------------
-    const regStart = new Date("Apr 27, 2026 15:00:00").getTime(); // 报名开启阈值
-    const regEnd = new Date("May 4, 2026 17:59:59").getTime();   // 报名关闭阈值
-    const openDate = new Date("Jun 14, 2026 10:00:00").getTime(); // 赛事正赛开幕阈值
+    const regStart = new Date("Apr 27, 2026 15:00:00").getTime(); 
+    const regEnd = new Date("May 4, 2026 17:59:59").getTime();   
+    const openDate = new Date("Jun 14, 2026 10:00:00").getTime(); 
 
     function updateCountdowns() {
         const now = new Date().getTime();
         
-        // 1.1 主页：赛会开幕倒计时
         const distOpen = openDate - now;
         if (distOpen > 0) {
             document.getElementById("days").innerText = Math.floor(distOpen / 86400000);
@@ -747,13 +547,11 @@
             document.querySelector('.countdown').innerHTML = "<h3 style='color: #FF512F; font-size: 2rem; font-weight: 900;'>🔥 第五届总结大赛已燃情开幕！</h3>";
         }
 
-        // 1.2 报名页：三段式状态门禁动态切换
         const notStarted = document.getElementById('reg-status-not-started');
         const active = document.getElementById('reg-status-active');
         const ended = document.getElementById('reg-status-ended');
 
         if (now < regStart) {
-            // 状态A：拦截，并计算开启倒计时
             if(notStarted.style.display !== 'block') { notStarted.style.display = 'block'; active.style.display = 'none'; ended.style.display = 'none'; }
             const distStart = regStart - now;
             const d = Math.floor(distStart / 86400000);
@@ -762,28 +560,22 @@
             const s = Math.floor((distStart % 60000) / 1000);
             document.getElementById('reg-start-countdown').innerText = `${d}天 ${h}时 ${m}分 ${s}秒`;
         } else if (now >= regStart && now <= regEnd) {
-            // 状态B：畅通，表单显示
             if(active.style.display !== 'block') { notStarted.style.display = 'none'; active.style.display = 'block'; ended.style.display = 'none'; }
         } else {
-            // 状态C：永久关闭
             if(ended.style.display !== 'block') { notStarted.style.display = 'none'; active.style.display = 'none'; ended.style.display = 'block'; }
         }
     }
-    // 启动时间引擎
     setInterval(updateCountdowns, 1000);
     updateCountdowns();
 
     // ---------------------------------------------------------
-    // 模块 2: Bmob 后端云双重直连引擎 (照片外链提取 + 数据上链)
+    // 模块 2: Bmob 后端云双重直连引擎 
     // ---------------------------------------------------------
-    const bId = "2f8e8878894199f42e2a5991d48ab233"; // 用户专属 Application ID
-    const bKey = "9eaf6a2ec3dea2e9378764f89dc4737a"; // 用户专属 REST API Key
-    const bUrl = "https://api.bmobcloud.com/1/classes/PlayerReg"; // 数据表路由
+    Bmob.initialize("2f8e8878894199f42e2a5991d48ab233", "9eaf6a2ec3dea2e9378764f89dc4737a");
     
-    let temp = {}; // 表单暂存器
-    let selectedFile = null; // 本地图片文件暂存对象
+    let temp = {}; 
+    let selectedFile = null; 
 
-    // 2.1 捕获步骤 1 的信息
     function goStep2(e) {
         e.preventDefault();
         temp = {
@@ -797,7 +589,6 @@
         document.getElementById('reg-step-2').style.display = 'block';
     }
 
-    // 2.2 本地 FileReader 解析并展示图片预览
     function previewPhoto(input) {
         if (input.files && input.files[0]) {
             selectedFile = input.files[0]; 
@@ -811,7 +602,6 @@
         }
     }
 
-    // 2.3 核心双重提交：先传文件换 URL，再交数据
     function finalSubmit() {
         if (!selectedFile) { alert("⚠️ 驳回操作：请先选择并上传您的 1寸免冠照！"); return; }
         
@@ -821,39 +611,24 @@
         const loadingText = document.querySelector('#reg-loading p');
         loadingText.innerText = "正在加密上传照片原件至云端 (1/2)...";
 
-        // Action 1: 上传真实图片到 Bmob File Server
-        fetch(`https://api.bmobcloud.com/2/files/${encodeURIComponent(selectedFile.name)}`, {
-            method: 'POST',
-            headers: {
-                'X-Bmob-Application-Id': bId,
-                'X-Bmob-REST-API-Key': bKey,
-                'Content-Type': selectedFile.type || 'image/jpeg'
-            },
-            body: selectedFile
-        })
-        .then(res => {
-            if (!res.ok) throw new Error("图片服务器拒绝写入");
-            return res.json();
-        })
-        .then(fileData => {
-            // Action 2: 拿到公网访问 URL，装入数据表，发送至文字数据库
-            temp.photoUrl = fileData.url; 
+        const bmobFile = Bmob.File(selectedFile.name, selectedFile);
+        bmobFile.save().then(res => {
+            const photoUrl = res[0].url; 
             loadingText.innerText = "正在将您的档案写入精英阵容库 (2/2)...";
             
-            return fetch(bUrl, {
-                method: 'POST',
-                headers: {'X-Bmob-Application-Id': bId, 'X-Bmob-REST-API-Key': bKey, 'Content-Type': 'application/json'},
-                body: JSON.stringify(temp)
-            });
-        })
-        .then(res => {
-            if(res.ok) {
-                document.getElementById('success-msg').innerHTML = `<b style="color:#E65100;">${temp.name}</b> 同学，您的实体档案及照片文件已成功双重归档！`;
-                document.getElementById('reg-loading').style.display = 'none';
-                document.getElementById('reg-success').style.display = 'block';
-            } else throw new Error("文本数据库写入失败");
-        })
-        .catch(err => { 
+            const query = Bmob.Query('PlayerReg');
+            query.set("name", temp.name);
+            query.set("gender", temp.gender);
+            query.set("college", temp.college);
+            query.set("style", temp.style);
+            query.set("photoUrl", photoUrl); 
+            query.set("regTime", temp.time);
+            return query.save();
+        }).then(res => {
+            document.getElementById('success-msg').innerHTML = `<b style="color:#E65100;">${temp.name}</b> 同学，您的实体档案及照片文件已成功双重归档！`;
+            document.getElementById('reg-loading').style.display = 'none';
+            document.getElementById('reg-success').style.display = 'block';
+        }).catch(err => { 
             console.error(err);
             alert("❌ 同步中断！请检查网络状态，或确保照片体积不超过 2MB。"); 
             document.getElementById('reg-loading').style.display = 'none'; 
@@ -861,7 +636,6 @@
         });
     }
 
-    // 2.4 表单控制实用函数
     function backStep1() { document.getElementById('reg-step-2').style.display = 'none'; document.getElementById('reg-step-1').style.display = 'block'; }
     function resetRegistration() { 
         document.getElementById('reg-success').style.display='none'; 
@@ -877,7 +651,6 @@
     // ---------------------------------------------------------
     // 模块 3: 后台管理员验证系统与全局 CSV 导出器
     // ---------------------------------------------------------
-    // 组委会硬编码密钥本
     const adminAcc = {
         'bhuttt-5th01': '11111111', 
         'bhuttt-5th02': '22222222',
@@ -904,35 +677,23 @@
     function openMatchupView() { document.getElementById('draw-main-view').style.display='none'; document.getElementById('matchup-detail-view').style.display='block'; }
     function closeMatchupView() { document.getElementById('matchup-detail-view').style.display='none'; document.getElementById('draw-main-view').style.display='block'; }
 
-    // 核心：直接绕过控制台，利用前端发起 GET 请求导出全校名单
     function exportRegistrationData() {
-        alert("系统收到指令：正在建立安全连接，从 Bmob 云端拉取全员大名单，请等待浏览器下载提示...");
-        
-        // 拉取前 1000 条，按写入时间倒序
-        fetch(bUrl + "?limit=1000&order=-createdAt", {
-            method: 'GET',
-            headers: {'X-Bmob-Application-Id': bId, 'X-Bmob-REST-API-Key': bKey}
-        })
-        .then(res => res.json())
-        .then(data => {
-            let res = data.results;
-            if(!res || res.length === 0) { alert("📭 数据拉取完成：当前数据库容量为 0，暂无人报名。"); return; }
-            
-            // 构建带 BOM 头的 CSV (防止 Excel 中文乱码)
+        alert("系统收到指令：正在从 Bmob 云端拉取全员大名单，请等待浏览器下载提示...");
+        const query = Bmob.Query('PlayerReg');
+        query.limit(1000);
+        query.find().then(results => {
+            if(!results || results.length === 0) { alert("📭 数据拉取完成：当前数据库容量为 0，暂无人报名。"); return; }
             let csv = "data:text/csv;charset=utf-8,\uFEFF报名时间,姓名,性别,学院,打法,云端证件照链接\n";
-            res.forEach(p => { 
-                // 注意：最后一列导出的是包含 HTTPS 的真实图片 URL，点击即可下载查看
-                csv += `${p.time},${p.name},${p.gender},${p.college},${p.style},${p.photoUrl}\n`; 
+            results.forEach(p => { 
+                csv += `${p.regTime || p.createdAt},${p.name},${p.gender},${p.college},${p.style},${p.photoUrl || "无链接"}\n`; 
             });
-            
             const link = document.createElement("a");
             link.href = encodeURI(csv);
             link.download = "第五届总结大赛_全员带图名单_密件.csv";
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-        })
-        .catch(err => {
+        }).catch(err => {
             alert("❌ 提取被拒绝：无法连接云端数据库，请检查您的网络连接或管理员密钥状态。");
         });
     }
@@ -941,31 +702,11 @@
     // 模块 4: 五大荣誉奖杯数据驱动渲染系统
     // ---------------------------------------------------------
     const trophyData = {
-        'maipu': { 
-            name: '麦普杯 (Maple Cup)', 
-            type: '男子单打项目 · 冠军奖杯', 
-            content: '<b>【精神溯源】</b> 麦普杯象征着个人技艺的卓越与赛场风范，由渤海大学乒乓球队名誉队长、第三任队长姜枫先生于 2023 年 6 月捐赠。此杯专为嘉奖男单项目中技压群雄的冠军选手而设。“麦普”取自姜枫先生英文名“Maple”，寄寓成熟与坚毅之力。<br><br><b>【荣耀传承】</b> 每一届男单冠军的光辉姓名，将永久铭刻于麦普杯之上。2023 年第二届大赛中，刘奚铭首次将名字镌刻于此杯；2024 年第三届大赛，石致远成为麦普杯的第二任获得者；在去年的第四届大赛中，<b>田印广</b>成功夺魁，将其名字留在杯身。<br><br><b>【赛事展望】</b> 赛场上的每一次挥拍都凝聚着平日的汗水。本届大赛的男单桂冠正等待新的优胜者前来摘取，谁将脱颖而出，成为第四位将名字铭刻在麦普杯上的冠军？' 
-        },
-        'ximeng': { 
-            name: '西蒙杯 (Simon Cup)', 
-            type: '女子单打项目 · 冠军奖杯', 
-            content: '<b>【精神溯源】</b> 西蒙杯代表着女选手的优雅风姿与坚韧品格，由渤海大学乒乓球队名誉队长、第四任队长刘奚铭先生于 2024 年 6 月捐赠。此杯专门用于表彰女单比赛中的冠军得主。“西蒙”取自刘奚铭先生英文名“Simon”，寄托了对女队员们不断进步、追求卓越的鼓励与期许。<br><br><b>【荣耀传承】</b> 每一届女单冠军的姓名将荣镌杯身，见证她们的拼搏与荣誉。第三届比赛中，殷紫萱首度捧杯；去年第四届比赛中，<b>邵尔诺</b>表现优异，成为第二位将芳名留在西蒙杯上的优胜者。<br><br><b>【赛事展望】</b> 赛场不分性别，拼搏同样精彩。本届大赛的女单桂冠正静候新主，期待诞生第三位将名字铭刻在西蒙杯上的冠军选手。' 
-        },
-        'bulaifu': { 
-            name: '布莱芙杯 (Belief Cup)', 
-            type: '男子双打项目 · 冠军奖杯', 
-            content: '<b>【精神溯源】</b> 布莱芙杯象征着同伴间的信念与默契配合，由渤海大学乒乓球队首任队长陈欣洋先生于 2024 年 6 月捐赠。此杯用以表彰男双比赛中的冠军组合。“布莱芙”之名源自“欣洋”二字谐音“信仰”的英文“Belief”，寓意搭档间的相互信任与精诚协作是夺冠的基石。<br><br><b>【荣耀传承】</b> 每一届男双冠军组合的姓名将并列镌刻于杯身，共享荣誉。在第三届比赛中，王宗玉与杜沁宇组合首次捧起了此杯；去年第四届大赛，<b>康林哲与田印广</b>凭借默契配合，成为第二组荣镌此杯的搭档。<br><br><b>【赛事展望】</b> 双打考验的不仅是个人技术，更是 1+1 大于 2 的默契。本届男双比赛战幕将启，获胜的搭档将成为第三组将名字共同铭刻在布莱芙杯上的冠军组合。' 
-        },
-        'chaos': { 
-            name: '查奥斯杯 (Chaos Cup)', 
-            type: '混合双打项目 · 冠军奖杯', 
-            content: '<b>【精神溯源】</b> 查奥斯杯体现了力量与智慧的和谐交融，由渤海大学乒乓球队名誉队长、第二任队长刘丞皓先生于 2024 年 6 月捐赠。此杯旨在授予混合双打项目的最佳搭档。“查奥斯”巧妙地取自刘丞皓先生名字中“丞”的声母与“皓”的韵母，象征比赛中的激情碰撞与策略运用。<br><br><b>【荣耀传承】</b> 每一届混双冠军组合的姓名将镌刻其上，记录赛场上的精彩配合。第三届比赛的康林哲与徐赫遥组合首次加冕；在去年的第四届比赛中，<b>刘士辉与代馨怡</b>荣获佳绩，将名字留在此杯之上。<br><br><b>【赛事展望】</b> 混双赛场充满了变数与策略的较量。本届比赛的优胜搭档，将成为光荣的第三对查奥斯杯得主。' 
-        },
-        'yibu': { 
-            name: '伊布杯 (Hibou Cup)', 
-            type: '混合团体项目 · 流动奖杯', 
-            content: '<b>【精神溯源】</b> 伊布杯象征着团队协作之巅与集体最高荣誉，由渤海大学乒乓球队名誉队长、第二任队长岳亮先生于 2021 年 6 月惠赠。此杯旨在表彰总结大赛中表现最卓越的团体队伍。“伊布”之名源自岳亮先生英文名“Hibou”，蕴含智慧与坚韧之意。<br><br><b>【荣耀传承】</b> 依循传统，每届团体冠军成员的姓名将共同镌刻于杯身，以彰荣誉。从第一届的“高鹤宁、王贺铭、王艺璇”，到第二届的“刘奚铭、谭程、刘梦昕”，第三届的“杨乐、田印广、张洪洋、代馨怡”，再到去年第四届摘桂的“<b>张洪洋、代馨怡、王治元、朱昶安</b>”，四届冠军队伍的名字已在此铭刻。<br><br><b>【赛事展望】</b> 团队赛始终是对凝聚力与排兵布阵的综合考验。本届大赛的获胜队伍，将成为第五支光荣捧起伊布杯、续写团队辉煌的绝对冠军之师。' 
-        }
+        'maipu': { name: '麦普杯 (Maple Cup)', type: '男子单打项目 · 冠军奖杯', content: '<b>【精神溯源】</b> 麦普杯象征着个人技艺的卓越与赛场风范，由渤海大学乒乓球队名誉队长、第三任队长姜枫先生于 2023 年 6 月捐赠。此杯专为嘉奖男单项目中技压群雄的冠军选手而设。“麦普”取自姜枫先生英文名“Maple”，寄寓成熟与坚毅之力。<br><br><b>【荣耀传承】</b> 每一届男单冠军的光辉姓名，将永久铭刻于麦普杯之上。2023 年第二届大赛中，刘奚铭首次将名字镌刻于此杯；2024 年第三届大赛，石致远成为麦普杯的第二任获得者；在去年的第四届大赛中，<b>田印广</b>成功夺魁，将其名字留在杯身。<br><br><b>【赛事展望】</b> 赛场上的每一次挥拍都凝聚着平日的汗水。本届大赛的男单桂冠正等待新的优胜者前来摘取，谁将脱颖而出，成为第四位将名字铭刻在麦普杯上的冠军？' },
+        'ximeng': { name: '西蒙杯 (Simon Cup)', type: '女子单打项目 · 冠军奖杯', content: '<b>【精神溯源】</b> 西蒙杯代表着女选手的优雅风姿与坚韧品格，由渤海大学乒乓球队名誉队长、第四任队长刘奚铭先生于 2024 年 6 月捐赠。此杯专门用于表彰女单比赛中的冠军得主。“西蒙”取自刘奚铭先生英文名“Simon”，寄托了对女队员们不断进步、追求卓越的鼓励与期许。<br><br><b>【荣耀传承】</b> 每一届女单冠军的姓名将荣镌杯身，见证她们的拼搏与荣誉。第三届比赛中，殷紫萱首度捧杯；去年第四届比赛中，<b>邵尔诺</b>表现优异，成为第二位将芳名留在西蒙杯上的优胜者。<br><br><b>【赛事展望】</b> 赛场不分性别，拼搏同样精彩。本届大赛的女单桂冠正静候新主，期待诞生第三位将名字铭刻在西蒙杯上的冠军选手。' },
+        'bulaifu': { name: '布莱芙杯 (Belief Cup)', type: '男子双打项目 · 冠军奖杯', content: '<b>【精神溯源】</b> 布莱芙杯象征着同伴间的信念与默契配合，由渤海大学乒乓球队首任队长陈欣洋先生于 2024 年 6 月捐赠。此杯用以表彰男双比赛中的冠军组合。“布莱芙”之名源自“欣洋”二字谐音“信仰”的英文“Belief”，寓意搭档间的相互信任与精诚协作是夺冠的基石。<br><br><b>【荣耀传承】</b> 每一届男双冠军组合的姓名将并列镌刻于杯身，共享荣誉。在第三届比赛中，王宗玉与杜沁宇组合首次捧起了此杯；去年第四届大赛，<b>康林哲与田印广</b>凭借默契配合，成为第二组荣镌此杯的搭档。<br><br><b>【赛事展望】</b> 双打考验的不仅是个人技术，更是 1+1 大于 2 的默契。本届男双比赛战幕将启，获胜的搭档将成为第三组将名字共同铭刻在布莱芙杯上的冠军组合。' },
+        'chaos': { name: '查奥斯杯 (Chaos Cup)', type: '混合双打项目 · 冠军奖杯', content: '<b>【精神溯源】</b> 查奥斯杯体现了力量与智慧的和谐交融，由渤海大学乒乓球队名誉队长、第二任队长刘丞皓先生于 2024 年 6 月捐赠。此杯旨在授予混合双打项目的最佳搭档。“查奥斯”巧妙地取自刘丞皓先生名字中“丞”的声母与“皓”的韵母，象征比赛中的激情碰撞与策略运用。<br><br><b>【荣耀传承】</b> 每一届混双冠军组合的姓名将镌刻其上，记录赛场上的精彩配合。第三届比赛的康林哲与徐赫遥组合首次加冕；在去年的第四届比赛中，<b>刘士辉与代馨怡</b>荣获佳绩，将名字留在此杯之上。<br><br><b>【赛事展望】</b> 混双赛场充满了变数与策略的较量。本届比赛的优胜搭档，将成为光荣的第三对查奥斯杯得主。' },
+        'yibu': { name: '伊布杯 (Hibou Cup)', type: '混合团体项目 · 流动奖杯', content: '<b>【精神溯源】</b> 伊布杯象征着团队协作之巅与集体最高荣誉，由渤海大学乒乓球队名誉队长、第二任队长岳亮先生于 2021 年 6 月惠赠。此杯旨在表彰总结大赛中表现最卓越的团体队伍。“伊布”之名源自岳亮先生英文名“Hibou”，蕴含智慧与坚韧之意。<br><br><b>【荣耀传承】</b> 依循传统，每届团体冠军成员的姓名将共同镌刻于杯身，以彰荣誉。从第一届的“高鹤宁、王贺铭、王艺璇”，到第二届的“刘奚铭、谭程、刘梦昕”，第三届的“杨乐、田印广、张洪洋、代馨怡”，再到去年第四届摘桂的“<b>张洪洋、代馨怡、王治元、朱昶安</b>”，四届冠军队伍的名字已在此铭刻。<br><br><b>【赛事展望】</b> 团队赛始终是对凝聚力与排兵布阵的综合考验。本届大赛的获胜队伍，将成为第五支光荣捧起伊布杯、续写团队辉煌的绝对冠军之师。' }
     };
 
     function openTrophy(id) { window.location.hash = 'trophy-' + id; }
@@ -985,39 +726,176 @@
     // 模块 5: 哈希无刷新路由核心
     // ---------------------------------------------------------
     function handleRouting() {
-        // 读取当前锚点，默认指向 home
         let h = window.location.hash.replace('#', '') || 'home';
         
-        // 重置所有激活状态
         document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
         document.querySelectorAll('.page-section').forEach(e => e.classList.remove('active'));
         
-        // 捕获奖杯子页面路由
         if(h.startsWith('trophy-')) {
             document.getElementById('trophies').classList.add('active');
             document.getElementById('nav-trophies').classList.add('active');
             showTrophyDetail(h.split('-')[1]);
         } else {
-            // 标准主菜单路由
             document.getElementById(h)?.classList.add('active');
             document.getElementById('nav-'+h)?.classList.add('active');
-            // 如果不在奖杯页，确保列表视图还原
             if(h === 'trophies') hideTrophyDetail();
             
-            // 清理后台系统遗留状态，保证每次进入都是初始页
             if(h !== 'draw') {
                 document.getElementById('draw-login-view').style.display='none';
                 document.getElementById('draw-system-view').style.display='none';
                 document.getElementById('matchup-detail-view').style.display='none';
+                // 确保新加的抽签动效界面也被重置
+                const drawAction = document.getElementById('draw-action-view');
+                if(drawAction) drawAction.style.display = 'none';
                 document.getElementById('draw-main-view').style.display='block';
             }
         }
-        // 切换页面后平滑滚回顶部
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-    // 监听 URL 变化及首次加载
     window.addEventListener('hashchange', handleRouting);
     window.addEventListener('load', handleRouting);
+
+    // ---------------------------------------------------------
+    // 模块 6: 赛事抽签动效引擎 (新增)
+    // ---------------------------------------------------------
+    const wsPlayers = ['邵尔诺', '李子璇', '张蓝兮', '李沃柔'];
+    let wsPositions = ['A1', 'A2', 'B1', 'B2'];
+    let currentDrawIndex = 0;
+    let rollInterval = null;
+    let isRolling = false;
+    let finalResults = {}; 
+
+    function openDrawAction() {
+        document.getElementById('draw-system-view').style.display = 'none';
+        document.getElementById('draw-action-view').style.display = 'block';
+        
+        // 每次进入重置状态，保证无限次私下模拟
+        wsPositions = ['A1', 'A2', 'B1', 'B2'];
+        currentDrawIndex = 0;
+        finalResults = {};
+        
+        document.getElementById('draw-setup-area').style.display = 'block';
+        document.getElementById('draw-rolling-area').style.display = 'none';
+        document.getElementById('draw-result-area').style.display = 'none';
+        document.getElementById('rolling-slot').innerText = '?';
+        document.getElementById('roll-btn').innerText = '🚀 开始滚动';
+        document.getElementById('roll-btn').style.background = 'var(--gradient-orange)';
+        document.getElementById('roll-btn').disabled = false;
+    }
+
+    function closeDrawAction() {
+        document.getElementById('draw-action-view').style.display = 'none';
+        document.getElementById('draw-system-view').style.display = 'block';
+    }
+
+    function initWSDraw() {
+        document.getElementById('draw-setup-area').style.display = 'none';
+        document.getElementById('draw-rolling-area').style.display = 'block';
+        document.getElementById('current-draw-player').innerText = wsPlayers[currentDrawIndex];
+    }
+
+    function toggleRoll() {
+        const btn = document.getElementById('roll-btn');
+        const slot = document.getElementById('rolling-slot');
+
+        if (!isRolling) {
+            // 开始狂暴滚动
+            isRolling = true;
+            btn.innerText = '🛑 停！(锁定签位)';
+            btn.style.background = '#e11d48'; 
+            
+            rollInterval = setInterval(() => {
+                const randomPos = wsPositions[Math.floor(Math.random() * wsPositions.length)];
+                slot.innerText = randomPos;
+            }, 60); 
+        } else {
+            // 刹车并敲定结果
+            isRolling = false;
+            clearInterval(rollInterval);
+            btn.innerText = '✅ 已锁定';
+            btn.style.background = '#10b981'; 
+
+            // 真·随机抽取
+            const finalPosIndex = Math.floor(Math.random() * wsPositions.length);
+            const finalPos = wsPositions[finalPosIndex];
+            slot.innerText = finalPos;
+
+            // 记录并移出号池
+            finalResults[wsPlayers[currentDrawIndex]] = finalPos;
+            wsPositions.splice(finalPosIndex, 1); 
+
+            btn.disabled = true; 
+
+            // 1.5 秒后换下一个人
+            setTimeout(() => {
+                currentDrawIndex++;
+                if (currentDrawIndex < wsPlayers.length) {
+                    document.getElementById('current-draw-player').innerText = wsPlayers[currentDrawIndex];
+                    slot.innerText = '?';
+                    btn.innerText = '🚀 开始滚动';
+                    btn.style.background = 'var(--gradient-orange)';
+                    btn.disabled = false;
+                } else {
+                    document.getElementById('draw-rolling-area').style.display = 'none';
+                    showDrawResults();
+                    btn.disabled = false;
+                }
+            }, 1500);
+        }
+    }
+
+    function showDrawResults() {
+        document.getElementById('draw-result-area').style.display = 'block';
+        const list = document.getElementById('draw-result-list');
+        list.innerHTML = '';
+        for (let player in finalResults) {
+            list.innerHTML += `<li style="border-bottom: 1px dashed #e2e8f0; padding: 12px 0;">${player} 锁定签位 👉 <span style="color:#FF512F; font-size:1.6rem; margin-left: 10px;">${finalResults[player]}</span></li>`;
+        }
+    }
+
+    function generateBracket() {
+        document.getElementById('draw-action-view').style.display = 'none';
+        document.getElementById('matchup-detail-view').style.display = 'block';
+        
+        let a1 = Object.keys(finalResults).find(key => finalResults[key] === 'A1');
+        let a2 = Object.keys(finalResults).find(key => finalResults[key] === 'A2');
+        let b1 = Object.keys(finalResults).find(key => finalResults[key] === 'B1');
+        let b2 = Object.keys(finalResults).find(key => finalResults[key] === 'B2');
+
+        const container = document.querySelector('#matchup-detail-view .empty-state');
+        container.innerHTML = `
+            <h3 style="color: #FF512F; margin-bottom: 25px; font-size: 2rem;">🌸 女子单打 官方对阵图</h3>
+            <div style="background: #fff; border: 2px solid #f1f5f9; border-radius: 20px; padding: 25px; text-align: left; box-shadow: 0 10px 40px rgba(0,0,0,0.08); margin: 0 auto; max-width: 450px;">
+                <div style="margin-bottom: 25px;">
+                    <div style="background: rgba(255,81,47,0.1); color: #E65100; font-weight: 900; padding: 10px 15px; border-radius: 10px; margin-bottom: 15px; display:flex; justify-content:space-between;">
+                        <span>上半区 (Upper Half)</span> <span>决赛入场券A</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px dashed #e2e8f0;">
+                        <span style="font-weight: bold; color: #94a3b8; font-size: 1.2rem;">A1</span>
+                        <span style="font-size: 1.4rem; font-weight: 900; color: #2A1B18;">${a1}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 12px;">
+                        <span style="font-weight: bold; color: #94a3b8; font-size: 1.2rem;">A2</span>
+                        <span style="font-size: 1.4rem; font-weight: 900; color: #2A1B18;">${a2}</span>
+                    </div>
+                </div>
+                <div>
+                    <div style="background: rgba(255,81,47,0.1); color: #E65100; font-weight: 900; padding: 10px 15px; border-radius: 10px; margin-bottom: 15px; display:flex; justify-content:space-between;">
+                        <span>下半区 (Lower Half)</span> <span>决赛入场券B</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px dashed #e2e8f0;">
+                        <span style="font-weight: bold; color: #94a3b8; font-size: 1.2rem;">B1</span>
+                        <span style="font-size: 1.4rem; font-weight: 900; color: #2A1B18;">${b1}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 12px;">
+                        <span style="font-weight: bold; color: #94a3b8; font-size: 1.2rem;">B2</span>
+                        <span style="font-size: 1.4rem; font-weight: 900; color: #2A1B18;">${b2}</span>
+                    </div>
+                </div>
+            </div>
+            <p style="color: var(--text-light); margin-top: 25px; font-size: 0.95rem; font-weight: bold;">📷 抽签完毕，主持人可直接截取此图发送至赛事群公示。</p>
+        `;
+    }
 </script>
 </body>
 </html>
