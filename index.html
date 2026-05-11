@@ -6,152 +6,59 @@
     <title>渤海大学乒乓球队第五届总结大赛官方主页</title>
     <script src="https://cdn.jsdelivr.net/npm/hydrogen-js-sdk@2.2.3/dist/Bmob-2.2.3.min.js"></script>
     <style>
-        /* ==========================================================================
-           1. 全局配置与 CSS 变量声明
-           ========================================================================== */
-        @font-face {
-            font-family: 'ZhongShan';
-            src: url('./zhongshan.ttf') format('truetype');
-            font-display: swap;
-        }
-
+        /* ================== 1. 核心视觉体系 ================== */
+        @font-face { font-family: 'ZhongShan'; src: url('./zhongshan.ttf') format('truetype'); font-display: swap; }
         :root {
             --gradient-orange: linear-gradient(135deg, #FF512F 0%, #F09819 100%);
             --gradient-coral: linear-gradient(135deg, #FF416C 0%, #FF4B2B 100%);
-            --bg-light: #FDF8F4; 
-            --text-main: #2A1B18; 
-            --text-light: #8A736E;
-            --white-glass: rgba(255, 255, 255, 0.65);
-            --border-glass: rgba(255, 255, 255, 0.6);
-            --shadow-soft: 0 12px 30px rgba(0, 0, 0, 0.05);
-            --shadow-hover: 0 20px 40px rgba(255, 81, 47, 0.15);
-            --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            --bg-light: #FDF8F4; --text-main: #2A1B18; --text-light: #8A736E;
+            --white-glass: rgba(255, 255, 255, 0.65); --border-glass: rgba(255, 255, 255, 0.6);
+            --shadow-soft: 0 12px 30px rgba(0, 0, 0, 0.05); --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; }
-        
-        body { 
-            background-color: var(--bg-light); color: var(--text-main); line-height: 1.6; padding-top: 75px;
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(255, 81, 47, 0.15) 0px, transparent 60%),
-                radial-gradient(at 100% 0%, rgba(240, 152, 25, 0.15) 0px, transparent 60%),
-                radial-gradient(at 50% 100%, rgba(255, 107, 107, 0.1) 0px, transparent 50%);
-            background-attachment: fixed;
-            -webkit-font-smoothing: antialiased;
-        }
+        body { background-color: var(--bg-light); color: var(--text-main); line-height: 1.6; padding-top: 75px; background-attachment: fixed; background-image: radial-gradient(at 0% 0%, rgba(255, 81, 47, 0.15) 0px, transparent 60%); -webkit-font-smoothing: antialiased; }
 
-        .navbar {
-            position: fixed; top: 0; left: 0; width: 100%;
-            background: rgba(253, 248, 244, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            border-bottom: 1px solid var(--border-glass);
-            z-index: 1000; display: flex; justify-content: flex-start; padding: 0 15px;
-            overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch;
-        }
-        .navbar::-webkit-scrollbar { display: none; }
-        .nav-links { display: flex; gap: 8px; padding: 16px 0; margin: 0 auto;}
-        
-        .nav-item {
-            color: var(--text-light); text-decoration: none; font-weight: 600; font-size: 15px; padding: 8px 18px; border-radius: 30px;
-            cursor: pointer; transition: var(--transition);
-        }
-        .nav-item:hover { color: #FF512F; background: rgba(255, 81, 47, 0.08); }
+        .navbar { position: fixed; top: 0; left: 0; width: 100%; background: rgba(253, 248, 244, 0.85); backdrop-filter: blur(15px); border-bottom: 1px solid var(--border-glass); z-index: 1000; display: flex; overflow-x: auto; padding: 0 15px; }
+        .nav-links { display: flex; gap: 8px; padding: 16px 0; margin: 0 auto; }
+        .nav-item { color: var(--text-light); text-decoration: none; font-weight: 600; font-size: 15px; padding: 8px 18px; border-radius: 30px; cursor: pointer; transition: var(--transition); }
         .nav-item.active { background: var(--gradient-orange); color: white; box-shadow: 0 4px 12px rgba(255, 81, 47, 0.3); }
 
         .hero { margin: 20px auto 0; max-width: 900px; padding: 0 20px; }
-        .hero-card {
-            background: var(--gradient-coral); border-radius: 30px; padding: 40px 30px;
-            box-shadow: 0 20px 40px rgba(255, 65, 108, 0.25);
-            display: flex; align-items: center; justify-content: center; gap: 25px;
-            color: white; flex-wrap: wrap; text-align: left; position: relative; overflow: hidden;
-        }
-        .hero-card::after { content: ''; position: absolute; top: -50%; right: -20%; width: 300px; height: 300px; background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%); border-radius: 50%; }
-        
-        .team-logo { width: 100px; height: 100px; border-radius: 50%; background: white; padding: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); object-fit: contain; flex-shrink: 0; position: relative; z-index: 2;}
-        .hero-text { position: relative; z-index: 2; }
-        .hero-text h1 { font-family: 'ZhongShan', sans-serif; font-size: 3rem; margin-bottom: 5px; font-weight: normal; letter-spacing: 2px; text-shadow: 0 2px 10px rgba(0,0,0,0.1); line-height: 1.1; }
-        .hero-text p { font-size: 1.1rem; opacity: 0.95; font-weight: 500;}
+        .hero-card { background: var(--gradient-coral); border-radius: 30px; padding: 40px 30px; box-shadow: 0 20px 40px rgba(255, 65, 108, 0.25); display: flex; align-items: center; justify-content: center; gap: 25px; color: white; flex-wrap: wrap; text-align: left; position: relative; overflow: hidden; }
+        .team-logo { width: 100px; height: 100px; border-radius: 50%; background: white; padding: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); object-fit: contain; flex-shrink: 0; z-index: 2;}
+        .hero-text h1 { font-family: 'ZhongShan', sans-serif; font-size: 3rem; margin-bottom: 5px; font-weight: normal; letter-spacing: 2px; }
 
         .container { max-width: 900px; margin: 0 auto; padding: 30px 20px 60px; }
         .page-section { display: none; animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
         .page-section.active { display: block; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        .card { 
-            background: var(--white-glass); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--border-glass); border-radius: 24px; padding: 35px; box-shadow: var(--shadow-soft); margin-bottom: 30px; 
-        }
+        .card { background: var(--white-glass); backdrop-filter: blur(12px); border: 1px solid var(--border-glass); border-radius: 24px; padding: 35px; box-shadow: var(--shadow-soft); margin-bottom: 30px; }
         .card-header { font-size: 1.6rem; color: var(--text-main); margin-bottom: 25px; display: flex; align-items: center; gap: 10px; font-weight: 800; }
-        .card-header::before { content: ''; display: block; width: 6px; height: 24px; background: var(--gradient-orange); border-radius: 6px; }
+        .card-header::before { content: ''; width: 6px; height: 24px; background: var(--gradient-orange); border-radius: 6px; }
 
-        .card-with-bg { position: relative; overflow: hidden; border: none; color: white; box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
-        .card-with-bg::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; z-index: 0; transition: transform 0.8s ease; }
-        .card-with-bg:hover::before { transform: scale(1.05); } 
-        .bg-countdown::before { background-color: #2A1B18; }
-        .bg-intro::before { background-color: #2A1B18; }
-        .card-with-bg::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(28, 18, 16, 0.4); z-index: 1; backdrop-filter: blur(2px); }
-        .card-with-bg > * { position: relative; z-index: 2; }
-        
-        .countdown { display: flex; justify-content: center; gap: 15px; text-align: center; flex-wrap: wrap;}
-        .card-with-bg .time-box { background: rgba(255, 255, 255, 0.1); padding: 15px 20px; border-radius: 20px; min-width: 90px; border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(8px); }
-        .card-with-bg .time-box span { display: block; font-size: 2.8rem; font-weight: 900; color: #fff; text-shadow: 0 4px 15px rgba(255,81,47,0.6); line-height: 1; margin-bottom: 5px; }
-        .card-with-bg .time-box .label { font-size: 0.9rem; color: rgba(255,255,255,0.8); font-weight: 600;}
-
-        .reg-label { display: block; margin-bottom: 8px; font-size: 0.95rem; font-weight: bold; color: var(--text-light); margin-top: 15px; text-align: left;}
-        .login-form { display: flex; flex-direction: column; gap: 12px; margin: 0 auto; }
-        .login-input { padding: 14px 15px; border-radius: 12px; border: 1px solid #ddd; background: #fafafa; font-size: 15px; outline: none; transition: all 0.3s; width: 100%; appearance: none; -webkit-appearance: none;}
-        .login-input:focus { border-color: #FF512F; box-shadow: 0 0 0 3px rgba(255,81,47,0.1); background: #fff;}
-        select.login-input { background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238A736E' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 15px center; background-size: 15px; padding-right: 40px;}
-        
-        .login-btn { background: var(--gradient-orange); color: white; border: none; padding: 14px; border-radius: 12px; font-weight: bold; font-size: 15px; cursor: pointer; transition: all 0.3s; margin-top: 5px; width: 100%;}
-        .login-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255,81,47,0.3); }
-        .login-btn:disabled { background: #ccc; cursor: not-allowed; box-shadow: none; transform: none; }
-
-        .photo-upload-zone { width: 160px; height: 224px; border: 2px dashed #cbd5e1; border-radius: 16px; margin: 25px auto; position: relative; display: flex; align-items: center; justify-content: center; background: #f8fafc; overflow: hidden; cursor: pointer; transition: var(--transition); box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); }
-        .photo-upload-zone:hover { border-color: #FF512F; background: #fff; box-shadow: 0 8px 20px rgba(255,81,47,0.08);}
-        .photo-upload-zone img { width: 100%; height: 100%; object-fit: cover; display: none; z-index: 2; position: relative;}
-        .photo-upload-zone .placeholder { text-align: center; color: #94a3b8; font-size: 0.9rem; z-index: 1;}
-        .photo-upload-zone .placeholder span { font-size: 3rem; display: block; margin-bottom: 12px; color: #cbd5e1; transition: var(--transition);}
+        .login-input { padding: 14px 15px; border-radius: 12px; border: 1px solid #ddd; background: #fafafa; font-size: 15px; outline: none; width: 100%; transition: 0.3s; }
+        .login-input:focus { border-color: #FF512F; background: #fff; }
+        .login-btn { background: var(--gradient-orange); color: white; border: none; padding: 14px; border-radius: 12px; font-weight: bold; font-size: 15px; cursor: pointer; transition: 0.3s; width: 100%; margin-top: 5px; }
+        .login-btn:disabled { background: #cbd5e1; cursor: not-allowed; }
 
         .portal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
-        .portal-card { background: rgba(255,255,255,0.85); border: 1px solid rgba(255,255,255,0.6); border-radius: 24px; padding: 40px 30px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.04); transition: var(--transition); display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; }
-        .portal-card:hover { transform: translateY(-5px); border-color: rgba(255,81,47,0.2); box-shadow: 0 15px 35px rgba(255,81,47,0.1);}
+        .portal-card { background: rgba(255,255,255,0.85); border: 1px solid rgba(255,255,255,0.6); border-radius: 24px; padding: 35px 25px; text-align: center; cursor: pointer; transition: var(--transition); }
+        .portal-card:hover { transform: translateY(-5px); box-shadow: 0 15px 35px rgba(255,81,47,0.1); }
         
         .sys-module-grid { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
-        .sys-module { background: white; border: 2px solid #f1f5f9; border-radius: 20px; padding: 30px 15px; width: calc(33.333% - 15px); min-width: 140px; text-align: center; cursor: pointer; transition: all 0.4s; box-shadow: 0 5px 15px rgba(0,0,0,0.03); }
-        .sys-module:hover { border-color: #FF512F; transform: scale(1.05); box-shadow: 0 15px 30px rgba(255,81,47,0.15);}
+        .sys-module { background: white; border: 2px solid #f1f5f9; border-radius: 20px; padding: 25px 15px; width: calc(33.3% - 15px); min-width: 140px; text-align: center; cursor: pointer; transition: 0.4s; }
+        .sys-module:hover { border-color: #FF512F; transform: scale(1.05); }
 
-        .trophy-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; max-width: 850px; margin: 0 auto; }
-        .trophy-item { background: rgba(255,255,255,0.8); padding: 30px 20px; border-radius: 24px; text-align: center; border: 1px solid rgba(255,255,255,0.5); cursor: pointer; transition: var(--transition); display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .trophy-item:hover { transform: translateY(-5px); box-shadow: var(--shadow-hover); border-color: rgba(255,81,47,0.3);}
-        .item-top { grid-column: 2 / 4; transform: scale(1.02); z-index: 2; background: rgba(255,255,255,0.95); border-color: rgba(255,81,47,0.2);}
-        .item-mid-l { grid-column: 1 / 3; } .item-mid-r { grid-column: 3 / 5; } .item-bot-l { grid-column: 1 / 3; } .item-bot-r { grid-column: 3 / 5; } 
-
-        .td-body { display: flex; gap: 35px; align-items: flex-start; }
-        .td-image-wrapper { flex-shrink: 0; width: 240px; aspect-ratio: 3 / 5; background: rgba(255, 81, 47, 0.04); border: 1px dashed rgba(255, 81, 47, 0.3); border-radius: 16px; overflow: hidden; position: relative; display: flex; align-items: center; justify-content: center; }
-        #td-image { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.5s; }
-
-        .photo-banner-card { position: relative; background-color: #2A1B18; background-size: cover; background-position: center; border-radius: 24px; overflow: hidden; height: 400px; display: flex; align-items: center; justify-content: center; text-align: center; box-shadow: var(--shadow-hover); }
-        .photo-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(42, 27, 24, 0.3) 0%, rgba(230, 81, 0, 0.85) 100%); z-index: 1; }
-        .photo-content { position: relative; z-index: 2; color: white; padding: 20px; }
-        .photo-action-btn { display: inline-flex; align-items: center; gap: 12px; background: white; color: #E65100; padding: 16px 45px; border-radius: 50px; text-decoration: none; font-weight: 800; font-size: 1.3rem; transition: var(--transition); box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-        .photo-action-btn:hover { transform: translateY(-5px) scale(1.05); box-shadow: 0 20px 50px rgba(0,0,0,0.4); background: #fff; }
-
-        .empty-state { text-align: center; padding: 50px 20px; color: var(--text-light); }
-        .empty-state span { font-size: 3.5rem; display: block; margin-bottom: 20px; opacity: 0.8;}
-
-        @media (max-width: 600px) {
-            .hero-card { flex-direction: column; text-align: center; padding: 30px 20px;}
-            .hero-text h1 { font-size: 2.4rem; }
-            .card { padding: 25px 20px; }
-            .trophy-grid { display: flex; flex-direction: column; gap: 15px; }
-            .item-top, .item-mid-l, .item-mid-r, .item-bot-l, .item-bot-r { grid-column: auto; transform: none; }
-            .td-body { flex-direction: column; align-items: center; }
-            .td-image-wrapper { width: 100%; max-width: 260px; }
-            .photo-banner-card { height: 380px; }
-            .sys-module { width: calc(50% - 10px); }
-            .portal-grid { grid-template-columns: 1fr; }
-        }
+        /* 对阵图排版 */
+        .bracket-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; margin: 0 auto; max-width: 400px; }
+        .bracket-zone { margin-bottom: 20px; }
+        .bracket-title { background: #f8fafc; color: #475569; font-weight: bold; padding: 8px; border-radius: 8px; margin-bottom: 10px; text-align: center; border: 1px solid #e2e8f0; font-size: 0.9rem; }
+        .bracket-row { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px dashed #e2e8f0; }
+        .pos-id { font-weight: bold; color: #FF512F; font-size: 1.1rem; }
+        .pos-name { font-size: 1.2rem; font-weight: bold; color: #2A1B18; }
+        
+        @media (max-width: 600px) { .portal-grid { grid-template-columns: 1fr; } .sys-module { width: calc(50% - 10px); } }
     </style>
 </head>
 <body>
@@ -161,8 +68,7 @@
         <a class="nav-item" href="#home" id="nav-home">首页</a>
         <a class="nav-item" href="#program" id="nav-program">秩序册</a>
         <a class="nav-item" href="#register" id="nav-register">赛事报名</a>
-        <a class="nav-item" href="#draw" id="nav-draw">后台管理</a>
-        <a class="nav-item" href="#photos" id="nav-photos">图片直播</a>
+        <a class="nav-item" href="#draw" id="nav-draw">管理后台</a>
         <a class="nav-item" href="#trophies" id="nav-trophies">奖杯介绍</a>
         <a class="nav-item" href="#results" id="nav-results">成绩公布</a>
     </div>
@@ -170,162 +76,66 @@
 
 <header class="hero">
     <div class="hero-card">
-        <img src="./logo.png" alt="队徽" class="team-logo" onerror="this.style.display='none'">
+        <img src="./logo.png" alt="队徽" class="team-logo">
         <div class="hero-text">
             <h1>渤海大学乒乓球队</h1>
-            <p>第五届总结大赛官方主页 | 丙午马年 · 仲夏之约</p>
+            <p>第五届总结大赛官方主页 | 2017 - 2026</p>
         </div>
     </div>
 </header>
 
 <div class="container">
-    
     <div id="home" class="page-section active">
-        <div class="card card-with-bg bg-countdown">
-            <h2 class="card-header">距大赛开幕还有</h2>
-            <div class="countdown">
-                <div class="time-box"><span id="days">00</span><div class="label">天</div></div>
-                <div class="time-box"><span id="hours">00</span><div class="label">时</div></div>
-                <div class="time-box"><span id="minutes">00</span><div class="label">分</div></div>
-                <div class="time-box"><span id="seconds">00</span><div class="label">秒</div></div>
+        <div class="card" style="background: rgba(42,27,24,0.85); color:white; text-align:center;">
+            <h2 class="card-header" style="color:white; justify-content:center; border:none;">距大赛开幕倒计时</h2>
+            <div id="main-countdown" style="font-size:2.5rem; font-weight:900; letter-spacing:2px;">
+                <span id="days">00</span>天 <span id="hours">00</span>:<span id="minutes">00</span>:<span id="seconds">00</span>
             </div>
         </div>
-
-        <div class="card card-with-bg bg-intro">
-            <h2 class="card-header" style="color:white; border-left-color: #FF512F;">大赛简介</h2>
-            <div class="intro-section">
-                <div class="intro-title">【九载峥嵘，初心铸就丰碑】</div>
-                <p>时光荏苒，初心如磐。欢迎来到渤海大学乒乓球队第五届总结大赛官方主页！自2017年建队至今，渤海大学乒乓球队已走过整整九段波澜壮阔的岁月。九年风雨兼程，一代代渤乒人在方寸球台前挥洒汗水。如今迎来的第五届总结大赛，不仅是一场体育竞技的巅峰盛会，更是全体渤乒人跨越岁月的一座“光荣里程碑”。</p>
-            </div>
-            <div class="intro-section" style="margin-top: 15px;">
-                <div class="intro-title">【马年仲夏，共赴九年之约】</div>
-                <p>从2017年的破浪启航，到丙午马年的仲夏重聚，“九年之约”承载了太多渤乒人的青春记忆与热血情怀。值此盛会，我们满怀热忱地向所有新老队员吹响这份庄重的集结号。在这里，新老交锋不为成败，只为传承；以球会友不论高低，皆是深情。</p>
-            </div>
+        <div class="card">
+            <h2 class="card-header">大赛简介</h2>
+            <p>自2017年建队至今，渤海大学乒乓球队已走过九段岁月。如今迎来的第五届总结大赛，不仅是竞技盛会，更是全体渤乒人跨越岁月的里程碑。</p>
         </div>
     </div>
 
     <div id="program" class="page-section">
         <div class="card">
             <h2 class="card-header">赛事秩序册</h2>
-            <div class="empty-state">
-                <span>📖</span>
-                <p style="font-size: 1.1rem; color: var(--text-main); font-weight: bold;">大赛秩序册正在紧张筹备排版中</p>
-                <p>即将为您呈现完整的赛事规则与日程安排！</p>
-            </div>
+            <div style="text-align:center; padding:50px 0; color:var(--text-light);">📖 秩序册正在排版中...</div>
         </div>
     </div>
 
     <div id="register" class="page-section">
         <div class="card">
-            <h2 class="card-header">赛事报名系统</h2>
-            
+            <h2 class="card-header">选手报名</h2>
             <div id="reg-step-1">
-                <div id="reg-status-not-started" style="display:none; text-align:center; padding: 40px 20px;">
-                    <div style="font-size: 3.5rem; margin-bottom: 15px; text-shadow: 0 5px 15px rgba(0,0,0,0.05);">⏳</div>
-                    <h3 style="color:#E65100; font-size:1.6rem; margin-bottom:15px;">报名通道尚未开启</h3>
-                    <p style="color:var(--text-light); margin-bottom: 10px; font-weight: bold;">官方报名时间段：</p>
-                    <p style="color:var(--text-light); margin-bottom: 25px;">2026年4月27日 15:00 - 5月5日 24:00</p>
-                    <p style="color:var(--text-light); margin-bottom: 10px;">距报名开启还有：</p>
-                    <div id="reg-start-countdown" style="font-size: 2rem; font-weight: 900; color: #FF512F; letter-spacing: 1px;">--天 --时 --分 --秒</div>
-                </div>
-
-                <div id="reg-status-ended" style="display:none; text-align:center; padding: 40px 20px;">
-                    <div style="font-size: 3.5rem; margin-bottom: 15px;">🛑</div>
-                    <h3 style="color:#d32f2f; font-size:1.6rem; margin-bottom:15px;">报名通道已永久关闭</h3>
-                    <p style="color:var(--text-main); line-height: 1.8; font-size: 1.1rem;">本届总结大赛报名已于 2026年5月4日 18:00 截止。</p>
-                    <p style="color:var(--text-light); margin-top: 15px;">感谢您的支持与关注，组委会正进行最后的数据统筹。<br>敬请期待分组抽签结果与正赛打响！</p>
-                </div>
-
-                <div id="reg-status-active" style="display:none;">
-                    <form class="login-form" style="max-width: 450px; margin: 0 auto;" onsubmit="goStep2(event)">
-                        <div style="background: rgba(255,81,47,0.08); padding: 15px; border-radius: 12px; margin-bottom: 25px; border: 1px solid rgba(255,81,47,0.2); text-align:center;">
-                            <p style="color:#E65100; font-weight:900; font-size: 1.2rem; margin-bottom: 5px;">赛事报名费：35 元 / 人</p>
-                            <p style="font-size: 0.85rem; color:var(--text-light);">（注：报名费不在此处缴纳，后续将由组委会私下统一收取）</p>
-                        </div>
-                        
-                        <label class="reg-label">真实姓名</label>
-                        <input type="text" id="reg-name" class="login-input" placeholder="请输入您的真实姓名" required>
-                        
-                        <label class="reg-label">性别</label>
-                        <select id="reg-gender" class="login-input" required>
-                            <option value="" disabled selected>请选择您的性别</option>
-                            <option value="男">男</option>
-                            <option value="女">女</option>
-                        </select>
-                        
-                        <label class="reg-label">所属学院</label>
-                        <select id="reg-college" class="login-input" required>
-                            <option value="" disabled selected>请选择您代表的学院</option>
-                            <option value="文学院">文学院</option>
-                            <option value="马克思主义学院">马克思主义学院</option>
-                            <option value="法学院">法学院</option>
-                            <option value="历史文化学院">历史文化学院</option>
-                            <option value="物理科学与技术学院">物理科学与技术学院</option>
-                            <option value="数学科学学院">数学科学学院</option>
-                            <option value="化学学院">化学学院</option>
-                            <option value="材料与环境工程学院">材料与环境工程学院</option>
-                            <option value="食品科学与工程学院">食品科学与工程学院</option>
-                            <option value="计算机科学与人工智能学院">计算机科学与人工智能学院</option>
-                            <option value="控制科学与工程学院">控制科学与工程学院</option>
-                            <option value="经济学院">经济学院</option>
-                            <option value="管理学院">管理学院</option>
-                            <option value="外国语学院">外国语学院</option>
-                            <option value="教育科学学院">教育科学学院</option>
-                            <option value="体育学院">体育学院</option>
-                            <option value="美术学院">美术学院</option>
-                            <option value="音乐学院">音乐学院</option>
-                            <option value="新闻与传播学院">新闻与传播学院</option>
-                            <option value="航运学院">航运学院</option>
-                            <option value="个人">个人</option>
-                        </select>
-                        
-                        <label class="reg-label">主战打法配置</label>
-                        <select id="reg-style" class="login-input" required>
-                            <option value="" disabled selected>请选择您的惯用打法</option>
-                            <option value="右手横板">右手横板</option>
-                            <option value="左手横板">左手横板</option>
-                            <option value="右手直板">右手直板</option>
-                            <option value="左手直板">左手直板</option>
-                            <option value="右手颗粒">右手颗粒</option>
-                            <option value="左手颗粒">左手颗粒</option>
-                            <option value="右手直板+颗粒">右手直板+颗粒</option>
-                            <option value="左手直板+颗粒">左手直板+颗粒</option>
-                        </select>
-
-                        <button type="submit" class="login-btn" style="margin-top: 25px;">下一步：验证与上传免冠照</button>
-                    </form>
-                </div>
+                <form class="login-form" onsubmit="goStep2(event)">
+                    <input type="text" id="reg-name" class="login-input" placeholder="真实姓名" required>
+                    <select id="reg-gender" class="login-input" required>
+                        <option value="" disabled selected>选择性别</option><option value="男">男</option><option value="女">女</option>
+                    </select>
+                    <select id="reg-college" class="login-input" required>
+                        <option value="" disabled selected>选择学院</option>
+                        <option value="数学科学学院">数学科学学院</option><option value="控制科学与工程学院">控制科学与工程学院</option><option value="体育学院">体育学院</option><option value="个人">个人/校友</option>
+                    </select>
+                    <select id="reg-style" class="login-input" required>
+                        <option value="" disabled selected>选择打法</option>
+                        <option value="右手横板">右手横板</option><option value="右手直板">右手直板</option><option value="左手横板">左手横板</option><option value="左手直板">左手直板</option>
+                    </select>
+                    <button type="submit" class="login-btn">下一步：上传照片</button>
+                </form>
             </div>
-
             <div id="reg-step-2" style="display:none; text-align:center;">
-                <p style="font-weight:900; margin-bottom:10px; font-size: 1.3rem; color: var(--text-main);">📸 上传 1 寸近期免冠照片</p>
-                <p style="font-size:0.95rem; color:var(--text-light); margin-bottom:20px;">用于为您生成高级专属【精英阵容】展示数据卡片</p>
-                
+                <p style="font-weight:bold; margin-bottom:15px;">📸 上传 1 寸免冠照片</p>
                 <div class="photo-upload-zone" onclick="document.getElementById('photo-input').click()">
-                    <div id="photo-placeholder" class="placeholder">
-                        <span>👤</span>点击此处<br>选择或拍摄照片
-                    </div>
-                    <img id="photo-preview" src="" alt="免冠照预览">
+                    <div id="photo-placeholder"><span>👤</span>点击上传</div>
+                    <img id="photo-preview" src="">
                 </div>
                 <input type="file" id="photo-input" hidden accept="image/*" onchange="previewPhoto(this)">
-                
-                <button onclick="finalSubmit()" class="login-btn" style="max-width:320px; font-size: 1.1rem; padding: 15px;">提交云端并完成报名</button>
-                <p onclick="backStep1()" style="margin-top:25px; font-size:0.95rem; cursor:pointer; color:var(--text-light); text-decoration: underline;">&larr; 返回修改基本信息</p>
+                <button onclick="finalSubmit()" class="login-btn">完成报名</button>
             </div>
-
-            <div id="reg-loading" style="display:none; text-align:center; padding: 60px 0;">
-                <div style="font-size:3.5rem; animation: spin 1s linear infinite; display:inline-block;">⚙️</div>
-                <p style="margin-top:25px; color:#E65100; font-weight:bold; font-size: 1.2rem;">正在加密上传照片原件 (1/2)...</p>
-                <p style="color: var(--text-light); font-size: 0.9rem; margin-top: 10px;">请勿关闭页面或刷新</p>
-            </div>
-
-            <div id="reg-success" style="display:none; text-align:center; padding: 40px 0;">
-                <div style="font-size:5.5rem; margin-bottom:20px; text-shadow: 0 10px 20px rgba(0,0,0,0.1);">🎖️</div>
-                <h3 style="color:#FF512F; font-size:2.2rem; margin-bottom:15px; font-weight: 900;">报名归档成功！</h3>
-                <p id="success-msg" style="font-size: 1.2rem; font-weight: 500; color: var(--text-main); margin-bottom: 10px; line-height: 1.6;"></p>
-                <p style="font-size: 0.95rem; color: var(--text-light); margin-bottom: 30px;">组委会收到您的信息后将与您联系确认，请保持通讯畅通。</p>
-                <button onclick="resetRegistration()" class="login-btn" style="background:#e2e8f0; color:#475569; width:220px; box-shadow:none;">返回继续帮他人报名</button>
-            </div>
+            <div id="reg-loading" style="display:none; text-align:center; padding:40px 0;">⌛ 正在录入云端...</div>
+            <div id="reg-success" style="display:none; text-align:center; padding:40px 0;">🎖️ 报名成功！</div>
         </div>
     </div>
 
@@ -333,546 +143,218 @@
         <div id="draw-main-view">
             <div class="portal-grid">
                 <div class="portal-card" onclick="openDrawLogin()">
-                    <div class="portal-icon">🎲</div>
-                    <div class="portal-title">赛事后台管理</div>
-                    <div class="portal-desc">管理员专属：登录以执行赛事抽签程序及导出全员报名总表。</div>
-                    <div><span class="action-btn" style="background:var(--gradient-orange); color:white; padding:12px 30px; border-radius:30px; font-weight:bold; display:inline-block; box-shadow: 0 5px 15px rgba(255,81,47,0.3);">安全登入系统</span></div>
+                    <div style="font-size:3rem;">🎲</div>
+                    <h3>赛事后台管理</h3>
+                    <p style="color:var(--text-light); font-size:0.9rem; margin-top:10px;">执行抽签与数据导出</p>
                 </div>
                 <div class="portal-card" onclick="openMatchupView()">
-                    <div class="portal-icon">📋</div>
-                    <div class="portal-title">对阵结果与赛程</div>
-                    <div class="portal-desc">全体参赛选手可在此查看各项目详细对阵表及后续比赛时间安排。</div>
-                    <div><span class="action-btn" style="background:var(--gradient-orange); color:white; padding:12px 30px; border-radius:30px; font-weight:bold; display:inline-block; box-shadow: 0 5px 15px rgba(255,81,47,0.3);">查看对阵总榜</span></div>
+                    <div style="font-size:3rem;">📋</div>
+                    <h3>对阵结果与赛程</h3>
+                    <p style="color:var(--text-light); font-size:0.9rem; margin-top:10px;">查看全项目官方对阵图</p>
                 </div>
             </div>
         </div>
 
-        <div id="draw-login-view" style="display: none; text-align:center;">
-            <div class="card" style="max-width: 550px; margin: 0 auto;">
-                <h2 class="card-header" style="justify-content: center; font-size: 1.8rem;">🔒 管理员安全验证</h2>
-                <p style="color: var(--text-light); margin-bottom: 25px;">系统严禁非组委会人员尝试操作</p>
-                <form class="login-form" style="max-width: 300px;" onsubmit="handleLogin(event)">
-                    <input type="text" id="admin-account" class="login-input" placeholder="输入组委会授权账号" required>
-                    <input type="password" id="admin-password" class="login-input" placeholder="输入密钥" required>
-                    <button type="submit" class="login-btn" style="margin-top: 15px;">验证身份并进入控制台</button>
-                </form>
-                <div style="margin-top: 35px; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 25px;">
-                    <button class="login-btn" onclick="closeDrawLogin()" style="background:#f1f5f9; color:#64748b; max-width: 250px; box-shadow:none;">&larr; 终止验证返回上一级</button>
-                </div>
+        <div id="draw-login-view" style="display:none; text-align:center;">
+            <div class="card" style="max-width:400px; margin:0 auto;">
+                <h2 class="card-header" style="justify-content:center;">管理员验证</h2>
+                <input type="password" id="admin-password" class="login-input" placeholder="输入密钥" style="text-align:center;">
+                <button class="login-btn" onclick="handleLogin()" style="margin-top:15px;">进入系统</button>
+                <button class="login-btn" onclick="closeDrawLogin()" style="background:#f1f5f9; color:#64748b; margin-top:10px; box-shadow:none;">返回</button>
             </div>
         </div>
 
-        <div id="draw-system-view" style="display: none;">
+        <div id="draw-system-view" style="display:none;">
             <div class="card">
-                <div class="draw-system-header">
-                    <h2>⚙️ 组委会核心控制台</h2>
-                    <p style="margin-top: 10px;">认证通过。请选择您要执行的高级管理操作：</p>
-                </div>
+                <h2 class="card-header">组委会控制台</h2>
                 <div class="sys-module-grid">
-                    <div class="sys-module" onclick="exportRegistrationData()">
-                        <span class="sys-icon">📊</span>
-                        <div class="sys-name" style="color: #FF512F;">导出全员报名表<br><span style="font-size:0.8rem; font-weight:normal; color:var(--text-light);">(含图片外链)</span></div>
-                    </div>
-                    <div class="sys-module" onclick="alert('拦截警告：名单仍在收集中，混合团体抽签程序目前处于锁定状态。')">
-                        <span class="sys-icon">🛡️</span><div class="sys-name">混合团体 抽签</div>
-                    </div>
-                    <div class="sys-module" onclick="openDrawAction()" style="border-color: #FF512F;">
-                        <span class="sys-icon">🌸</span><div class="sys-name" style="color:#FF512F; font-weight:bold;">女子单打 抽签</div>
-                    </div>
-                    <div class="sys-module" onclick="alert('拦截警告：名单仍在收集中，男子单打抽签程序目前处于锁定状态。')">
-                        <span class="sys-icon">🏓</span><div class="sys-name">男子单打 抽签</div>
-                    </div>
-                    <div class="sys-module" onclick="alert('拦截警告：名单仍在收集中，男子双打抽签程序目前处于锁定状态。')">
-                        <span class="sys-icon">🤝</span><div class="sys-name">男子双打 抽签</div>
-                    </div>
-                    <div class="sys-module" onclick="alert('拦截警告：名单仍在收集中，混合双打抽签程序目前处于锁定状态。')">
-                        <span class="sys-icon">💞</span><div class="sys-name">混合双打 抽签</div>
-                    </div>
+                    <div class="sys-module" onclick="exportRegistrationData()"><span style="font-size:2rem;">📊</span><br>导出报名表</div>
+                    <div class="sys-module" onclick="openDrawAction()" style="border-color:#FF512F; font-weight:bold; color:#FF512F;"><span style="font-size:2rem;">🌸</span><br>女单抽签</div>
+                    <div class="sys-module" onclick="alert('即将开启')">更多项目...</div>
                 </div>
-                <div style="text-align: center; margin-top: 50px;">
-                    <button class="login-btn" onclick="logoutAdmin()" style="background:#f8fafc; color:#94a3b8; max-width:250px; box-shadow:none; border: 1px solid #e2e8f0;">&larr; 退出系统</button>
-                </div>
+                <button class="login-btn" onclick="logoutAdmin()" style="background:#f8fafc; color:#94a3b8; margin-top:30px; border:1px solid #e2e8f0; width:150px; margin-left:auto; margin-right:auto; display:block;">安全退出</button>
             </div>
         </div>
 
-      <div id="draw-action-view" style="display: none; text-align:center;">
-            <div class="card" style="max-width: 600px; margin: 0 auto;">
-                <h2 class="card-header" style="justify-content: center;">🌸 女子单打 · 线上抽签</h2>
-                
-                <div id="draw-setup-area">
-                    <p style="color: var(--text-light); font-size: 1rem; margin-bottom: 25px;">请主持人就位。抽签不分先后，可由任意选手指定开始与停止。</p>
-                    
-                    <div id="players-draw-grid" style="display: flex; flex-direction: column; gap: 15px;"></div>
-                    
-                    <button id="gen-bracket-btn" class="login-btn" style="display:none; background: #10b981; margin-top: 30px;" onclick="generateBracket()">生成对阵表</button>
-                    <button class="login-btn" style="background:#f1f5f9; color:#64748b; margin-top: 15px; box-shadow:none;" onclick="closeDrawAction()">返回控制台</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="matchup-detail-view" style="display: none; text-align:center;">
+        <div id="draw-action-view" style="display:none; text-align:center;">
             <div class="card">
-                <h2 class="card-header" style="justify-content: center;">📋 详细对阵与晋级路线表</h2>
-                <div class="empty-state">
-                    <span style="font-size: 4rem;">⏳</span>
-                    <h3 style="color: #E65100; margin-bottom: 15px;">系统尚未执行抽签</h3>
-                    <p style="font-size: 1.1rem; color: var(--text-main);">抽签仪式完成后，系统将在此自动分项目公布。</p>
+                <h2 class="card-header" style="justify-content:center;">女子单打 · 线上抽签</h2>
+                <p style="color:var(--text-light); margin-bottom:20px;">点击“开始”启动滚动，由选手喊停。</p>
+                <div id="players-draw-grid" style="display:flex; flex-direction:column; gap:12px;"></div>
+                <div style="margin-top:30px; display:flex; gap:10px;">
+                    <button id="preview-bracket-btn" class="login-btn" style="display:none; background:#10b981;" onclick="previewBracket()">预览对阵图</button>
+                    <button id="publish-bracket-btn" class="login-btn" style="display:none; background:#FF512F;" onclick="publishBracket()">正式发布到官网</button>
                 </div>
-                <button class="login-btn" onclick="closeMatchupView()" style="background:#e2e8f0; color:#64748b; max-width:250px; margin-top: 20px; box-shadow:none;">&larr; 返回上级菜单</button>
+                <button class="login-btn" onclick="backToDrawSystem()" style="background:#f1f5f9; color:#64748b; margin-top:15px; box-shadow:none;">取消并返回</button>
             </div>
         </div>
-    </div>
 
-    <div id="photos" class="page-section">
-        <div class="photo-banner-card">
-            <div class="photo-overlay"></div>
-            <div class="photo-content">
-                <h2>光影记录 · 赛事云图集</h2>
-                <p>每一次挥拍的激情，每一滴汗水的荣耀。专业摄影，同步传输。<br>点击下方按钮，直达赛场高光时刻云端现场！</p>
-                <a href="https://alltuu.cc/r/Jr2Q7b" target="_blank" class="photo-action-btn">
-                    <span>📸</span> 进入云端高清直播库
-                </a>
+        <div id="matchup-detail-view" style="display:none; text-align:center;">
+            <div class="card" id="bracket-render-area">
+                <div id="bracket-loading">正在拉取云端对阵信息...</div>
             </div>
+            <button class="login-btn" onclick="backToDrawMain()" style="background:#e2e8f0; color:#64748b; max-width:200px; margin-top:20px;">返回</button>
         </div>
     </div>
 
     <div id="trophies" class="page-section">
-        <div id="trophy-list-view">
-            <div class="card">
-                <h2 class="card-header">荣誉殿堂：五大赛事奖杯</h2>
-                <div class="trophy-grid">
-                    <div class="trophy-item item-top" onclick="openTrophy('yibu')">
-                        <span class="trophy-icon">🏆</span>
-                        <div class="trophy-name">伊布杯</div>
-                        <div class="trophy-type">混合团体流动奖杯</div>
-                        <div class="trophy-badge">✨ 赛事最高团队荣誉</div>
-                    </div>
-                    <div class="trophy-item item-mid-l" onclick="openTrophy('maipu')">
-                        <span class="trophy-icon">🏆</span>
-                        <div class="trophy-name">麦普杯</div>
-                        <div class="trophy-type">男子单打冠军奖杯</div>
-                        <div class="trophy-badge">点击探索详情 &rarr;</div>
-                    </div>
-                    <div class="trophy-item item-mid-r" onclick="openTrophy('ximeng')">
-                        <span class="trophy-icon">🏆</span>
-                        <div class="trophy-name">西蒙杯</div>
-                        <div class="trophy-type">女子单打冠军奖杯</div>
-                        <div class="trophy-badge">点击探索详情 &rarr;</div>
-                    </div>
-                    <div class="trophy-item item-bot-l" onclick="openTrophy('bulaifu')">
-                        <span class="trophy-icon">🏆</span>
-                        <div class="trophy-name">布莱芙杯</div>
-                        <div class="trophy-type">男子双打冠军奖杯</div>
-                        <div class="trophy-badge">点击探索详情 &rarr;</div>
-                    </div>
-                    <div class="trophy-item item-bot-r" onclick="openTrophy('chaos')">
-                        <span class="trophy-icon">🏆</span>
-                        <div class="trophy-name">查奥斯杯</div>
-                        <div class="trophy-type">混合双打冠军奖杯</div>
-                        <div class="trophy-badge">点击探索详情 &rarr;</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div id="trophy-detail-view" style="display: none;">
-            <div class="card">
-                <div class="td-header">
-                    <div class="td-icon">🏆</div>
-                    <div>
-                        <div class="td-name" id="td-name" style="font-size:2.2rem; font-weight:900;"></div>
-                        <div class="td-type" id="td-type" style="color: var(--text-light); font-weight: bold;"></div>
-                    </div>
-                </div>
-                <div class="td-body">
-                    <div class="td-image-wrapper">
-                        <img id="td-image" src="" alt="奖杯实拍" onload="this.style.opacity=1" onerror="this.style.opacity=0">
-                        <div class="img-placeholder" style="position: absolute; top:50%; left:50%; transform: translate(-50%, -50%); z-index: -1;">
-                            <span style="font-size: 3rem; color: #cbd5e1; display: block; margin-bottom: 10px;">📷</span>奖杯高清实拍图<br>(推荐比例 3:5)
-                        </div>
-                    </div>
-                    <div id="td-content" style="flex:1;"></div>
-                </div>
-                <div style="text-align: center; margin-top: 40px; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 25px;">
-                    <button onclick="hideTrophyDetail()" class="login-btn" style="background:#e2e8f0; color:#64748b; max-width:250px; box-shadow:none;">&larr; 返回奖杯陈列室</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="results" class="page-section">
-        <div class="card">
-            <h2 class="card-header">赛事成绩榜</h2>
-            <div class="empty-state" style="padding: 60px 0;">
-                <span style="font-size: 5rem; margin-bottom: 25px;">🏅</span>
-                <p style="font-size: 1.2rem; color: var(--text-main); font-weight: bold;">比赛尚未开始，战鼓即将擂响！</p>
-                <p style="color: var(--text-light); margin-top: 10px;">所有项目最终名次及积分将在此处进行官方公示。</p>
-            </div>
-        </div>
+        <div class="card"><h2 class="card-header">荣誉殿堂</h2><p>点击奖杯探索传奇...</p></div>
     </div>
 </div>
 
 <script>
-    // ---------------------------------------------------------
-    // 模块 1: 三段式时间控制阀门与倒计时运算
-    // ---------------------------------------------------------
-    const regStart = new Date("Apr 27, 2026 15:00:00").getTime(); 
-    const regEnd = new Date("May 4, 2026 17:59:59").getTime();   
-    const openDate = new Date("Jun 14, 2026 10:00:00").getTime(); 
-
-    function updateCountdowns() {
-        const now = new Date().getTime();
-        
-        const distOpen = openDate - now;
-        if (distOpen > 0) {
-            document.getElementById("days").innerText = Math.floor(distOpen / 86400000);
-            document.getElementById("hours").innerText = ('0'+Math.floor((distOpen % 86400000) / 3600000)).slice(-2);
-            document.getElementById("minutes").innerText = ('0'+Math.floor((distOpen % 3600000) / 60000)).slice(-2);
-            document.getElementById("seconds").innerText = ('0'+Math.floor((distOpen % 60000) / 1000)).slice(-2);
-        } else {
-            document.querySelector('.countdown').innerHTML = "<h3 style='color: #FF512F; font-size: 2rem; font-weight: 900;'>🔥 第五届总结大赛已燃情开幕！</h3>";
-        }
-
-        const notStarted = document.getElementById('reg-status-not-started');
-        const active = document.getElementById('reg-status-active');
-        const ended = document.getElementById('reg-status-ended');
-
-        if (now < regStart) {
-            if(notStarted.style.display !== 'block') { notStarted.style.display = 'block'; active.style.display = 'none'; ended.style.display = 'none'; }
-            const distStart = regStart - now;
-            const d = Math.floor(distStart / 86400000);
-            const h = Math.floor((distStart % 86400000) / 3600000);
-            const m = Math.floor((distStart % 3600000) / 60000);
-            const s = Math.floor((distStart % 60000) / 1000);
-            document.getElementById('reg-start-countdown').innerText = `${d}天 ${h}时 ${m}分 ${s}秒`;
-        } else if (now >= regStart && now <= regEnd) {
-            if(active.style.display !== 'block') { notStarted.style.display = 'none'; active.style.display = 'block'; ended.style.display = 'none'; }
-        } else {
-            if(ended.style.display !== 'block') { notStarted.style.display = 'none'; active.style.display = 'none'; ended.style.display = 'block'; }
-        }
-    }
-    setInterval(updateCountdowns, 1000);
-    updateCountdowns();
-
-    // ---------------------------------------------------------
-    // 模块 2: Bmob 后端云双重直连引擎 
-    // ---------------------------------------------------------
+    // ================== 1. Bmob 初始化 ==================
     Bmob.initialize("2f8e8878894199f42e2a5991d48ab233", "9eaf6a2ec3dea2e9378764f89dc4737a");
-    
-    let temp = {}; 
-    let selectedFile = null; 
 
-    function goStep2(e) {
-        e.preventDefault();
-        temp = {
-            name: document.getElementById('reg-name').value.trim(),
-            gender: document.getElementById('reg-gender').value,
-            college: document.getElementById('reg-college').value,
-            style: document.getElementById('reg-style').value,
-            time: new Date().toLocaleString()
-        };
-        document.getElementById('reg-step-1').style.display = 'none';
-        document.getElementById('reg-step-2').style.display = 'block';
-    }
-
-    function previewPhoto(input) {
-        if (input.files && input.files[0]) {
-            selectedFile = input.files[0]; 
-            let reader = new FileReader();
-            reader.onload = e => {
-                document.getElementById('photo-preview').src = e.target.result;
-                document.getElementById('photo-preview').style.display = 'block';
-                document.getElementById('photo-placeholder').style.display = 'none';
-            };
-            reader.readAsDataURL(selectedFile);
+    // ================== 2. 基础路由与时间 ==================
+    const openDate = new Date("Jun 14, 2026 10:00:00").getTime();
+    setInterval(() => {
+        const dist = openDate - new Date().getTime();
+        if (dist > 0) {
+            document.getElementById("days").innerText = Math.floor(dist / 86400000);
+            document.getElementById("hours").innerText = ('0'+Math.floor((dist % 86400000) / 3600000)).slice(-2);
+            document.getElementById("minutes").innerText = ('0'+Math.floor((dist % 3600000) / 60000)).slice(-2);
+            document.getElementById("seconds").innerText = ('0'+Math.floor((dist % 60000) / 1000)).slice(-2);
         }
-    }
+    }, 1000);
 
-    function finalSubmit() {
-        if (!selectedFile) { alert("⚠️ 驳回操作：请先选择并上传您的 1寸免冠照！"); return; }
-        
-        document.getElementById('reg-step-2').style.display = 'none';
-        document.getElementById('reg-loading').style.display = 'block';
-        
-        const loadingText = document.querySelector('#reg-loading p');
-        loadingText.innerText = "正在加密上传照片原件至云端 (1/2)...";
-
-        const bmobFile = Bmob.File(selectedFile.name, selectedFile);
-        bmobFile.save().then(res => {
-            const photoUrl = res[0].url; 
-            loadingText.innerText = "正在将您的档案写入精英阵容库 (2/2)...";
-            
-            const query = Bmob.Query('PlayerReg');
-            query.set("name", temp.name);
-            query.set("gender", temp.gender);
-            query.set("college", temp.college);
-            query.set("style", temp.style);
-            query.set("photoUrl", photoUrl); 
-            query.set("regTime", temp.time);
-            return query.save();
-        }).then(res => {
-            document.getElementById('success-msg').innerHTML = `<b style="color:#E65100;">${temp.name}</b> 同学，您的实体档案及照片文件已成功双重归档！`;
-            document.getElementById('reg-loading').style.display = 'none';
-            document.getElementById('reg-success').style.display = 'block';
-        }).catch(err => { 
-            console.error(err);
-            alert("❌ 同步中断！请检查网络状态，或确保照片体积不超过 2MB。"); 
-            document.getElementById('reg-loading').style.display = 'none'; 
-            document.getElementById('reg-step-2').style.display = 'block'; 
-        });
-    }
-
-    function backStep1() { document.getElementById('reg-step-2').style.display = 'none'; document.getElementById('reg-step-1').style.display = 'block'; }
-    function resetRegistration() { 
-        document.getElementById('reg-success').style.display='none'; 
-        document.getElementById('reg-step-1').style.display='block'; 
-        document.querySelector('.login-form').reset(); 
-        temp = {}; 
-        selectedFile = null;
-        document.getElementById('photo-preview').src = '';
-        document.getElementById('photo-preview').style.display = 'none';
-        document.getElementById('photo-placeholder').style.display = 'block';
-    }
-
-    // ---------------------------------------------------------
-    // 模块 3: 后台管理员验证系统与全局 CSV 导出器
-    // ---------------------------------------------------------
-    const adminAcc = {
-        'bhuttt-5th01': '11111111', 
-        'bhuttt-5th02': '22222222',
-        'bhuttt-5th03': '33333333'
-    };
-
-    function openDrawLogin() { document.getElementById('draw-main-view').style.display='none'; document.getElementById('draw-login-view').style.display='block'; }
-    function closeDrawLogin() { document.getElementById('draw-login-view').style.display='none'; document.getElementById('draw-main-view').style.display='block'; }
-    
-    function handleLogin(e) {
-        e.preventDefault();
-        let a = document.getElementById('admin-account').value.trim();
-        let p = document.getElementById('admin-password').value.trim();
-        if(adminAcc[a] && adminAcc[a] === p) {
-            document.getElementById('draw-login-view').style.display='none';
-            document.getElementById('draw-system-view').style.display='block';
-            document.getElementById('admin-password').value = '';
-        } else {
-            alert("🚫 拦截：无权限访问。账号或安全密钥不匹配！");
-        }
-    }
-    
-    function logoutAdmin() { document.getElementById('draw-system-view').style.display='none'; document.getElementById('draw-main-view').style.display='block'; }
-    function openMatchupView() { document.getElementById('draw-main-view').style.display='none'; document.getElementById('matchup-detail-view').style.display='block'; }
-    function closeMatchupView() { document.getElementById('matchup-detail-view').style.display='none'; document.getElementById('draw-main-view').style.display='block'; }
-
-    function exportRegistrationData() {
-        alert("系统收到指令：正在从 Bmob 云端拉取全员大名单，请等待浏览器下载提示...");
-        const query = Bmob.Query('PlayerReg');
-        query.limit(1000);
-        query.find().then(results => {
-            if(!results || results.length === 0) { alert("📭 数据拉取完成：当前数据库容量为 0，暂无人报名。"); return; }
-            let csv = "data:text/csv;charset=utf-8,\uFEFF报名时间,姓名,性别,学院,打法,云端证件照链接\n";
-            results.forEach(p => { 
-                csv += `${p.regTime || p.createdAt},${p.name},${p.gender},${p.college},${p.style},${p.photoUrl || "无链接"}\n`; 
-            });
-            const link = document.createElement("a");
-            link.href = encodeURI(csv);
-            link.download = "第五届总结大赛_全员带图名单_密件.csv";
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }).catch(err => {
-            alert("❌ 提取被拒绝：无法连接云端数据库，请检查您的网络连接或管理员密钥状态。");
-        });
-    }
-
-    // ---------------------------------------------------------
-    // 模块 4: 五大荣誉奖杯数据驱动渲染系统
-    // ---------------------------------------------------------
-    const trophyData = {
-        'maipu': { name: '麦普杯 (Maple Cup)', type: '男子单打项目 · 冠军奖杯', content: '<b>【精神溯源】</b> 麦普杯象征着个人技艺的卓越与赛场风范，由渤海大学乒乓球队名誉队长、第三任队长姜枫先生于 2023 年 6 月捐赠。此杯专为嘉奖男单项目中技压群雄的冠军选手而设。“麦普”取自姜枫先生英文名“Maple”，寄寓成熟与坚毅之力。<br><br><b>【荣耀传承】</b> 每一届男单冠军的光辉姓名，将永久铭刻于麦普杯之上。2023 年第二届大赛中，刘奚铭首次将名字镌刻于此杯；2024 年第三届大赛，石致远成为麦普杯的第二任获得者；在去年的第四届大赛中，<b>田印广</b>成功夺魁，将其名字留在杯身。<br><br><b>【赛事展望】</b> 赛场上的每一次挥拍都凝聚着平日的汗水。本届大赛的男单桂冠正等待新的优胜者前来摘取，谁将脱颖而出，成为第四位将名字铭刻在麦普杯上的冠军？' },
-        'ximeng': { name: '西蒙杯 (Simon Cup)', type: '女子单打项目 · 冠军奖杯', content: '<b>【精神溯源】</b> 西蒙杯代表着女选手的优雅风姿与坚韧品格，由渤海大学乒乓球队名誉队长、第四任队长刘奚铭先生于 2024 年 6 月捐赠。此杯专门用于表彰女单比赛中的冠军得主。“西蒙”取自刘奚铭先生英文名“Simon”，寄托了对女队员们不断进步、追求卓越的鼓励与期许。<br><br><b>【荣耀传承】</b> 每一届女单冠军的姓名将荣镌杯身，见证她们的拼搏与荣誉。第三届比赛中，殷紫萱首度捧杯；去年第四届比赛中，<b>邵尔诺</b>表现优异，成为第二位将芳名留在西蒙杯上的优胜者。<br><br><b>【赛事展望】</b> 赛场不分性别，拼搏同样精彩。本届大赛的女单桂冠正静候新主，期待诞生第三位将名字铭刻在西蒙杯上的冠军选手。' },
-        'bulaifu': { name: '布莱芙杯 (Belief Cup)', type: '男子双打项目 · 冠军奖杯', content: '<b>【精神溯源】</b> 布莱芙杯象征着同伴间的信念与默契配合，由渤海大学乒乓球队首任队长陈欣洋先生于 2024 年 6 月捐赠。此杯用以表彰男双比赛中的冠军组合。“布莱芙”之名源自“欣洋”二字谐音“信仰”的英文“Belief”，寓意搭档间的相互信任与精诚协作是夺冠的基石。<br><br><b>【荣耀传承】</b> 每一届男双冠军组合的姓名将并列镌刻于杯身，共享荣誉。在第三届比赛中，王宗玉与杜沁宇组合首次捧起了此杯；去年第四届大赛，<b>康林哲与田印广</b>凭借默契配合，成为第二组荣镌此杯的搭档。<br><br><b>【赛事展望】</b> 双打考验的不仅是个人技术，更是 1+1 大于 2 的默契。本届男双比赛战幕将启，获胜的搭档将成为第三组将名字共同铭刻在布莱芙杯上的冠军组合。' },
-        'chaos': { name: '查奥斯杯 (Chaos Cup)', type: '混合双打项目 · 冠军奖杯', content: '<b>【精神溯源】</b> 查奥斯杯体现了力量与智慧的和谐交融，由渤海大学乒乓球队名誉队长、第二任队长刘丞皓先生于 2024 年 6 月捐赠。此杯旨在授予混合双打项目的最佳搭档。“查奥斯”巧妙地取自刘丞皓先生名字中“丞”的声母与“皓”的韵母，象征比赛中的激情碰撞与策略运用。<br><br><b>【荣耀传承】</b> 每一届混双冠军组合的姓名将镌刻其上，记录赛场上的精彩配合。第三届比赛的康林哲与徐赫遥组合首次加冕；在去年的第四届比赛中，<b>刘士辉与代馨怡</b>荣获佳绩，将名字留在此杯之上。<br><br><b>【赛事展望】</b> 混双赛场充满了变数与策略的较量。本届比赛的优胜搭档，将成为光荣的第三对查奥斯杯得主。' },
-        'yibu': { name: '伊布杯 (Hibou Cup)', type: '混合团体项目 · 流动奖杯', content: '<b>【精神溯源】</b> 伊布杯象征着团队协作之巅与集体最高荣誉，由渤海大学乒乓球队名誉队长、第二任队长岳亮先生于 2021 年 6 月惠赠。此杯旨在表彰总结大赛中表现最卓越的团体队伍。“伊布”之名源自岳亮先生英文名“Hibou”，蕴含智慧与坚韧之意。<br><br><b>【荣耀传承】</b> 依循传统，每届团体冠军成员的姓名将共同镌刻于杯身，以彰荣誉。从第一届的“高鹤宁、王贺铭、王艺璇”，到第二届的“刘奚铭、谭程、刘梦昕”，第三届的“杨乐、田印广、张洪洋、代馨怡”，再到去年第四届摘桂的“<b>张洪洋、代馨怡、王治元、朱昶安</b>”，四届冠军队伍的名字已在此铭刻。<br><br><b>【赛事展望】</b> 团队赛始终是对凝聚力与排兵布阵的综合考验。本届大赛的获胜队伍，将成为第五支光荣捧起伊布杯、续写团队辉煌的绝对冠军之师。' }
-    };
-
-    function openTrophy(id) { window.location.hash = 'trophy-' + id; }
-    
-    function showTrophyDetail(id) {
-        document.getElementById('trophy-list-view').style.display='none';
-        document.getElementById('trophy-detail-view').style.display='block';
-        document.getElementById('td-name').innerText = trophyData[id].name;
-        document.getElementById('td-type').innerText = trophyData[id].type;
-        document.getElementById('td-content').innerHTML = `<p style="font-size: 1.05rem; line-height: 1.8; color: var(--text-main); margin-bottom: 15px;">${trophyData[id].content}</p>`;
-        document.getElementById('td-image').src = `./${id}.jpg`;
-    }
-    
-    function hideTrophyDetail() { document.getElementById('trophy-detail-view').style.display='none'; document.getElementById('trophy-list-view').style.display='block'; }
-
-    // ---------------------------------------------------------
-    // 模块 5: 哈希无刷新路由核心
-    // ---------------------------------------------------------
     function handleRouting() {
-        let h = window.location.hash.replace('#', '') || 'home';
-        
+        const h = window.location.hash.replace('#', '') || 'home';
         document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
         document.querySelectorAll('.page-section').forEach(e => e.classList.remove('active'));
-        
-        if(h.startsWith('trophy-')) {
-            document.getElementById('trophies').classList.add('active');
-            document.getElementById('nav-trophies').classList.add('active');
-            showTrophyDetail(h.split('-')[1]);
-        } else {
-            document.getElementById(h)?.classList.add('active');
-            document.getElementById('nav-'+h)?.classList.add('active');
-            if(h === 'trophies') hideTrophyDetail();
-            
-            if(h !== 'draw') {
-                document.getElementById('draw-login-view').style.display='none';
-                document.getElementById('draw-system-view').style.display='none';
-                document.getElementById('matchup-detail-view').style.display='none';
-                // 确保新加的抽签动效界面也被重置
-                const drawAction = document.getElementById('draw-action-view');
-                if(drawAction) drawAction.style.display = 'none';
-                document.getElementById('draw-main-view').style.display='block';
-            }
-        }
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        document.getElementById(h)?.classList.add('active');
+        document.getElementById('nav-'+h)?.classList.add('active');
+        if(h === 'draw') backToDrawMain();
     }
-    window.addEventListener('hashchange', handleRouting);
-    window.addEventListener('load', handleRouting);
+    window.onhashchange = handleRouting;
 
-    // ================== 6. 赛事抽签动效引擎 (并行升级版) ==================
+    // ================== 3. 报名逻辑 ==================
+    let tempPlayer = {}; let selectedFile = null;
+    function goStep2(e) { e.preventDefault(); tempPlayer={name:document.getElementById('reg-name').value, college:document.getElementById('reg-college').value, style:document.getElementById('reg-style').value, time:new Date().toLocaleString()}; document.getElementById('reg-step-1').style.display='none'; document.getElementById('reg-step-2').style.display='block'; }
+    function previewPhoto(input) { if(input.files[0]) { selectedFile=input.files[0]; let r=new FileReader(); r.onload=e=>{document.getElementById('photo-preview').src=e.target.result; document.getElementById('photo-preview').style.display='block'; document.getElementById('photo-placeholder').style.display='none';}; r.readAsDataURL(selectedFile); } }
+    function finalSubmit() {
+        if(!selectedFile) return alert("请选照片");
+        document.getElementById('reg-step-2').style.display='none'; document.getElementById('reg-loading').style.display='block';
+        const file = Bmob.File(selectedFile.name, selectedFile);
+        file.save().then(res => {
+            const q = Bmob.Query('PlayerReg');
+            q.set("name", tempPlayer.name); q.set("college", tempPlayer.college); q.set("style", tempPlayer.style); q.set("photoUrl", res[0].url); q.set("regTime", tempPlayer.time);
+            return q.save();
+        }).then(() => { document.getElementById('reg-loading').style.display='none'; document.getElementById('reg-success').style.display='block'; });
+    }
+
+    // ================== 4. 后台与抽签核心逻辑 ==================
     const wsPlayers = ['邵尔诺', '李子璇', '张蓝兮', '李沃柔'];
-    let wsPositions = ['A1', 'A2', 'B1', 'B2'];
-    let finalResults = {}; 
-    let rollIntervals = {}; // 独立管理每个人的滚动计时器
+    let wsPool = ['A1', 'A2', 'B1', 'B2'];
+    let wsResults = {}; let wsRollers = {};
+
+    function handleLogin() { if(document.getElementById('admin-password').value === '11111111') { document.getElementById('draw-login-view').style.display='none'; document.getElementById('draw-system-view').style.display='block'; } else alert("错误"); }
+    function openDrawLogin() { document.getElementById('draw-main-view').style.display='none'; document.getElementById('draw-login-view').style.display='block'; }
+    function closeDrawLogin() { document.getElementById('draw-login-view').style.display='none'; document.getElementById('draw-main-view').style.display='block'; }
+    function logoutAdmin() { document.getElementById('draw-system-view').style.display='none'; document.getElementById('draw-main-view').style.display='block'; }
+    function backToDrawMain() { document.getElementById('draw-login-view').style.display='none'; document.getElementById('draw-system-view').style.display='none'; document.getElementById('draw-action-view').style.display='none'; document.getElementById('matchup-detail-view').style.display='none'; document.getElementById('draw-main-view').style.display='block'; }
+    function backToDrawSystem() { document.getElementById('draw-action-view').style.display='none'; document.getElementById('draw-system-view').style.display='block'; }
 
     function openDrawAction() {
-        document.getElementById('draw-system-view').style.display = 'none';
-        document.getElementById('draw-action-view').style.display = 'block';
-        
-        // 重置所有状态，保障无限次测试
-        wsPositions = ['A1', 'A2', 'B1', 'B2'];
-        finalResults = {};
-        rollIntervals = {};
-        document.getElementById('gen-bracket-btn').style.display = 'none';
-        
-        // 动态生成四个人的并行抽签条目
-        const grid = document.getElementById('players-draw-grid');
-        grid.innerHTML = '';
-        wsPlayers.forEach((player, index) => {
+        document.getElementById('draw-system-view').style.display='none';
+        document.getElementById('draw-action-view').style.display='block';
+        wsPool=['A1','A2','B1','B2']; wsResults={}; wsRollers={};
+        const grid = document.getElementById('players-draw-grid'); grid.innerHTML='';
+        wsPlayers.forEach((p, i) => {
             grid.innerHTML += `
-                <div style="display: flex; align-items: center; justify-content: space-between; background: #f8fafc; padding: 15px 20px; border-radius: 16px; border: 1px solid #e2e8f0;">
-                    <span style="font-size: 1.2rem; font-weight: bold; width: 80px; text-align: left; color: var(--text-main);">${player}</span>
-                    <div id="slot-${index}" style="font-size: 1.6rem; font-weight: 900; color: #FF512F; width: 60px; text-align: center; border: 2px dashed #cbd5e1; border-radius: 8px; background: #fff;">?</div>
-                    <button id="btn-${index}" class="login-btn" style="margin: 0; width: 90px; padding: 10px; font-size: 1rem;" onclick="togglePlayerRoll('${player}', ${index})">开始</button>
-                </div>
-            `;
+                <div style="display:flex; align-items:center; justify-content:space-between; background:#fff; padding:15px; border-radius:12px; border:1px solid #eee;">
+                    <span style="font-weight:bold; width:80px; text-align:left;">${p}</span>
+                    <div id="ws-slot-${i}" style="font-size:1.5rem; font-weight:900; color:#FF512F; width:60px;">?</div>
+                    <button id="ws-btn-${i}" class="login-btn" style="margin:0; width:80px; padding:8px;" onclick="toggleWSRoll('${p}', ${i})">开始</button>
+                </div>`;
         });
     }
 
-    function closeDrawAction() {
-        document.getElementById('draw-action-view').style.display = 'none';
-        document.getElementById('draw-system-view').style.display = 'block';
-    }
-
-    // 独立控制每个选手的滚动与停止
-    function togglePlayerRoll(player, index) {
-        const btn = document.getElementById(`btn-${index}`);
-        const slot = document.getElementById(`slot-${index}`);
-
-        if (!rollIntervals[player]) {
-            // 防御：如果签池空了，直接返回
-            if (wsPositions.length === 0) return;
-            
-            // 开始滚动
-            btn.innerText = '停';
-            btn.style.background = '#e11d48'; 
-            
-            rollIntervals[player] = setInterval(() => {
-                const randomPos = wsPositions[Math.floor(Math.random() * wsPositions.length)];
-                slot.innerText = randomPos;
-            }, 60); 
+    function toggleWSRoll(player, idx) {
+        const btn = document.getElementById(`ws-btn-${idx}`);
+        const slot = document.getElementById(`ws-slot-${idx}`);
+        if(!wsRollers[player]) {
+            btn.innerText='停'; btn.style.background='#e11d48';
+            wsRollers[player] = setInterval(() => { slot.innerText = wsPool[Math.floor(Math.random()*wsPool.length)]; }, 60);
         } else {
-            // 停止并锁定签位
-            clearInterval(rollIntervals[player]);
-            btn.innerText = '已锁定';
-            btn.style.background = '#10b981'; 
-            btn.disabled = true; 
-
-            // 从签池中随机抓取最终签位
-            const finalPosIndex = Math.floor(Math.random() * wsPositions.length);
-            const finalPos = wsPositions[finalPosIndex];
-            slot.innerText = finalPos;
-
-            // 记录结果并移出签池
-            finalResults[player] = finalPos;
-            wsPositions.splice(finalPosIndex, 1); 
-
-            // 判断是否全员抽签完毕，显示生成按钮
-            if (Object.keys(finalResults).length === wsPlayers.length) {
-                document.getElementById('gen-bracket-btn').style.display = 'block';
+            clearInterval(wsRollers[player]); btn.innerText='锁定'; btn.disabled=true; btn.style.background='#10b981';
+            const finalIdx = Math.floor(Math.random()*wsPool.length);
+            const finalPos = wsPool[finalIdx]; slot.innerText = finalPos;
+            wsResults[player] = finalPos; wsPool.splice(finalIdx, 1);
+            if(Object.keys(wsResults).length === wsPlayers.length) {
+                document.getElementById('preview-bracket-btn').style.display='block';
+                document.getElementById('publish-bracket-btn').style.display='block';
             }
         }
     }
 
-    // 生成庄重、简洁的对阵表
-    function generateBracket() {
-        document.getElementById('draw-action-view').style.display = 'none';
-        document.getElementById('matchup-detail-view').style.display = 'block';
-        
-        // 匹配签位
-        let a1 = Object.keys(finalResults).find(key => finalResults[key] === 'A1') || '虚位以待';
-        let a2 = Object.keys(finalResults).find(key => finalResults[key] === 'A2') || '虚位以待';
-        let b1 = Object.keys(finalResults).find(key => finalResults[key] === 'B1') || '虚位以待';
-        let b2 = Object.keys(finalResults).find(key => finalResults[key] === 'B2') || '虚位以待';
+    // 预览（仅本地生成）
+    function previewBracket() { renderBracketUI(wsResults); }
 
-        const container = document.getElementById('matchup-detail-view');
-        // 重写整个对阵表视图，包含专属的管理员返回按钮
-        container.innerHTML = `
-            <div class="card">
-                <h2 class="card-header" style="justify-content: center; font-size: 1.6rem;">女子单打 对阵表</h2>
-                <div class="empty-state" style="padding: 10px 0;">
-                    <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; text-align: left; margin: 0 auto; max-width: 400px; box-shadow: 0 5px 20px rgba(0,0,0,0.03);">
-                        <div style="margin-bottom: 20px;">
-                            <div style="background: #f8fafc; color: #475569; font-weight: bold; padding: 8px 15px; border-radius: 8px; margin-bottom: 10px; text-align: center; border: 1px solid #e2e8f0;">
-                                上半区
-                            </div>
-                            <div style="display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px dashed #e2e8f0;">
-                                <span style="font-weight: bold; color: #FF512F; font-size: 1.1rem;">A1</span>
-                                <span style="font-size: 1.2rem; font-weight: bold; color: #2A1B18;">${a1}</span>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; padding: 12px;">
-                                <span style="font-weight: bold; color: #FF512F; font-size: 1.1rem;">A2</span>
-                                <span style="font-size: 1.2rem; font-weight: bold; color: #2A1B18;">${a2}</span>
-                            </div>
-                        </div>
-                        <div>
-                            <div style="background: #f8fafc; color: #475569; font-weight: bold; padding: 8px 15px; border-radius: 8px; margin-bottom: 10px; text-align: center; border: 1px solid #e2e8f0;">
-                                下半区
-                            </div>
-                            <div style="display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px dashed #e2e8f0;">
-                                <span style="font-weight: bold; color: #FF512F; font-size: 1.1rem;">B1</span>
-                                <span style="font-size: 1.2rem; font-weight: bold; color: #2A1B18;">${b1}</span>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; padding: 12px;">
-                                <span style="font-weight: bold; color: #FF512F; font-size: 1.1rem;">B2</span>
-                                <span style="font-size: 1.2rem; font-weight: bold; color: #2A1B18;">${b2}</span>
-                            </div>
-                        </div>
-                    </div>
+    // 发布（存入 Bmob）
+    function publishBracket() {
+        if(!confirm("确定要正式发布到官网吗？这将覆盖旧的对阵数据。")) return;
+        const q = Bmob.Query("MatchupData");
+        // 先查有没有旧的女单数据，有就更新，没就新建
+        q.equalTo("category", "===", "WS");
+        q.find().then(res => {
+            const entry = res.length > 0 ? Bmob.Query("MatchupData").get(res[0].objectId) : Bmob.Query("MatchupData");
+            entry.set("category", "WS");
+            entry.set("results", wsResults);
+            return entry.save();
+        }).then(() => { alert("🚀 女子单打对阵图已同步至官网！"); renderBracketUI(wsResults); });
+    }
+
+    // 渲染函数：用于截图和公示
+    function renderBracketUI(data) {
+        document.getElementById('draw-action-view').style.display='none';
+        document.getElementById('matchup-detail-view').style.display='block';
+        const a1 = Object.keys(data).find(k => data[k]==='A1') || '-';
+        const a2 = Object.keys(data).find(k => data[k]==='A2') || '-';
+        const b1 = Object.keys(data).find(k => data[k]==='B1') || '-';
+        const b2 = Object.keys(data).find(k => data[k]==='B2') || '-';
+        document.getElementById('bracket-render-area').innerHTML = `
+            <h2 class="card-header" style="justify-content:center; border:none; margin-bottom:10px;">女子单打 官方对阵图</h2>
+            <div class="bracket-card">
+                <div class="bracket-zone">
+                    <div class="bracket-title">上半区 (A Zone)</div>
+                    <div class="bracket-row"><span class="pos-id">A1</span><span class="pos-name">${a1}</span></div>
+                    <div class="bracket-row" style="border:none;"><span class="pos-id">A2</span><span class="pos-name">${a2}</span></div>
                 </div>
-                <button class="login-btn" onclick="backToDrawSystem()" style="background:#e2e8f0; color:#64748b; max-width:250px; margin-top: 20px; box-shadow:none;">返回</button>
+                <div class="bracket-zone" style="margin:0;">
+                    <div class="bracket-title">下半区 (B Zone)</div>
+                    <div class="bracket-row"><span class="pos-id">B1</span><span class="pos-name">${b1}</span></div>
+                    <div class="bracket-row" style="border:none;"><span class="pos-id">B2</span><span class="pos-name">${b2}</span></div>
+                </div>
             </div>
+            <p style="font-size:0.8rem; color:#94a3b8; margin-top:15px;">Official Matchup Data | Bohai Univ Table Tennis</p>
         `;
     }
 
-    // 专属的管理员返回函数（直接返回抽签控制台）
-    function backToDrawSystem() {
-        document.getElementById('matchup-detail-view').style.display = 'none';
-        document.getElementById('draw-system-view').style.display = 'block';
+    // 公共入口：查看对阵总榜
+    function openMatchupView() {
+        document.getElementById('draw-main-view').style.display='none';
+        document.getElementById('matchup-detail-view').style.display='block';
+        document.getElementById('bracket-render-area').innerHTML = '<div style="padding:40px;">正在连接云端获取最新对阵...</div>';
+        const q = Bmob.Query("MatchupData");
+        q.equalTo("category", "===", "WS");
+        q.find().then(res => {
+            if(res.length > 0) renderBracketUI(res[0].results);
+            else document.getElementById('bracket-render-area').innerHTML = '<div style="padding:40px;">⏳ 抽签仪式尚未开始</div>';
+        });
     }
-    
+
+    function exportRegistrationData() {
+        alert("准备拉取报名表...");
+        Bmob.Query('PlayerReg').limit(1000).find().then(res => {
+            let csv = "data:text/csv;charset=utf-8,\uFEFF姓名,学院,打法,时间,照片\n";
+            res.forEach(p => { csv += `${p.name},${p.college},${p.style},${p.regTime},${p.photoUrl}\n`; });
+            const link = document.createElement("a"); link.href = encodeURI(csv); link.download = "报名名单.csv"; link.click();
+        });
+    }
+
+    // 初始化路由
+    handleRouting();
 </script>
 </body>
 </html>
