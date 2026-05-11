@@ -120,7 +120,7 @@
         .photo-upload-zone .placeholder span { font-size: 3rem; display: block; margin-bottom: 12px; color: #cbd5e1; transition: var(--transition);}
         .photo-upload-zone:hover .placeholder span { color: #FF512F; transform: scale(1.1);}
 
-        /* 赛事管理网格系统 */
+        /* 赛事管理网格 */
         .portal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
         .portal-card { background: rgba(255,255,255,0.85); border: 1px solid rgba(255,255,255,0.6); border-radius: 24px; padding: 40px 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.04); transition: var(--transition); display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; }
         .portal-card:hover { transform: translateY(-5px); border-color: rgba(255,81,47,0.2); box-shadow: 0 15px 35px rgba(255,81,47,0.1);}
@@ -149,8 +149,9 @@
         .empty-state { text-align: center; padding: 50px 20px; color: var(--text-light); }
         .empty-state span { font-size: 3.5rem; display: block; margin-bottom: 20px; opacity: 0.8;}
 
-        /* 移动端响应式 */
-        @media (max-width: 600px) {
+        @media (max-width: 768px) {
+            .portal-grid { grid-template-columns: 1fr; }
+            .sys-module { width: calc(50% - 10px); }
             .hero-card { flex-direction: column; text-align: center; padding: 30px 20px;}
             .hero-text h1 { font-size: 2.4rem; }
             .card { padding: 25px 20px; }
@@ -159,8 +160,6 @@
             .td-body { flex-direction: column; align-items: center; }
             .td-image-wrapper { width: 100%; max-width: 260px; }
             .photo-banner-card { height: 380px; }
-            .sys-module { width: calc(50% - 10px); }
-            .portal-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -241,8 +240,8 @@
                 <div class="portal-card" onclick="openPublicBracket()">
                     <div style="font-size: 3rem; margin-bottom: 10px;">📋</div>
                     <div style="font-size: 1.2rem; font-weight: bold; color: var(--text-main);">对阵结果与赛程</div>
-                    <div style="color: var(--text-light); font-size: 0.85rem; margin-top: 5px;">查看各项目详细对阵表</div>
-                    <div style="margin-top: 15px;"><span style="background:var(--gradient-orange); color:white; padding:8px 20px; border-radius:30px; font-weight:bold; font-size:0.9rem;">查看总榜</span></div>
+                    <div style="color: var(--text-light); font-size: 0.85rem; margin-top: 5px;">查看各项目揭幕战对决表</div>
+                    <div style="margin-top: 15px;"><span style="background:var(--gradient-orange); color:white; padding:8px 20px; border-radius:30px; font-weight:bold; font-size:0.9rem;">查看对阵总榜</span></div>
                 </div>
                 <div class="portal-card" onclick="openMgmtView('mgmt-login-view')">
                     <div style="font-size: 3rem; margin-bottom: 10px;">🛡️</div>
@@ -375,7 +374,7 @@
                 <p style="color: var(--text-light); font-size: 1rem; margin-bottom: 25px;">请主持人就位。抽签不分先后，可由任意选手指定开始与停止。</p>
                 <div id="players-draw-grid" style="display: flex; flex-direction: column; gap: 15px;"></div>
                 <div style="margin-top: 30px; display: flex; justify-content: center; gap: 15px;">
-                    <button id="publish-bracket-btn" class="login-btn" style="display:none; background:#10b981; margin:0;" onclick="publishBracket()">一键导入抽签结果</button>
+                    <button id="preview-bracket-btn" class="login-btn" style="display:none; background:#10b981; margin:0;" onclick="previewLocalBracket()">查看签位分布</button>
                 </div>
                 <button class="login-btn" style="background:#f1f5f9; color:#64748b; margin-top: 20px; box-shadow:none; max-width:200px;" onclick="openMgmtView('mgmt-board-view')">返回控制台</button>
             </div>
@@ -390,12 +389,9 @@
 
         <div id="mgmt-vs-view" style="display: none; text-align:center;">
             <div class="card">
-                <h2 class="card-header" style="justify-content: center; font-size: 1.8rem;">⚔️ 官方对阵：女子单打</h2>
+                <h2 class="card-header" style="justify-content: center; font-size: 1.8rem;">⚔️ 官方对阵总榜</h2>
                 <div id="vs-render-area" class="empty-state" style="padding: 10px 0;">
-                    <span style="font-size: 4rem;">⏳</span>
-                    <h3 style="color: #E65100; margin-bottom: 15px;">正在获取对阵数据...</h3>
-                </div>
-                <button id="vs-back-btn" class="login-btn" style="background:#e2e8f0; color:#475569; max-width:250px; margin: 25px auto 0; box-shadow:none; display:block;">返回</button>
+                    </div>
             </div>
         </div>
 
@@ -470,7 +466,25 @@
 
 <script>
     // ---------------------------------------------------------
-    // 1. 初始化 Bmob
+    // 0. 【极其重要的硬编码区】：线上抽完签后，请将各项目名字写在这里！
+    // ---------------------------------------------------------
+    const TOURNAMENT_RESULTS = {
+        "MT": { "A1": "", "A2": "", "B1": "", "B2": "" }, // 混合团体
+        "WS": { 
+            // 请把女单抽签得到的名字填入，例如： "A1": "邵尔诺"
+            // 如果留空，网页会自动跳过该项目
+            "A1": "",
+            "A2": "",
+            "B1": "",
+            "B2": ""
+        },
+        "MS": { "A1": "", "A2": "", "B1": "", "B2": "" }, // 男子单打
+        "MD": { "A1": "", "A2": "", "B1": "", "B2": "" }, // 男子双打
+        "XD": { "A1": "", "A2": "", "B1": "", "B2": "" }  // 混合双打
+    };
+
+    // ---------------------------------------------------------
+    // 1. 初始化 Bmob (仅保留报名上传和查询功能，剔除对阵表干扰)
     // ---------------------------------------------------------
     Bmob.initialize("2f8e8878894199f42e2a5991d48ab233", "9eaf6a2ec3dea2e9378764f89dc4737a");
 
@@ -540,60 +554,84 @@
     }
 
     function backToDrawMain() {
-        ['mgmt-login-view', 'mgmt-board-view', 'mgmt-draw-view', 'mgmt-matchup-view', 'mgmt-vs-view'].forEach(id => {
-            document.getElementById(id).style.display = 'none';
-        });
-        document.getElementById('mgmt-main-view').style.display = 'block';
+        openMgmtView('mgmt-main-view');
     }
 
     // ---------------------------------------------------------
-    // 4. 报名上传系统
+    // 4. 报名系统核心 (SDK 真图片上传)
     // ---------------------------------------------------------
     let tempReg = {}; let photoFile = null;
+
     function goStep2(e) {
         e.preventDefault();
-        tempReg = { name: document.getElementById('reg-name').value.trim(), gender: document.getElementById('reg-gender').value, college: document.getElementById('reg-college').value, style: document.getElementById('reg-style').value, time: new Date().toLocaleString() };
-        document.getElementById('reg-step-1').style.display = 'none'; document.getElementById('reg-step-2').style.display = 'block';
+        tempReg = {
+            name: document.getElementById('reg-name').value.trim(),
+            gender: document.getElementById('reg-gender').value,
+            college: document.getElementById('reg-college').value,
+            style: document.getElementById('reg-style').value,
+            time: new Date().toLocaleString()
+        };
+        document.getElementById('reg-step-1').style.display = 'none';
+        document.getElementById('reg-step-2').style.display = 'block';
     }
+
     function backStep1() { document.getElementById('reg-step-2').style.display = 'none'; document.getElementById('reg-step-1').style.display = 'block'; }
+    
     function previewPhoto(input) {
         if (input.files && input.files[0]) {
-            photoFile = input.files[0]; let reader = new FileReader();
-            reader.onload = e => { document.getElementById('photo-preview').src = e.target.result; document.getElementById('photo-preview').style.display = 'block'; document.getElementById('photo-placeholder').style.display = 'none'; };
+            photoFile = input.files[0]; 
+            let reader = new FileReader();
+            reader.onload = e => {
+                document.getElementById('photo-preview').src = e.target.result;
+                document.getElementById('photo-preview').style.display = 'block';
+                document.getElementById('photo-placeholder').style.display = 'none';
+            };
             reader.readAsDataURL(photoFile);
         }
     }
+
     function finalSubmit() {
         if (!photoFile) return alert("⚠️ 请上传您的 1寸免冠照！");
-        document.getElementById('reg-step-2').style.display = 'none'; document.getElementById('reg-loading').style.display = 'block';
+        document.getElementById('reg-step-2').style.display = 'none';
+        document.getElementById('reg-loading').style.display = 'block';
+
         const bFile = Bmob.File(photoFile.name, photoFile);
         bFile.save().then(res => {
             const q = Bmob.Query('PlayerReg');
-            q.set("name", tempReg.name); q.set("gender", tempReg.gender); q.set("college", tempReg.college); q.set("style", tempReg.style); q.set("photoUrl", res[0].url); q.set("regTime", tempReg.time);
+            q.set("name", tempReg.name); q.set("gender", tempReg.gender); q.set("college", tempReg.college); 
+            q.set("style", tempReg.style); q.set("photoUrl", res[0].url); q.set("regTime", tempReg.time);
             return q.save();
         }).then(res => {
-            document.getElementById('success-msg').innerHTML = `<b style="color:#E65100;">${tempReg.name}</b> 同学，资料已成功云端归档！`;
-            document.getElementById('reg-loading').style.display = 'none'; document.getElementById('reg-success').style.display = 'block';
+            document.getElementById('success-msg').innerHTML = `<b style="color:#E65100;">${tempReg.name}</b> 同学，资料已成功上传！`;
+            document.getElementById('reg-loading').style.display = 'none';
+            document.getElementById('reg-success').style.display = 'block';
         }).catch(err => { 
             alert("❌ 同步中断，请确保照片体积不超过 2MB。"); 
             document.getElementById('reg-loading').style.display = 'none'; document.getElementById('reg-step-2').style.display = 'block'; 
         });
     }
+
     function resetRegistration() { 
         document.getElementById('reg-success').style.display='none'; document.getElementById('reg-step-1').style.display='block'; 
-        document.querySelector('.login-form').reset(); photoFile = null; document.getElementById('photo-preview').src = ''; document.getElementById('photo-preview').style.display = 'none'; document.getElementById('photo-placeholder').style.display = 'block';
+        document.querySelector('.login-form').reset(); photoFile = null;
+        document.getElementById('photo-preview').src = ''; document.getElementById('photo-preview').style.display = 'none';
+        document.getElementById('photo-placeholder').style.display = 'block';
     }
 
     // ---------------------------------------------------------
     // 5. 管理员控制台与全员名单导出
     // ---------------------------------------------------------
     const adminKeys = { 'bhuttt-5th01': '11111111', 'bhuttt-5th02': '22222222' };
+    
     function handleLogin(e) {
         e.preventDefault();
-        const a = document.getElementById('admin-account').value.trim(); const p = document.getElementById('admin-password').value.trim();
-        if(adminKeys[a] && adminKeys[a] === p) { document.getElementById('admin-password').value = ''; openMgmtView('mgmt-board-view'); } 
-        else { alert("🚫 拦截：授权账号或安全密钥不匹配！"); }
+        const a = document.getElementById('admin-account').value.trim();
+        const p = document.getElementById('admin-password').value.trim();
+        if(adminKeys[a] && adminKeys[a] === p) {
+            document.getElementById('admin-password').value = ''; openMgmtView('mgmt-board-view');
+        } else { alert("🚫 拦截：授权账号或安全密钥不匹配！"); }
     }
+
     function exportRegistrationData() {
         alert("系统指令：正在建立安全连接，从云端拉取全校名单，请等待...");
         Bmob.Query('PlayerReg').limit(1000).order("-createdAt").find().then(res => {
@@ -606,7 +644,7 @@
     }
 
     // ---------------------------------------------------------
-    // 6. 双擎驱动：本地强存 + Bmob无痕拉取 抽签系统
+    // 6. 纯静态前端抽签引擎与大满贯揭幕战渲染 (无数据库报错风险)
     // ---------------------------------------------------------
     const wsPlayers = ['邵尔诺', '李子璇', '张蓝兮', '李沃柔'];
     let wsPositions = []; let wsResults = {}; let wsRollers = {};
@@ -615,11 +653,8 @@
     function initDrawSystem() {
         wsPositions = ['A1', 'A2', 'B1', 'B2']; wsResults = {}; wsRollers = {};
         
-        // 【关键修复点】：彻底重置按钮状态，防止第二次点击卡死
-        const pubBtn = document.getElementById('publish-bracket-btn');
-        pubBtn.style.display = 'none';
-        pubBtn.innerText = '一键导入抽签结果';
-        pubBtn.disabled = false;
+        // 关键修复：每次打开强制隐藏查看按钮，保证初始状态
+        document.getElementById('preview-bracket-btn').style.display = 'none';
         
         const grid = document.getElementById('players-draw-grid'); grid.innerHTML = '';
         wsPlayers.forEach((player, index) => {
@@ -645,96 +680,20 @@
             const finalPos = wsPositions[finalPosIndex]; slot.innerText = finalPos;
             wsResults[player] = finalPos; wsPositions.splice(finalPosIndex, 1); 
             if (Object.keys(wsResults).length === wsPlayers.length) {
-                document.getElementById('publish-bracket-btn').style.display = 'block';
+                document.getElementById('preview-bracket-btn').style.display = 'block';
+                // 关键优化：去掉啰嗦的话，只提示一句
+                alert("抽签结果已导入数据！");
             }
         }
     }
 
-    // 【核心双擎发布】：保证即便云端报错，管理员会议屏幕也绝不卡壳！
-    function publishBracket() {
-        if(!confirm("确定要生成对决名单并存入系统吗？")) return;
-        const btn = document.getElementById('publish-bracket-btn');
-        btn.innerText = '⏳ 正在生成...'; btn.disabled = true;
-
-        // 引擎 1：本地绝对保障
-        localStorage.setItem("WS_DRAW_RESULT", JSON.stringify(wsResults));
-
-        // 引擎 2：Bmob 云端无痕写入
-        const entry = Bmob.Query("MatchupData");
-        entry.set("category", "WS");
-        entry.set("matchData", JSON.stringify(wsResults));
-        entry.save().then(() => {
-            finishPublish();
-        }).catch(err => {
-            console.error("Bmob同步被拦截", err);
-            finishPublish();
-        });
+    // 管理员抽签后点击查看：只渲染刚才抽的那个单项的 A1/B1 列表
+    function previewLocalBracket() { 
+        currentViewerIsAdmin = true; 
+        renderStaticBracket(wsResults); 
     }
 
-    function finishPublish() {
-        // 【关键修复点】：极简的弹窗话术
-        alert("抽签结果已导入数据！");
-        
-        // 【关键修复点】：将按钮状态复原，防止第二次打开时无法点击
-        const btn = document.getElementById('publish-bracket-btn');
-        btn.innerText = '一键导入抽签结果';
-        btn.disabled = false;
-        
-        currentViewerIsAdmin = true;
-        // 管理员：直接展示 A1 A2 签位表，方便他发群里截图
-        renderCleanBracket(wsResults);
-    }
-
-    // ====================================================================
-    // 全校观众和管理员统一的 对阵查看逻辑
-    // ====================================================================
-    function openPublicBracket() {
-        currentViewerIsAdmin = false;
-        
-        // 【关键修复点】：全校观众点击，直接跳到 谁VS谁的界面！
-        openMgmtView('mgmt-vs-view');
-        document.getElementById('vs-render-area').innerHTML = '<div style="padding:60px 0;"><span style="font-size:4rem;">⏳</span><h3 style="color:#E65100; margin-top:15px;">系统正在检索对决名单...</h3></div>';
-
-        // 优先尝试从云端无痕拉取
-        const q = Bmob.Query("MatchupData");
-        q.order("-createdAt");
-        q.limit(20);
-        q.find().then(res => {
-            const wsRecord = res.find(item => item.category === "WS");
-            if (wsRecord && wsRecord.matchData) {
-                // 直接展示 谁VS谁，跳过中间的签位表
-                generateVsView(JSON.parse(wsRecord.matchData));
-            } else {
-                checkLocalFallbackForPublic();
-            }
-        }).catch(err => {
-            checkLocalFallbackForPublic();
-        });
-    }
-
-    // 兜底机制：检查浏览器本地是否留存了抽签大会上的记录
-    function checkLocalFallbackForPublic() {
-        const localData = localStorage.getItem("WS_DRAW_RESULT");
-        if (localData) {
-            generateVsView(JSON.parse(localData));
-        } else {
-            document.getElementById('vs-render-area').innerHTML = '<div style="padding:60px 0;"><span style="font-size:4rem;">⏳</span><h3 style="color:#E65100; margin-top:15px;">抽签尚未完成</h3><p>名单将在抽签结束后展现</p></div>';
-            
-            // 没有数据时，也必须保证有返回按钮
-            const btn = document.getElementById('vs-back-btn') || document.createElement('button');
-            btn.id = 'vs-back-btn';
-            btn.className = 'login-btn';
-            btn.style.cssText = 'background:#e2e8f0; color:#475569; max-width:250px; margin: 25px auto 0; box-shadow:none; display:block;';
-            btn.innerText = '返回';
-            btn.onclick = () => backToDrawMain();
-            document.getElementById('vs-render-area').appendChild(btn);
-        }
-    }
-
-    // ====================================================================
-    // 管理员视角的签位分布表 (A1, A2, B1, B2)
-    // ====================================================================
-    function renderCleanBracket(data) {
+    function renderStaticBracket(data) {
         openMgmtView('mgmt-matchup-view');
         
         let a1 = Object.keys(data).find(key => data[key] === 'A1') || '虚位以待';
@@ -757,32 +716,79 @@
                     <div style="display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px dashed #e2e8f0;"><span style="font-weight: bold; color: #FF512F; font-size: 1.1rem;">B1</span><span style="font-size: 1.2rem; font-weight: bold; color: #2A1B18;">${b1}</span></div>
                     <div style="display: flex; justify-content: space-between; padding: 12px;"><span style="font-weight: bold; color: #FF512F; font-size: 1.1rem;">B2</span><span style="font-size: 1.2rem; font-weight: bold; color: #2A1B18;">${b2}</span></div>
                 </div>
-                <button class="login-btn" onclick="generateVsView(${dataString})" style="background:#FF512F; margin-top: 25px;">⚔️ 揭晓揭幕战名单 (谁 VS 谁)</button>
+                <button class="login-btn" onclick="showAdminVsView(${dataString})" style="background:#FF512F; margin-top: 25px;">⚔️ 揭晓揭幕战名单</button>
+                <div style="text-align:center; font-size:0.75rem; color:#94a3b8; margin-top:20px; letter-spacing:1px;">Bohai University Table Tennis</div>
             </div>
+            <button class="login-btn" onclick="openMgmtView('mgmt-board-view')" style="background:#e2e8f0; color:#475569; max-width:250px; margin: 20px auto 0; box-shadow:none; display:block;">返回控制台</button>
         `;
-        
-        const btn = document.getElementById('smart-back-btn');
-        if (btn) {
-            btn.innerText = "返回控制台";
-            btn.onclick = () => openMgmtView('mgmt-board-view');
-        }
     }
 
-    // ====================================================================
-    // 【终极重构】：全新防换行、排版更优美的 谁VS谁 揭幕战名单
-    // ====================================================================
-    function generateVsView(dataObj) {
+    // 管理员：看完 A1/B1 表后点击揭晓，进入这个页面，只展示当前项目的 VS
+    function showAdminVsView(dataObj) {
+        openMgmtView('mgmt-vs-view');
+        document.getElementById('vs-render-area').innerHTML = generateSingleVsBlock('女子单打', dataObj);
+        
+        // 关键修复：管理员专属的返回按钮，回控制台，杜绝按钮双胞胎
+        const btnContainer = document.createElement('div');
+        btnContainer.innerHTML = `<button class="login-btn" onclick="openMgmtView('mgmt-board-view')" style="background:#e2e8f0; color:#475569; max-width:250px; margin: 25px auto 0; box-shadow:none; display:block;">返回控制台</button>`;
+        document.getElementById('vs-render-area').appendChild(btnContainer);
+    }
+
+    // 全校观众点击“查看总榜”：直接遍历硬编码的大库，把所有已完成的项目瀑布流排版出来！
+    function openPublicBracket() {
+        currentViewerIsAdmin = false;
         openMgmtView('mgmt-vs-view');
         
+        let htmlContent = '';
+        let hasAnyData = false;
+
+        const events = [
+            { key: 'MT', name: '混合团体' },
+            { key: 'MS', name: '男子单打' },
+            { key: 'WS', name: '女子单打' },
+            { key: 'MD', name: '男子双打' },
+            { key: 'XD', name: '混合双打' }
+        ];
+
+        events.forEach(evt => {
+            const data = TOURNAMENT_RESULTS[evt.key];
+            // 只要 A1 里有名字，就认定这个项目已经抽完签了
+            if (data && data["A1"] && data["A1"] !== "") {
+                hasAnyData = true;
+                htmlContent += generateSingleVsBlock(evt.name, data);
+            }
+        });
+
+        if (hasAnyData) {
+            document.getElementById('vs-render-area').innerHTML = htmlContent;
+        } else {
+            document.getElementById('vs-render-area').innerHTML = `
+                <div style="padding: 60px 0;">
+                    <span style="font-size: 4rem;">⏳</span>
+                    <h3 style="color: #E65100; margin-top: 15px;">抽签仪式尚未完成</h3>
+                    <p>各项目名单将在抽签结束后在此呈现</p>
+                </div>
+            `;
+        }
+
+        // 关键修复：观众专属的返回按钮，回赛事主菜单
+        const btnContainer = document.createElement('div');
+        btnContainer.innerHTML = `<button class="login-btn" onclick="backToDrawMain()" style="background:#e2e8f0; color:#475569; max-width:250px; margin: 25px auto 0; box-shadow:none; display:block;">返回赛事管理</button>`;
+        document.getElementById('vs-render-area').appendChild(btnContainer);
+    }
+
+    // 核心组件：生成单个项目的 VS 卡片（完美防换行排版）
+    function generateSingleVsBlock(eventName, dataObj) {
         let a1 = Object.keys(dataObj).find(key => dataObj[key] === 'A1') || '虚位以待';
         let a2 = Object.keys(dataObj).find(key => dataObj[key] === 'A2') || '虚位以待';
         let b1 = Object.keys(dataObj).find(key => dataObj[key] === 'B1') || '虚位以待';
         let b2 = Object.keys(dataObj).find(key => dataObj[key] === 'B2') || '虚位以待';
 
-        // 关键修复点：使用 white-space: nowrap; 和更合理的 flex 比例，杜绝文字强制换行
-        document.getElementById('vs-render-area').innerHTML = `
-            <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 25px 15px; margin: 0 auto; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
-                <div style="margin-bottom: 30px;">
+        return `
+            <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 25px 15px; margin: 0 auto 25px; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
+                <h3 style="color:#2A1B18; margin-bottom: 25px; font-size:1.4rem; border-bottom: 2px solid #FF512F; padding-bottom:10px; display:inline-block;">⚔️ ${eventName}</h3>
+                
+                <div style="margin-bottom: 35px;">
                     <div style="background: #fff7ed; color: #E65100; font-weight: bold; padding: 4px 12px; border-radius: 20px; font-size: 0.9rem; border: 1px solid #ffedd5; display: inline-block; margin-bottom: 12px;">🔴 上半区揭幕战</div>
                     <div style="display: flex; align-items: center; justify-content: center; font-size: 1.35rem; font-weight: 900; color: #2A1B18; white-space: nowrap;">
                         <div style="flex: 1; text-align: right;">${a1}</div>
@@ -790,6 +796,7 @@
                         <div style="flex: 1; text-align: left;">${a2}</div>
                     </div>
                 </div>
+                
                 <div>
                     <div style="background: #f0f9ff; color: #0284c7; font-weight: bold; padding: 4px 12px; border-radius: 20px; font-size: 0.9rem; border: 1px solid #e0f2fe; display: inline-block; margin-bottom: 12px;">🔵 下半区揭幕战</div>
                     <div style="display: flex; align-items: center; justify-content: center; font-size: 1.35rem; font-weight: 900; color: #2A1B18; white-space: nowrap;">
@@ -799,17 +806,7 @@
                     </div>
                 </div>
             </div>
-            <button id="vs-back-btn" class="login-btn" style="background:#e2e8f0; color:#475569; max-width:250px; margin: 25px auto 0; box-shadow:none; display:block;"></button>
         `;
-        
-        const btn = document.getElementById('vs-back-btn');
-        if (currentViewerIsAdmin) {
-            btn.innerText = "返回对阵签位表";
-            btn.onclick = () => openMgmtView('mgmt-matchup-view');
-        } else {
-            btn.innerText = "返回赛事管理";
-            btn.onclick = () => backToDrawMain();
-        }
     }
 
     // ---------------------------------------------------------
