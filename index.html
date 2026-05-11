@@ -373,7 +373,6 @@
                 <p style="color: var(--text-light); font-size: 1rem; margin-bottom: 25px;">请主持人就位。抽签不分先后，可由任意选手指定开始与停止。</p>
                 <div id="players-draw-grid" style="display: flex; flex-direction: column; gap: 15px;"></div>
                 <div style="margin-top: 30px; display: flex; justify-content: center; gap: 15px;">
-                    <button id="preview-bracket-btn" class="login-btn" style="display:none; background:#10b981; margin:0;" onclick="previewBracket()">查看签位分布</button>
                     <button id="publish-bracket-btn" class="login-btn" style="display:none; background:#FF512F; margin:0;" onclick="publishBracket()">同步并正式发布</button>
                 </div>
                 <button class="login-btn" style="background:#f1f5f9; color:#64748b; margin-top: 20px; box-shadow:none; max-width:200px;" onclick="openMgmtView('mgmt-board-view')">返回控制台</button>
@@ -396,7 +395,7 @@
                 <h2 class="card-header" style="justify-content: center; font-size: 1.8rem;">⚔️ 最终对决名单</h2>
                 <div id="vs-render-area" style="padding: 10px 0;">
                     </div>
-                <button class="login-btn" onclick="openMgmtView('mgmt-main-view')" style="background:#e2e8f0; color:#475569; max-width:250px; margin: 25px auto 0; box-shadow:none; display:block;">返回赛事管理</button>
+                <button class="login-btn" onclick="backToDrawMain()" style="background:#e2e8f0; color:#475569; max-width:250px; margin: 25px auto 0; box-shadow:none; display:block;">返回主控制枢纽</button>
             </div>
         </div>
 
@@ -540,8 +539,16 @@
         if(viewId === 'mgmt-draw-view') initDrawSystem();
     }
 
+    function backToDrawMain() {
+        // 专门的退出返回函数，确保所有子页面都隐藏
+        ['mgmt-login-view', 'mgmt-board-view', 'mgmt-draw-view', 'mgmt-matchup-view', 'mgmt-vs-view'].forEach(id => {
+            document.getElementById(id).style.display = 'none';
+        });
+        document.getElementById('mgmt-main-view').style.display = 'block';
+    }
+
     // ---------------------------------------------------------
-    // 4. 报名系统核心
+    // 4. 报名系统核心 (SDK 真图片上传)
     // ---------------------------------------------------------
     let tempReg = {}; let photoFile = null;
 
@@ -620,14 +627,14 @@
         Bmob.Query('PlayerReg').limit(1000).order("-createdAt").find().then(res => {
             if(!res || res.length === 0) return alert("📭 当前数据库容量为 0。");
             let csv = "data:text/csv;charset=utf-8,\uFEFF报名时间,姓名,性别,所属学院,打法配置,云端高清证件照链接\n";
-            res.forEach(p => { csv += `${p.regTime},${p.name},${p.gender},${p.college},${p.style},${p.photoUrl || "无"}\n`; });
+            res.forEach(p => { csv += `${p.regTime || p.createdAt},${p.name},${p.gender},${p.college},${p.style},${p.photoUrl || "无"}\n`; });
             const link = document.createElement("a"); link.href = encodeURI(csv); link.download = "第五届大赛_全员名册_密件.csv";
             document.body.appendChild(link); link.click(); document.body.removeChild(link);
         }).catch(err => alert("❌ 无法连接云端，请检查网络。"));
     }
 
     // ---------------------------------------------------------
-    // 6. Bmob 云端全自动抽签同步系统
+    // 6. 终极无痕抗造版：Bmob 抽签云同步与 VS 展示系统
     // ---------------------------------------------------------
     const wsPlayers = ['邵尔诺', '李子璇', '张蓝兮', '李沃柔'];
     let wsPositions = []; let wsResults = {}; let wsRollers = {};
@@ -635,7 +642,6 @@
 
     function initDrawSystem() {
         wsPositions = ['A1', 'A2', 'B1', 'B2']; wsResults = {}; wsRollers = {};
-        document.getElementById('preview-bracket-btn').style.display = 'none';
         document.getElementById('publish-bracket-btn').style.display = 'none';
         
         const grid = document.getElementById('players-draw-grid'); grid.innerHTML = '';
@@ -662,82 +668,58 @@
             const finalPos = wsPositions[finalPosIndex]; slot.innerText = finalPos;
             wsResults[player] = finalPos; wsPositions.splice(finalPosIndex, 1); 
             if (Object.keys(wsResults).length === wsPlayers.length) {
-                document.getElementById('preview-bracket-btn').style.display = 'block';
                 document.getElementById('publish-bracket-btn').style.display = 'block';
             }
         }
     }
 
-    function previewBracket() { currentViewerIsAdmin = true; renderCleanBracket(wsResults, true); }
-
-  // 【完美还原最初成功版本的发布逻辑】
+    // 【最安全的管理员同步方案】：直接将数据全量保存在云端的一个记录中，避免任何语法报错
     function publishBracket() {
-        if(!confirm("确定要正式发布到官网并公示吗？这将覆盖云端的旧数据。")) return;
-
+        if(!confirm("确定要正式发布并同步到云端吗？大家刷新官网即可看到最新结果。")) return;
         const btn = document.getElementById('publish-bracket-btn');
-        const originalText = btn.innerText;
-        btn.innerText = '⏳ 正在同步...';
-        btn.disabled = true;
+        btn.innerText = '⏳ 正在同步...'; btn.disabled = true;
 
-        const q = Bmob.Query("MatchupData");
-        q.equalTo("category", "===", "WS"); // 还原为你最初成功的语法
-        q.find().then(res => {
-            // 还原为你最初成功的数据操作逻辑
-            const entry = res.length > 0 ? Bmob.Query("MatchupData").get(res[0].objectId) : Bmob.Query("MatchupData");
-            entry.set("category", "WS");
-            entry.set("results", wsResults); // 还原为直接存对象，而不是存字符串
-            return entry.save();
-        }).then(() => {
-            btn.innerText = originalText;
-            btn.disabled = false;
-            alert("🚀 女单对阵已成功同步至全校官网！\n所有同学现在点击【查看对阵总榜】即可看到最新结果。");
+        const entry = Bmob.Query("MatchupData");
+        entry.set("category", "WS");
+        entry.set("matchData", JSON.stringify(wsResults)); // 转成安全字符串存储
+        entry.save().then(() => {
+            btn.innerText = '同步并正式发布'; btn.disabled = false;
+            alert("🚀 女单对阵已成功同步至全校官网！");
             currentViewerIsAdmin = true;
             renderCleanBracket(wsResults, true);
         }).catch(err => {
-            btn.innerText = originalText;
-            btn.disabled = false;
-            console.error("同步异常:", err);
+            btn.innerText = '同步并正式发布'; btn.disabled = false;
+            console.error(err);
             alert("❌ 同步失败，请检查网络！");
         });
     }
 
-    // 【完美还原最初成功版本的拉取逻辑】
+    // 【最安全的观众拉取方案】：直接获取全表数据，前端抓取第一条属于 WS 的记录
     function openPublicBracket() {
         currentViewerIsAdmin = false;
         openMgmtView('mgmt-matchup-view');
-
-        document.getElementById('bracket-render-area').innerHTML = `
-            <div style="padding: 60px 0;">
-                <span style="font-size: 4rem;">⏳</span>
-                <h3 style="color: #E65100; margin-top: 15px;">正在连接云端对阵库...</h3>
-            </div>`;
+        document.getElementById('bracket-render-area').innerHTML = '<div style="padding:60px 0;"><span style="font-size:4rem;">⏳</span><h3 style="color:#E65100; margin-top:15px;">正在连接云端获取最新对阵...</h3></div>';
 
         const q = Bmob.Query("MatchupData");
-        q.equalTo("category", "===", "WS"); // 还原为最初成功的语法
+        q.order("-createdAt"); // 优先获取最新数据
+        q.limit(20);
         q.find().then(res => {
-            if(res.length > 0 && res[0].results) {
-                // 还原为直接读取对象，直接送入渲染引擎
-                renderCleanBracket(res[0].results, false);
+            // 在前端过滤，100% 避开 Bmob 针对空列名的 400 报错拦截
+            const wsRecord = res.find(item => item.category === "WS");
+            if (wsRecord && wsRecord.matchData) {
+                const parsedData = JSON.parse(wsRecord.matchData);
+                renderCleanBracket(parsedData, false);
             } else {
-                document.getElementById('bracket-render-area').innerHTML = `
-                    <div style="padding: 60px 0;">
-                        <span style="font-size: 4rem;">⏳</span>
-                        <h3 style="color: #E65100; margin-top: 15px;">抽签仪式尚未完成</h3>
-                        <p>请关注组委会群内通知</p>
-                    </div>`;
+                document.getElementById('bracket-render-area').innerHTML = '<div style="padding:60px 0;"><span style="font-size:4rem;">⏳</span><h3 style="color:#E65100; margin-top:15px;">抽签仪式尚未完成</h3><p>请关注组委会群内通知</p></div>';
                 setupSmartBackButton();
             }
         }).catch(err => {
-            console.error("拉取异常:", err);
-            document.getElementById('bracket-render-area').innerHTML = `
-                <div style="padding: 60px 0;">
-                    <span style="font-size: 4rem;">❌</span>
-                    <h3 style="color: #e11d48; margin-top: 15px;">网络连接失败</h3>
-                    <p>请刷新页面重试</p>
-                </div>`;
+            document.getElementById('bracket-render-area').innerHTML = '<div style="padding:60px 0;"><span style="font-size:4rem;">❌</span><h3 style="color:#e11d48; margin-top:15px;">网络连接失败</h3><p>请刷新页面</p></div>';
             setupSmartBackButton();
         });
     }
+
+    // 生成极简庄重对阵图
     function renderCleanBracket(data, fromAdmin = true) {
         if(fromAdmin) openMgmtView('mgmt-matchup-view');
         
@@ -761,13 +743,14 @@
                     <div style="display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px dashed #e2e8f0;"><span style="font-weight: bold; color: #FF512F; font-size: 1.1rem;">B1</span><span style="font-size: 1.2rem; font-weight: bold; color: #2A1B18;">${b1}</span></div>
                     <div style="display: flex; justify-content: space-between; padding: 12px;"><span style="font-weight: bold; color: #FF512F; font-size: 1.1rem;">B2</span><span style="font-size: 1.2rem; font-weight: bold; color: #2A1B18;">${b2}</span></div>
                 </div>
-                <button class="login-btn" onclick="generateVsView(${dataString})" style="background:#FF512F; margin-top: 25px;">⚔️ 揭晓对决名单 (谁 VS 谁)</button>
+                <button class="login-btn" onclick="generateVsView(${dataString})" style="background:#FF512F; margin-top: 25px;">⚔️ 揭晓揭幕战名单 (谁 VS 谁)</button>
                 <div style="text-align:center; font-size:0.75rem; color:#94a3b8; margin-top:20px; letter-spacing:1px;">Bohai University Table Tennis</div>
             </div>
         `;
         setupSmartBackButton();
     }
 
+    // 生成直观对决画面
     function generateVsView(dataObj) {
         openMgmtView('mgmt-vs-view');
         
@@ -798,11 +781,12 @@
         `;
     }
 
+    // 智能返回逻辑：防止点击返回后迷路
     function setupSmartBackButton() {
         const btn = document.getElementById('smart-back-btn');
         btn.onclick = () => {
             if(currentViewerIsAdmin) openMgmtView('mgmt-board-view');
-            else openMgmtView('mgmt-main-view');
+            else backToDrawMain();
         };
     }
 
