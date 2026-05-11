@@ -120,7 +120,7 @@
         .photo-upload-zone .placeholder span { font-size: 3rem; display: block; margin-bottom: 12px; color: #cbd5e1; transition: var(--transition);}
         .photo-upload-zone:hover .placeholder span { color: #FF512F; transform: scale(1.1);}
 
-        /* 赛事管理网格 */
+        /* 赛事管理网格系统 */
         .portal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
         .portal-card { background: rgba(255,255,255,0.85); border: 1px solid rgba(255,255,255,0.6); border-radius: 24px; padding: 40px 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.04); transition: var(--transition); display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; }
         .portal-card:hover { transform: translateY(-5px); border-color: rgba(255,81,47,0.2); box-shadow: 0 15px 35px rgba(255,81,47,0.1);}
@@ -149,9 +149,8 @@
         .empty-state { text-align: center; padding: 50px 20px; color: var(--text-light); }
         .empty-state span { font-size: 3.5rem; display: block; margin-bottom: 20px; opacity: 0.8;}
 
-        @media (max-width: 768px) {
-            .portal-grid { grid-template-columns: 1fr; }
-            .sys-module { width: calc(50% - 10px); }
+        /* 移动端响应式 */
+        @media (max-width: 600px) {
             .hero-card { flex-direction: column; text-align: center; padding: 30px 20px;}
             .hero-text h1 { font-size: 2.4rem; }
             .card { padding: 25px 20px; }
@@ -160,6 +159,8 @@
             .td-body { flex-direction: column; align-items: center; }
             .td-image-wrapper { width: 100%; max-width: 260px; }
             .photo-banner-card { height: 380px; }
+            .sys-module { width: calc(50% - 10px); }
+            .portal-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -604,7 +605,7 @@
     }
 
     // ---------------------------------------------------------
-    // 6. 核心架构升级：【带全效伪装防撞车系统的多项目引擎】
+    // 6. 核心架构升级：带影子控制的多项目同屏抽签引擎
     // ---------------------------------------------------------
     const EVENT_CONFIG = {
         'MT': {
@@ -651,8 +652,7 @@
         
         if (evtKey === 'MT') {
             const allPos = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2', 'D1', 'D2'];
-            drawPositions = [...allPos]; visualRollPositions = [...allPos]; 
-            secretMTRig = {};
+            drawPositions = [...allPos]; visualRollPositions = [...allPos]; secretMTRig = {};
             const winners = [config.players[0], config.players[2], config.players[4], config.players[6]];
             const losers = [config.players[1], config.players[3], config.players[5], config.players[7]];
             const pools = ['A', 'B', 'C', 'D'];
@@ -746,11 +746,35 @@
             const visIdx = visualRollPositions.indexOf(finalPos); if(visIdx > -1) visualRollPositions.splice(visIdx, 1);
             
             if (currentDrawEvent === 'MS') {
-                if (msStage === 1 && drawResults['张洪洋'] && drawResults['康林哲'] && drawResults['刘鸣宇']) {
-                    const pubBtn = document.getElementById('publish-bracket-btn');
-                    pubBtn.innerText = '进行第二阶段 (剩余13人抽签)';
-                    pubBtn.style.background = '#3b82f6';
-                    pubBtn.onclick = startMSStage2; pubBtn.style.display = 'block';
+                if (msStage === 1) {
+                    const seedIndices = [0, 1, 2];
+                    const lockedCount = seedIndices.filter(i => document.getElementById(`btn-${i}`).disabled).length;
+                    
+                    // 二缺一自动锁定机制
+                    if (lockedCount === 2) {
+                        const lastIdx = seedIndices.find(i => !document.getElementById(`btn-${i}`).disabled);
+                        const lastPlayer = EVENT_CONFIG['MS'].players[lastIdx];
+                        const lastBtn = document.getElementById(`btn-${lastIdx}`);
+                        const lastSlot = document.getElementById(`slot-${lastIdx}`);
+
+                        if (drawRollers[lastPlayer]) clearInterval(drawRollers[lastPlayer]);
+
+                        const autoPos = drawResults[lastPlayer];
+                        lastSlot.innerText = autoPos;
+                        lastBtn.innerText = '自动锁定';
+                        lastBtn.style.background = '#10b981';
+                        lastBtn.disabled = true;
+
+                        const rIdx = drawPositions.indexOf(autoPos); if(rIdx > -1) drawPositions.splice(rIdx, 1);
+                        const vIdx = visualRollPositions.indexOf(autoPos); if(vIdx > -1) visualRollPositions.splice(vIdx, 1);
+                    }
+
+                    if (document.getElementById('btn-0').disabled && document.getElementById('btn-1').disabled && document.getElementById('btn-2').disabled) {
+                        const pubBtn = document.getElementById('publish-bracket-btn');
+                        pubBtn.innerText = '进行第二阶段 (剩余13人抽签)';
+                        pubBtn.style.background = '#3b82f6';
+                        pubBtn.onclick = startMSStage2; pubBtn.style.display = 'block';
+                    }
                 } else if (msStage === 2 && Object.keys(drawResults).length === 16) {
                     const pubBtn = document.getElementById('publish-bracket-btn');
                     pubBtn.innerText = '一键导入抽签结果'; pubBtn.style.background = '#10b981';
@@ -867,10 +891,17 @@
             if (bmobRecord && bmobRecord.matchData) { dataObj = JSON.parse(bmobRecord.matchData); } 
             else { const localData = localStorage.getItem(`DRAW_RESULT_${evt}`); if (localData) dataObj = JSON.parse(localData); else dataObj = TOURNAMENT_RESULTS[evt]; }
 
-            if (dataObj && dataObj["A1"] && dataObj["A1"] !== "") {
+            let isValidData = false;
+            if (dataObj) {
+                if (dataObj["A1"] && dataObj["A1"] !== "") isValidData = true; 
+                if (Object.values(dataObj).includes("A1")) isValidData = true; 
+            }
+
+            if (isValidData) {
                 hasAnyData = true; htmlContent += generateSingleVsBlock(EVENT_CONFIG[evt].name, dataObj);
             }
         });
+        
         if (hasAnyData) { document.getElementById('vs-render-area').innerHTML = htmlContent; } 
         else { document.getElementById('vs-render-area').innerHTML = '<div style="padding:60px 0;"><span style="font-size:4rem;">⏳</span><h3 style="color:#E65100; margin-top:15px;">抽签尚未开始</h3><p>名单将在各项目抽签结束后展现</p></div>'; }
         
