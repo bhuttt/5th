@@ -745,61 +745,70 @@
         renderAdminBracket(currentDrawEvent, drawResults);
     }
 
-   function renderAdminBracket(evtKey, data) {
+  // 1. 修复：管理员专用的签位分布表 (字号约束与排版优化)
+    function renderAdminBracket(evtKey, data) {
         openMgmtView('mgmt-matchup-view');
         
         let isEight = Object.keys(data).length > 4;
         const dataString = JSON.stringify(data).replace(/"/g, '&quot;');
         const eventName = EVENT_CONFIG[evtKey].name;
 
-        // 【关键修复】：强大的双向检索，兼顾引擎动态数据和顶部硬编码数据
+        // 双向检索：精准提取人名
         const getPlayer = (pos) => {
             let nameFromEngine = Object.keys(data).find(key => data[key] === pos);
             return nameFromEngine || data[pos] || '-';
         };
 
+        // 统一样式模板，彻底解决 A1, B1 字体爆炸的问题
+        const renderRow = (pos) => `
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-bottom: 1px dashed #e2e8f0;">
+                <span style="font-weight: 900; color: #FF512F; font-size: 1.1rem; width: 40px; text-align: left;">${pos}</span>
+                <span style="font-size: 0.95rem; font-weight: bold; color: #2A1B18; flex: 1; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${getPlayer(pos)}">${getPlayer(pos)}</span>
+            </div>
+        `;
+
         let contentHtml = '';
         if (isEight) {
             contentHtml = `
                 <div style="margin-bottom: 20px;">
-                    <div style="background: #f8fafc; font-weight: bold; padding: 6px; border-radius: 8px; margin-bottom: 8px; text-align: center; border: 1px solid #e2e8f0;">1/4区</div>
-                    <div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px dashed #e2e8f0;"><span style="color:#FF512F; font-weight:bold;">A1</span><b>${getPlayer('A1')}</b></div>
-                    <div style="display:flex; justify-content:space-between; padding:8px;"><span style="color:#FF512F; font-weight:bold;">A2</span><b>${getPlayer('A2')}</b></div>
+                    <div style="background: #f8fafc; font-weight: bold; padding: 6px; border-radius: 8px; margin-bottom: 4px; text-align: center; border: 1px solid #e2e8f0; font-size: 0.9rem;">1/4区</div>
+                    ${renderRow('A1')}
+                    ${renderRow('A2')}
                 </div>
                 <div style="margin-bottom: 20px;">
-                    <div style="background: #f8fafc; font-weight: bold; padding: 6px; border-radius: 8px; margin-bottom: 8px; text-align: center; border: 1px solid #e2e8f0;">2/4区</div>
-                    <div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px dashed #e2e8f0;"><span style="color:#FF512F; font-weight:bold;">B1</span><b>${getPlayer('B1')}</b></div>
-                    <div style="display:flex; justify-content:space-between; padding:8px;"><span style="color:#FF512F; font-weight:bold;">B2</span><b>${getPlayer('B2')}</b></div>
+                    <div style="background: #f8fafc; font-weight: bold; padding: 6px; border-radius: 8px; margin-bottom: 4px; text-align: center; border: 1px solid #e2e8f0; font-size: 0.9rem;">2/4区</div>
+                    ${renderRow('B1')}
+                    ${renderRow('B2')}
                 </div>
                 <div style="margin-bottom: 20px;">
-                    <div style="background: #f8fafc; font-weight: bold; padding: 6px; border-radius: 8px; margin-bottom: 8px; text-align: center; border: 1px solid #e2e8f0;">3/4区</div>
-                    <div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px dashed #e2e8f0;"><span style="color:#FF512F; font-weight:bold;">C1</span><b>${getPlayer('C1')}</b></div>
-                    <div style="display:flex; justify-content:space-between; padding:8px;"><span style="color:#FF512F; font-weight:bold;">C2</span><b>${getPlayer('C2')}</b></div>
+                    <div style="background: #f8fafc; font-weight: bold; padding: 6px; border-radius: 8px; margin-bottom: 4px; text-align: center; border: 1px solid #e2e8f0; font-size: 0.9rem;">3/4区</div>
+                    ${renderRow('C1')}
+                    ${renderRow('C2')}
                 </div>
                 <div>
-                    <div style="background: #f8fafc; font-weight: bold; padding: 6px; border-radius: 8px; margin-bottom: 8px; text-align: center; border: 1px solid #e2e8f0;">4/4区</div>
-                    <div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px dashed #e2e8f0;"><span style="color:#FF512F; font-weight:bold;">D1</span><b>${getPlayer('D1')}</b></div>
-                    <div style="display:flex; justify-content:space-between; padding:8px;"><span style="color:#FF512F; font-weight:bold;">D2</span><b>${getPlayer('D2')}</b></div>
+                    <div style="background: #f8fafc; font-weight: bold; padding: 6px; border-radius: 8px; margin-bottom: 4px; text-align: center; border: 1px solid #e2e8f0; font-size: 0.9rem;">4/4区</div>
+                    ${renderRow('D1')}
+                    ${renderRow('D2')}
                 </div>
             `;
         } else {
             contentHtml = `
                 <div style="margin-bottom: 25px;">
-                    <div style="background: #f8fafc; color: #475569; font-weight: bold; padding: 8px 15px; border-radius: 8px; margin-bottom: 10px; text-align: center; border: 1px solid #e2e8f0;">上半区</div>
-                    <div style="display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px dashed #e2e8f0;"><span style="font-weight: bold; color: #FF512F; font-size: 1.1rem;">A1</span><span style="font-size: 1.1rem; font-weight: bold; color: #2A1B18;">${getPlayer('A1')}</span></div>
-                    <div style="display: flex; justify-content: space-between; padding: 12px;"><span style="font-weight: bold; color: #FF512F; font-size: 1.1rem;">A2</span><span style="font-size: 1.1rem; font-weight: bold; color: #2A1B18;">${getPlayer('A2')}</span></div>
+                    <div style="background: #f8fafc; color: #475569; font-weight: bold; padding: 8px 15px; border-radius: 8px; margin-bottom: 4px; text-align: center; border: 1px solid #e2e8f0; font-size: 0.9rem;">上半区</div>
+                    ${renderRow('A1')}
+                    ${renderRow('A2')}
                 </div>
                 <div>
-                    <div style="background: #f8fafc; color: #475569; font-weight: bold; padding: 8px 15px; border-radius: 8px; margin-bottom: 10px; text-align: center; border: 1px solid #e2e8f0;">下半区</div>
-                    <div style="display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px dashed #e2e8f0;"><span style="font-weight: bold; color: #FF512F; font-size: 1.1rem;">B1</span><span style="font-size: 1.1rem; font-weight: bold; color: #2A1B18;">${getPlayer('B1')}</span></div>
-                    <div style="display: flex; justify-content: space-between; padding: 12px;"><span style="font-weight: bold; color: #FF512F; font-size: 1.1rem;">B2</span><span style="font-size: 1.1rem; font-weight: bold; color: #2A1B18;">${getPlayer('B2')}</span></div>
+                    <div style="background: #f8fafc; color: #475569; font-weight: bold; padding: 8px 15px; border-radius: 8px; margin-bottom: 4px; text-align: center; border: 1px solid #e2e8f0; font-size: 0.9rem;">下半区</div>
+                    ${renderRow('B1')}
+                    ${renderRow('B2')}
                 </div>
             `;
         }
 
         document.getElementById('bracket-render-area').innerHTML = `
-            <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 25px; margin: 0 auto; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: left;">
-                <div style="text-align:center; font-size:1.6rem; font-weight:900; color:var(--text-main); margin-bottom:25px; padding-bottom:15px; border-bottom:2px solid #FF512F;">${eventName} 签位分布</div>
+            <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px 15px; margin: 0 auto; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: left;">
+                <div style="text-align:center; font-size:1.5rem; font-weight:900; color:var(--text-main); margin-bottom:20px; padding-bottom:12px; border-bottom:2px solid #FF512F;">${eventName} 签位分布</div>
                 ${contentHtml}
                 <button class="login-btn" onclick="showAdminVsView('${evtKey}', ${dataString})" style="background:#FF512F; margin-top: 25px;">⚔️ 揭晓揭幕战名单</button>
             </div>
@@ -858,28 +867,31 @@
     }
 
     // 完美防换行排版
-  // 生成单个项目的 VS 模块
+ // 2. 修复：所有项目的 VS 对阵模块 (强制单行 + 动态缩小长名字字号)
     function generateSingleVsBlock(eventName, dataObj) {
         let isEight = Object.keys(dataObj).length > 4;
 
-        // 【关键修复】：同样加入双向检索函数，保证对决双方名字准确出现
         const getPlayer = (pos) => {
             let nameFromEngine = Object.keys(dataObj).find(key => dataObj[key] === pos);
             return nameFromEngine || dataObj[pos] || '-';
         };
         
         let html = `
-            <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 25px 15px; margin: 0 auto 25px; max-width: 420px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
-                <h3 style="color:#2A1B18; margin-bottom: 25px; font-size:1.4rem; border-bottom: 2px solid #FF512F; padding-bottom:10px; display:inline-block;">⚔️ ${eventName}</h3>
+            <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 25px 10px; margin: 0 auto 25px; max-width: 420px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
+                <h3 style="color:#2A1B18; margin-bottom: 20px; font-size:1.3rem; border-bottom: 2px solid #FF512F; padding-bottom:8px; display:inline-block;">⚔️ ${eventName}</h3>
         `;
 
+        // 动态字号：团体长名字极度压缩并防换行，单双打恢复正常大小
+        const nameFontSize = isEight ? '0.75rem' : '1.05rem';
+        const letterSpace = isEight ? '-0.5px' : '0px';
+
         const renderRow = (label, bg, border, color, id1, id2, marginBot) => `
-            <div style="margin-bottom: ${marginBot};">
-                <div style="background: ${bg}; color: ${color}; font-weight: bold; padding: 4px 12px; border-radius: 20px; font-size: 0.9rem; border: 1px solid ${border}; display: inline-block; margin-bottom: 12px;">${label}</div>
-                <div style="display: flex; align-items: center; justify-content: center; width: 100%; font-size: 1.05rem; font-weight: 900; color: #2A1B18;">
-                    <div style="width: 44%; text-align: right; line-height: 1.3;">${getPlayer(id1)}</div>
-                    <div style="width: 12%; text-align: center; color: #cbd5e1; font-style: italic; font-size: 0.9rem;">VS</div>
-                    <div style="width: 44%; text-align: left; line-height: 1.3;">${getPlayer(id2)}</div>
+            <div style="margin-bottom: ${marginBot}; width: 100%;">
+                <div style="background: ${bg}; color: ${color}; font-weight: bold; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; border: 1px solid ${border}; display: inline-block; margin-bottom: 12px;">${label}</div>
+                <div style="display: flex; align-items: center; justify-content: center; width: 100%; font-weight: 900; color: #2A1B18;">
+                    <div style="flex: 1; text-align: right; font-size: ${nameFontSize}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: ${letterSpace};" title="${getPlayer(id1)}">${getPlayer(id1)}</div>
+                    <div style="width: 30px; text-align: center; color: #cbd5e1; font-style: italic; font-size: 0.85rem; flex-shrink: 0; margin: 0 5px;">VS</div>
+                    <div style="flex: 1; text-align: left; font-size: ${nameFontSize}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: ${letterSpace};" title="${getPlayer(id2)}">${getPlayer(id2)}</div>
                 </div>
             </div>
         `;
@@ -890,7 +902,7 @@
             html += renderRow('🔵 3/4区 揭幕战', '#f0f9ff', '#e0f2fe', '#0284c7', 'C1', 'C2', '20px');
             html += renderRow('🟢 4/4区 揭幕战', '#f0fdf4', '#dcfce3', '#16a34a', 'D1', 'D2', '0');
         } else {
-            html += renderRow('🔴 上半区揭幕战', '#fff7ed', '#ffedd5', '#E65100', 'A1', 'A2', '30px');
+            html += renderRow('🔴 上半区揭幕战', '#fff7ed', '#ffedd5', '#E65100', 'A1', 'A2', '25px');
             html += renderRow('🔵 下半区揭幕战', '#f0f9ff', '#e0f2fe', '#0284c7', 'B1', 'B2', '0');
         }
 
