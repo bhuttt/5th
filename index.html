@@ -149,7 +149,6 @@
         .empty-state { text-align: center; padding: 50px 20px; color: var(--text-light); }
         .empty-state span { font-size: 3.5rem; display: block; margin-bottom: 20px; opacity: 0.8;}
 
-        /* 移动端响应式 */
         @media (max-width: 600px) {
             .hero-card { flex-direction: column; text-align: center; padding: 30px 20px;}
             .hero-text h1 { font-size: 2.4rem; }
@@ -278,8 +277,7 @@
                             <label class="reg-label">性别</label>
                             <select id="reg-gender" class="login-input" required>
                                 <option value="" disabled selected>请选择您的性别</option>
-                                <option value="男">男</option>
-                                <option value="女">女</option>
+                                <option value="男">男</option><option value="女">女</option>
                             </select>
                             <label class="reg-label">所属学院 (共 20 个选项)</label>
                             <select id="reg-college" class="login-input" required>
@@ -374,7 +372,8 @@
                 <p style="color: var(--text-light); font-size: 1rem; margin-bottom: 25px;">请主持人就位。抽签不分先后，可由任意选手指定开始与停止。</p>
                 <div id="players-draw-grid" style="display: flex; flex-direction: column; gap: 15px;"></div>
                 <div style="margin-top: 30px; display: flex; justify-content: center; gap: 15px;">
-                    <button id="gen-bracket-btn" class="login-btn" style="display:none; background: #10b981; margin:0;" onclick="publishBracket()">一键同步发布对阵</button>
+                    <button id="preview-bracket-btn" class="login-btn" style="display:none; background:#10b981; margin:0;" onclick="previewBracket()">查看签位分布</button>
+                    <button id="view-vs-btn" class="login-btn" style="display:none; background:#FF512F; margin:0;" onclick="generateVsView(wsResults)">查看最终赛事结果</button>
                 </div>
                 <button class="login-btn" style="background:#f1f5f9; color:#64748b; margin-top: 20px; box-shadow:none; max-width:200px;" onclick="openMgmtView('mgmt-board-view')">返回控制台</button>
             </div>
@@ -385,11 +384,21 @@
                 <h2 class="card-header" style="justify-content: center; font-size: 1.8rem;">女子单打 对阵总表</h2>
                 <div id="bracket-render-area" class="empty-state" style="padding: 10px 0;">
                     <span style="font-size: 4rem;">⏳</span>
-                    <h3 style="color: #E65100; margin-bottom: 15px;">系统正在获取云端对阵库</h3>
+                    <h3 style="color: #E65100; margin-bottom: 15px;">正在获取对阵数据...</h3>
                 </div>
                 <button id="smart-back-btn" class="login-btn" style="background:#e2e8f0; color:#64748b; max-width:250px; margin: 20px auto 0; box-shadow:none; display:block;">返回</button>
             </div>
         </div>
+
+        <div id="mgmt-vs-view" style="display: none; text-align:center;">
+            <div class="card">
+                <h2 class="card-header" style="justify-content: center; font-size: 1.8rem;">⚔️ 最终对决名单</h2>
+                <div id="vs-render-area" style="padding: 10px 0;">
+                    </div>
+                <button class="login-btn" onclick="openMgmtView('mgmt-main-view')" style="background:#e2e8f0; color:#475569; max-width:250px; margin: 25px auto 0; box-shadow:none; display:block;">返回赛事管理</button>
+            </div>
+        </div>
+
     </div>
 
     <div id="photos" class="page-section">
@@ -461,12 +470,12 @@
 
 <script>
     // ---------------------------------------------------------
-    // 1. 初始化后端数据库
+    // 1. 初始化 Bmob
     // ---------------------------------------------------------
     Bmob.initialize("2f8e8878894199f42e2a5991d48ab233", "9eaf6a2ec3dea2e9378764f89dc4737a");
 
     // ---------------------------------------------------------
-    // 2. 赛事时间与三段式门禁逻辑
+    // 2. 赛事时间引擎
     // ---------------------------------------------------------
     const openDate = new Date("Jun 14, 2026 10:00:00").getTime(); 
     const regStart = new Date("Apr 27, 2026 15:00:00").getTime(); 
@@ -474,7 +483,6 @@
 
     function updateTimeEngines() {
         const now = new Date().getTime();
-        // 首页开幕倒计时
         const distOpen = openDate - now;
         if (distOpen > 0) {
             document.getElementById("days").innerText = Math.floor(distOpen / 86400000);
@@ -485,7 +493,6 @@
             document.querySelector('.countdown').innerHTML = "<h3 style='color: #FF512F; font-size: 2rem; font-weight: 900;'>🔥 大赛已燃情开幕！</h3>";
         }
 
-        // 报名表单动态状态
         const notStarted = document.getElementById('reg-status-not-started');
         const active = document.getElementById('reg-status-active');
         const ended = document.getElementById('reg-status-ended');
@@ -526,7 +533,7 @@
     window.addEventListener('hashchange', handleRouting); window.addEventListener('load', handleRouting);
 
     function openMgmtView(viewId) {
-        ['mgmt-main-view', 'mgmt-register-view', 'mgmt-login-view', 'mgmt-board-view', 'mgmt-draw-view', 'mgmt-matchup-view'].forEach(id => {
+        ['mgmt-main-view', 'mgmt-register-view', 'mgmt-login-view', 'mgmt-board-view', 'mgmt-draw-view', 'mgmt-matchup-view', 'mgmt-vs-view'].forEach(id => {
             const el = document.getElementById(id); if(el) el.style.display = 'none';
         });
         document.getElementById(viewId).style.display = 'block';
@@ -578,7 +585,7 @@
             q.set("style", tempReg.style); q.set("photoUrl", res[0].url); q.set("regTime", tempReg.time);
             return q.save();
         }).then(res => {
-            document.getElementById('success-msg').innerHTML = `<b style="color:#E65100;">${tempReg.name}</b> 同学，资料已成功云端双重归档！`;
+            document.getElementById('success-msg').innerHTML = `<b style="color:#E65100;">${tempReg.name}</b> 同学，资料已成功云端归档！`;
             document.getElementById('reg-loading').style.display = 'none';
             document.getElementById('reg-success').style.display = 'block';
         }).catch(err => { 
@@ -614,21 +621,23 @@
             if(!res || res.length === 0) return alert("📭 当前数据库容量为 0。");
             let csv = "data:text/csv;charset=utf-8,\uFEFF报名时间,姓名,性别,所属学院,打法配置,云端高清证件照链接\n";
             res.forEach(p => { csv += `${p.regTime},${p.name},${p.gender},${p.college},${p.style},${p.photoUrl || "无"}\n`; });
-            const link = document.createElement("a"); link.href = encodeURI(csv); link.download = "第五届大赛_全员带图名册_密件.csv";
+            const link = document.createElement("a"); link.href = encodeURI(csv); link.download = "第五届大赛_全员名册_密件.csv";
             document.body.appendChild(link); link.click(); document.body.removeChild(link);
         }).catch(err => alert("❌ 无法连接云端，请检查网络。"));
     }
 
     // ---------------------------------------------------------
-    // 6. 赛事同屏并行抽签引擎 (重制极简版)
+    // 6. 【纯前端静态版】同屏抽签与展示引擎
     // ---------------------------------------------------------
     const wsPlayers = ['邵尔诺', '李子璇', '张蓝兮', '李沃柔'];
     let wsPositions = []; let wsResults = {}; let wsRollers = {};
-    let currentViewerIsAdmin = false; // 用于判定返回按钮跳去哪里
+    let currentViewerIsAdmin = false; 
 
     function initDrawSystem() {
         wsPositions = ['A1', 'A2', 'B1', 'B2']; wsResults = {}; wsRollers = {};
-        document.getElementById('gen-bracket-btn').style.display = 'none';
+        document.getElementById('preview-bracket-btn').style.display = 'none';
+        document.getElementById('view-vs-btn').style.display = 'none';
+        
         const grid = document.getElementById('players-draw-grid'); grid.innerHTML = '';
         wsPlayers.forEach((player, index) => {
             grid.innerHTML += `
@@ -652,35 +661,39 @@
             const finalPosIndex = Math.floor(Math.random() * wsPositions.length);
             const finalPos = wsPositions[finalPosIndex]; slot.innerText = finalPos;
             wsResults[player] = finalPos; wsPositions.splice(finalPosIndex, 1); 
-            if (Object.keys(wsResults).length === wsPlayers.length) document.getElementById('gen-bracket-btn').style.display = 'block';
+            if (Object.keys(wsResults).length === wsPlayers.length) {
+                document.getElementById('preview-bracket-btn').style.display = 'block';
+                document.getElementById('view-vs-btn').style.display = 'block';
+            }
         }
     }
 
-    function publishBracket() {
-        if(!confirm("确定要生成对阵并发布至官网总榜吗？这将永久覆盖旧数据。")) return;
-        const q = Bmob.Query("MatchupData");
-        q.equalTo("category", "===", "WS");
-        q.find().then(res => {
-            const entry = res.length > 0 ? Bmob.Query("MatchupData").get(res[0].objectId) : Bmob.Query("MatchupData");
-            entry.set("category", "WS"); entry.set("results", wsResults); return entry.save();
-        }).then(() => { 
-            alert("🚀 女单对阵已全网同步！"); 
-            currentViewerIsAdmin = true; // 标记管理员身份
-            renderCleanBracket(wsResults); 
-        }).catch(err => alert("同步失败，请检查网络"));
-    }
+    function previewBracket() { currentViewerIsAdmin = true; renderCleanBracket(wsResults, true); }
 
+    // 【核心纯静态公示】：抽签会后，只需把结果手写填入这里的 staticResults 并更新网页
     function openPublicBracket() {
-        currentViewerIsAdmin = false; // 标记公众身份
-        openMgmtView('mgmt-matchup-view');
-        document.getElementById('bracket-render-area').innerHTML = '<div style="padding: 60px 0;"><span style="font-size: 4rem;">⏳</span><h3 style="color: #E65100; margin-top: 15px;">连接云端裁判库...</h3></div>';
-        const q = Bmob.Query("MatchupData");
-        q.equalTo("category", "===", "WS");
-        q.find().then(res => {
-            if(res.length > 0) renderCleanBracket(res[0].results, false);
-            else document.getElementById('bracket-render-area').innerHTML = '<div style="padding: 60px 0;"><span style="font-size: 4rem;">⏳</span><h3 style="color: #E65100; margin-top: 15px;">抽签仪式尚未完成</h3><p>请关注组委会群内通知</p></div>';
+        currentViewerIsAdmin = false; 
+        
+        // -------------------------------------------------------------
+        // 👇 抽完签后，把具体人名写在这里！如果没抽完，就留空：const staticResults = {};
+        const staticResults = {};
+        /* 例如抽签完成后写成这样：
+        const staticResults = {
+            '邵尔诺': 'A1',
+            '李子璇': 'A2',
+            '张蓝兮': 'B1',
+            '李沃柔': 'B2'
+        };
+        */
+        // -------------------------------------------------------------
+
+        if (Object.keys(staticResults).length > 0) {
+            renderCleanBracket(staticResults, false);
+        } else {
+            openMgmtView('mgmt-matchup-view');
+            document.getElementById('bracket-render-area').innerHTML = '<div style="padding: 60px 0;"><span style="font-size: 4rem;">⏳</span><h3 style="color: #E65100; margin-top: 15px;">抽签仪式尚未完成</h3><p>请关注组委会群内通知</p></div>';
             setupSmartBackButton();
-        });
+        }
     }
 
     function renderCleanBracket(data, fromAdmin = true) {
@@ -691,31 +704,56 @@
         let b1 = Object.keys(data).find(key => data[key] === 'B1') || '虚位以待';
         let b2 = Object.keys(data).find(key => data[key] === 'B2') || '虚位以待';
 
+        const dataString = JSON.stringify(data).replace(/"/g, '&quot;');
+
         document.getElementById('bracket-render-area').innerHTML = `
             <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 25px; margin: 0 auto; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: left;">
                 <div style="text-align:center; font-size:1.6rem; font-weight:900; color:var(--text-main); margin-bottom:25px; padding-bottom:15px; border-bottom:2px solid #FF512F;">女子单打 官方对阵</div>
                 <div style="margin-bottom: 25px;">
                     <div style="background: #f8fafc; color: #475569; font-weight: bold; padding: 8px 15px; border-radius: 8px; margin-bottom: 10px; text-align: center; border: 1px solid #e2e8f0;">上半区 (Upper Half)</div>
-                    <div style="display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px dashed #e2e8f0;">
-                        <span style="font-weight: bold; color: #FF512F; font-size: 1.1rem;">A1</span><span style="font-size: 1.2rem; font-weight: bold; color: #2A1B18;">${a1}</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; padding: 12px;">
-                        <span style="font-weight: bold; color: #FF512F; font-size: 1.1rem;">A2</span><span style="font-size: 1.2rem; font-weight: bold; color: #2A1B18;">${a2}</span>
-                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px dashed #e2e8f0;"><span style="font-weight: bold; color: #FF512F; font-size: 1.1rem;">A1</span><span style="font-size: 1.2rem; font-weight: bold; color: #2A1B18;">${a1}</span></div>
+                    <div style="display: flex; justify-content: space-between; padding: 12px;"><span style="font-weight: bold; color: #FF512F; font-size: 1.1rem;">A2</span><span style="font-size: 1.2rem; font-weight: bold; color: #2A1B18;">${a2}</span></div>
                 </div>
                 <div>
                     <div style="background: #f8fafc; color: #475569; font-weight: bold; padding: 8px 15px; border-radius: 8px; margin-bottom: 10px; text-align: center; border: 1px solid #e2e8f0;">下半区 (Lower Half)</div>
-                    <div style="display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px dashed #e2e8f0;">
-                        <span style="font-weight: bold; color: #FF512F; font-size: 1.1rem;">B1</span><span style="font-size: 1.2rem; font-weight: bold; color: #2A1B18;">${b1}</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; padding: 12px;">
-                        <span style="font-weight: bold; color: #FF512F; font-size: 1.1rem;">B2</span><span style="font-size: 1.2rem; font-weight: bold; color: #2A1B18;">${b2}</span>
-                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px dashed #e2e8f0;"><span style="font-weight: bold; color: #FF512F; font-size: 1.1rem;">B1</span><span style="font-size: 1.2rem; font-weight: bold; color: #2A1B18;">${b1}</span></div>
+                    <div style="display: flex; justify-content: space-between; padding: 12px;"><span style="font-weight: bold; color: #FF512F; font-size: 1.1rem;">B2</span><span style="font-size: 1.2rem; font-weight: bold; color: #2A1B18;">${b2}</span></div>
                 </div>
+                <button class="login-btn" onclick="generateVsView(${dataString})" style="background:#FF512F; margin-top: 25px;">⚔️ 揭晓对决名单 (谁 VS 谁)</button>
                 <div style="text-align:center; font-size:0.75rem; color:#94a3b8; margin-top:20px; letter-spacing:1px;">Bohai University Table Tennis</div>
             </div>
         `;
         setupSmartBackButton();
+    }
+
+    function generateVsView(dataObj) {
+        openMgmtView('mgmt-vs-view');
+        
+        let a1 = Object.keys(dataObj).find(key => dataObj[key] === 'A1') || '虚位以待';
+        let a2 = Object.keys(dataObj).find(key => dataObj[key] === 'A2') || '虚位以待';
+        let b1 = Object.keys(dataObj).find(key => dataObj[key] === 'B1') || '虚位以待';
+        let b2 = Object.keys(dataObj).find(key => dataObj[key] === 'B2') || '虚位以待';
+
+        document.getElementById('vs-render-area').innerHTML = `
+            <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 30px; margin: 0 auto; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
+                <div style="margin-bottom: 35px;">
+                    <div style="background: #fff7ed; color: #E65100; font-weight: 900; padding: 8px; border-radius: 8px; margin-bottom: 15px; font-size: 1.1rem; border: 1px solid #ffedd5;">🔴 上半区揭幕战</div>
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 15px; font-size: 1.5rem; font-weight: 900; color: #2A1B18;">
+                        <span style="flex:1; text-align:right;">${a1}</span>
+                        <span style="color: #cbd5e1; font-style: italic; font-size: 1.2rem; font-weight:bold;">VS</span>
+                        <span style="flex:1; text-align:left;">${a2}</span>
+                    </div>
+                </div>
+                <div>
+                    <div style="background: #fff7ed; color: #E65100; font-weight: 900; padding: 8px; border-radius: 8px; margin-bottom: 15px; font-size: 1.1rem; border: 1px solid #ffedd5;">🔵 下半区揭幕战</div>
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 15px; font-size: 1.5rem; font-weight: 900; color: #2A1B18;">
+                        <span style="flex:1; text-align:right;">${b1}</span>
+                        <span style="color: #cbd5e1; font-style: italic; font-size: 1.2rem; font-weight:bold;">VS</span>
+                        <span style="flex:1; text-align:left;">${b2}</span>
+                    </div>
+                </div>
+            </div>
+        `;
     }
 
     function setupSmartBackButton() {
