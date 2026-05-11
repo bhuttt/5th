@@ -673,18 +673,36 @@
     // 管理员：将抽签结果正式推送到 Bmob 数据库 (MatchupData表)
     function publishBracket() {
         if(!confirm("确定要正式发布到官网并公示吗？这将覆盖云端的旧数据。")) return;
+        
+        const btn = document.getElementById('publish-bracket-btn');
+        const originalText = btn.innerText;
+        btn.innerText = '⏳ 正在同步至云端...';
+        btn.disabled = true;
+
         const q = Bmob.Query("MatchupData");
         q.equalTo("category", "===", "WS");
         q.find().then(res => {
-            const entry = res.length > 0 ? Bmob.Query("MatchupData").get(res[0].objectId) : Bmob.Query("MatchupData");
-            entry.set("category", "WS"); entry.set("results", wsResults); return entry.save();
+            const entry = Bmob.Query("MatchupData");
+            if (res.length > 0) {
+                // 【关键修复点】：Bmob SDK 正确的更新覆盖语法是指定 id
+                entry.set("id", res[0].objectId);
+            }
+            entry.set("category", "WS"); 
+            entry.set("results", wsResults); 
+            return entry.save();
         }).then(() => { 
+            btn.innerText = originalText;
+            btn.disabled = false;
             alert("🚀 女单对阵已成功同步至全校官网！\n所有同学现在点击【查看对阵总榜】即可看到最新结果。"); 
             currentViewerIsAdmin = true; 
             renderCleanBracket(wsResults, true); 
-        }).catch(err => alert("同步失败，请确保 Bmob 中已创建 MatchupData 表，并检查网络。"));
+        }).catch(err => {
+            btn.innerText = originalText;
+            btn.disabled = false;
+            console.error("Bmob同步报错详情:", err);
+            alert("❌ 同步失败，请检查网络或刷新重试！");
+        });
     }
-
     // 观众：从 Bmob 数据库拉取抽签结果
     function openPublicBracket() {
         currentViewerIsAdmin = false; 
