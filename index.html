@@ -670,56 +670,54 @@
 
     function previewBracket() { currentViewerIsAdmin = true; renderCleanBracket(wsResults, true); }
 
-   // 【终极修复版】管理员：正式推送到 Bmob 数据库
+  // 【完美还原最初成功版本的发布逻辑】
     function publishBracket() {
-        if(!confirm("确定要正式发布到官网并公示吗？")) return;
+        if(!confirm("确定要正式发布到官网并公示吗？这将覆盖云端的旧数据。")) return;
 
         const btn = document.getElementById('publish-bracket-btn');
         const originalText = btn.innerText;
         btn.innerText = '⏳ 正在同步...';
         btn.disabled = true;
 
-        // 放弃复杂的查询覆盖逻辑，直接新建一条最新记录，保证 100% 写入成功
-        const entry = Bmob.Query("MatchupData");
-        entry.set("category", "WS"); 
-        entry.set("matchData", JSON.stringify(wsResults)); 
-        
-        entry.save().then(() => { 
+        const q = Bmob.Query("MatchupData");
+        q.equalTo("category", "===", "WS"); // 还原为你最初成功的语法
+        q.find().then(res => {
+            // 还原为你最初成功的数据操作逻辑
+            const entry = res.length > 0 ? Bmob.Query("MatchupData").get(res[0].objectId) : Bmob.Query("MatchupData");
+            entry.set("category", "WS");
+            entry.set("results", wsResults); // 还原为直接存对象，而不是存字符串
+            return entry.save();
+        }).then(() => {
             btn.innerText = originalText;
             btn.disabled = false;
-            alert("🚀 女单对阵已成功同步至云端！\n所有同学现在点击【查看对阵总榜】即可看到最新结果。"); 
-            currentViewerIsAdmin = true; 
-            renderCleanBracket(wsResults, true); 
+            alert("🚀 女单对阵已成功同步至全校官网！\n所有同学现在点击【查看对阵总榜】即可看到最新结果。");
+            currentViewerIsAdmin = true;
+            renderCleanBracket(wsResults, true);
         }).catch(err => {
             btn.innerText = originalText;
             btn.disabled = false;
             console.error("同步异常:", err);
-            alert("❌ 同步失败，请检查网络！"); 
+            alert("❌ 同步失败，请检查网络！");
         });
     }
 
-    // 【终极修复版】观众：从 Bmob 数据库拉取抽签结果
+    // 【完美还原最初成功版本的拉取逻辑】
     function openPublicBracket() {
-        currentViewerIsAdmin = false; 
+        currentViewerIsAdmin = false;
         openMgmtView('mgmt-matchup-view');
-        
+
         document.getElementById('bracket-render-area').innerHTML = `
             <div style="padding: 60px 0;">
                 <span style="font-size: 4rem;">⏳</span>
                 <h3 style="color: #E65100; margin-top: 15px;">正在连接云端对阵库...</h3>
             </div>`;
-        
+
         const q = Bmob.Query("MatchupData");
-        // 【关键修复】：Bmob 的查询语法是 "=="，绝对不能写 "==="
-        q.equalTo("category", "==", "WS");
-        q.order("-createdAt"); // 智能排序：永远只拿最新的一次发布
-        q.limit(1);
-        
+        q.equalTo("category", "===", "WS"); // 还原为最初成功的语法
         q.find().then(res => {
-            if(res.length > 0 && res[0].matchData) {
-                // 将云端的字符串还原为对阵对象
-                const parsedData = JSON.parse(res[0].matchData);
-                renderCleanBracket(parsedData, false);
+            if(res.length > 0 && res[0].results) {
+                // 还原为直接读取对象，直接送入渲染引擎
+                renderCleanBracket(res[0].results, false);
             } else {
                 document.getElementById('bracket-render-area').innerHTML = `
                     <div style="padding: 60px 0;">
