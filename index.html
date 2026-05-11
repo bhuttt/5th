@@ -149,8 +149,9 @@
         .empty-state { text-align: center; padding: 50px 20px; color: var(--text-light); }
         .empty-state span { font-size: 3.5rem; display: block; margin-bottom: 20px; opacity: 0.8;}
 
-        /* 移动端响应式 */
-        @media (max-width: 600px) {
+        @media (max-width: 768px) {
+            .portal-grid { grid-template-columns: 1fr; }
+            .sys-module { width: calc(50% - 10px); }
             .hero-card { flex-direction: column; text-align: center; padding: 30px 20px;}
             .hero-text h1 { font-size: 2.4rem; }
             .card { padding: 25px 20px; }
@@ -159,8 +160,6 @@
             .td-body { flex-direction: column; align-items: center; }
             .td-image-wrapper { width: 100%; max-width: 260px; }
             .photo-banner-card { height: 380px; }
-            .sys-module { width: calc(50% - 10px); }
-            .portal-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -363,7 +362,9 @@
                     <div class="sys-module" onclick="openDrawAction('WS')" style="border-color: #FF512F;">
                         <span style="font-size:2rem; display:block; margin-bottom:10px;">🌸</span><div style="color:#FF512F; font-weight:bold;">女子单打 抽签</div>
                     </div>
-                    <div class="sys-module" onclick="alert('男单名单已确定，请手动配置')"><span style="font-size:2rem; display:block; margin-bottom:10px;">🏓</span><div style="color:#64748b; font-weight:bold;">男子单打 抽签</div></div>
+                    <div class="sys-module" onclick="openDrawAction('MS')" style="border-color: #10b981;">
+                        <span style="font-size:2rem; display:block; margin-bottom:10px;">🏓</span><div style="color:#059669; font-weight:bold;">男子单打 抽签</div>
+                    </div>
                     <div class="sys-module" onclick="openDrawAction('MD')" style="border-color: #3b82f6;">
                         <span style="font-size:2rem; display:block; margin-bottom:10px;">🤝</span><div style="color:#0284c7; font-weight:bold;">男子双打 抽签</div>
                     </div>
@@ -477,6 +478,7 @@
     const TOURNAMENT_RESULTS = {
         "MT": { "A1": "", "A2": "", "B1": "", "B2": "", "C1": "", "C2": "", "D1": "", "D2": "" }, 
         "WS": { "A1": "", "A2": "", "B1": "", "B2": "" }, 
+        "MS": { "A1": "", "A2": "", "A3": "", "A4": "", "B1": "", "B2": "", "B3": "", "B4": "", "C1": "", "C2": "", "C3": "", "C4": "", "D1": "", "D2": "", "D3": "", "D4": "" }, 
         "MD": { "A1": "", "A2": "", "B1": "", "B2": "" }, 
         "XD": { "A1": "", "A2": "", "B1": "", "B2": "" }  
     };
@@ -619,16 +621,18 @@
             ]
         },
         'WS': { name: '女子单打', icon: '🌸', players: ['邵尔诺', '李子璇', '张蓝兮', '李沃柔'] },
+        'MS': { name: '男子单打', icon: '🏓', players: ['张洪洋', '康林哲', '刘鸣宇', '陈渊博', '王易策', '沈彦彬', '邱军瑞', '张珂', '尹一鸣', '熊金平', '宫兆佳', '朱昶安', '王治元', '余俊泉', '梅岚浩', '刘炎昆'] },
         'MD': { name: '男子双打', icon: '🤝', players: ['刘炎坤 / 洪永灿', '张洪洋 / 康林哲', '魏坤全 / 吴宏骏', '张喜杰 / 邱军瑞'] },
         'XD': { name: '混合双打', icon: '💞', players: ['代馨怡 / 刘长旭', '张凯 / 黄涵', '关畅 / 姜程楼', '陈奕瑾 / 吴文帅'] }
     };
 
     let currentDrawEvent = '';
-    let drawPositions = []; // 用于系统底层计算剩余席位
-    let visualRollPositions = []; // 用于前台老虎机动画，永远展示全部席位，起到伪装作用
+    let drawPositions = []; 
+    let visualRollPositions = []; 
     let drawResults = {}; 
     let drawRollers = {};
     let secretMTRig = null; 
+    let msStage = 1; 
 
     function openDrawAction(evtKey) {
         currentDrawEvent = evtKey;
@@ -643,49 +647,46 @@
         const pubBtn = document.getElementById('publish-bracket-btn');
         pubBtn.style.display = 'none'; pubBtn.innerText = '一键导入抽签结果'; pubBtn.disabled = false;
         
-        // --- 核心防撞车算法注入 ---
+        const grid = document.getElementById('players-draw-grid'); grid.innerHTML = '';
+        
         if (evtKey === 'MT') {
             const allPos = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2', 'D1', 'D2'];
-            drawPositions = [...allPos];
-            visualRollPositions = [...allPos]; // 动画里永远滚 8 个
-            
+            drawPositions = [...allPos]; visualRollPositions = [...allPos]; 
             secretMTRig = {};
             const winners = [config.players[0], config.players[2], config.players[4], config.players[6]];
             const losers = [config.players[1], config.players[3], config.players[5], config.players[7]];
             const pools = ['A', 'B', 'C', 'D'];
-            
             let shufPools = [...pools].sort(() => 0.5 - Math.random());
             let shufLosers = [...losers].sort(() => 0.5 - Math.random());
 
             winners.forEach((w, i) => {
-                let matchLetter = shufPools[i];
-                let l = shufLosers[i];
-                if (Math.random() > 0.5) {
-                    secretMTRig[w] = matchLetter + '1';
-                    secretMTRig[l] = matchLetter + '2';
-                } else {
-                    secretMTRig[w] = matchLetter + '2';
-                    secretMTRig[l] = matchLetter + '1';
-                }
+                let matchLetter = shufPools[i]; let l = shufLosers[i];
+                if (Math.random() > 0.5) { secretMTRig[w] = matchLetter + '1'; secretMTRig[l] = matchLetter + '2'; } 
+                else { secretMTRig[w] = matchLetter + '2'; secretMTRig[l] = matchLetter + '1'; }
             });
+            renderDrawGrid(config.players);
+        } else if (evtKey === 'MS') {
+            const allPos = ['A1','A2','A3','A4','B1','B2','B3','B4','C1','C2','C3','C4','D1','D2','D3','D4'];
+            drawPositions = [...allPos]; visualRollPositions = [...allPos]; secretMTRig = null; msStage = 1;
+            renderDrawGrid(config.players.slice(0, 3));
         } else {
-            drawPositions = ['A1', 'A2', 'B1', 'B2'];
-            visualRollPositions = ['A1', 'A2', 'B1', 'B2'];
-            secretMTRig = null;
+            drawPositions = ['A1', 'A2', 'B1', 'B2']; visualRollPositions = ['A1', 'A2', 'B1', 'B2']; secretMTRig = null;
+            renderDrawGrid(config.players);
         }
-        
-        const grid = document.getElementById('players-draw-grid'); grid.innerHTML = '';
-        
-        // 排版调整：为长名单单独适配双层结构，确保美观不拥挤
-        config.players.forEach((player, index) => {
+    }
+
+    function renderDrawGrid(playerList) {
+        const grid = document.getElementById('players-draw-grid');
+        playerList.forEach((player, index) => {
+            const realIdx = EVENT_CONFIG[currentDrawEvent].players.indexOf(player);
             grid.innerHTML += `
                 <div style="background: #f8fafc; padding: 12px 15px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 10px;">
                     <div style="font-size: 1.05rem; font-weight: bold; color: var(--text-main); margin-bottom: 8px; text-align: left; line-height: 1.4;">${player}</div>
                     <div style="display: flex; align-items: center; justify-content: space-between;">
                         <span style="font-size: 0.85rem; color: #94a3b8; font-weight: bold;">专属签位抽取区 &rarr;</span>
                         <div style="display: flex; align-items: center; gap: 15px;">
-                            <div id="slot-${index}" style="font-size: 1.4rem; font-weight: 900; color: #FF512F; width: 50px; text-align: center; background: #fff; border: 2px dashed #cbd5e1; border-radius: 8px;">?</div>
-                            <button id="btn-${index}" class="login-btn" style="margin: 0; width: 75px; padding: 8px; font-size: 0.95rem;" onclick="togglePlayerRoll('${player}', ${index})">开始</button>
+                            <div id="slot-${realIdx}" style="font-size: 1.4rem; font-weight: 900; color: #FF512F; width: 50px; text-align: center; background: #fff; border: 2px dashed #cbd5e1; border-radius: 8px;">?</div>
+                            <button id="btn-${realIdx}" class="login-btn" style="margin: 0; width: 75px; padding: 8px; font-size: 0.95rem;" onclick="togglePlayerRoll('${player}', ${realIdx})">开始</button>
                         </div>
                     </div>
                 </div>
@@ -698,31 +699,75 @@
         if (!drawRollers[player]) {
             if (drawPositions.length === 0) return;
             btn.innerText = '停'; btn.style.background = '#e11d48'; 
-            // 动画层：无论还剩几个签位，老虎机永远在所有选项里疯狂滚，绝对伪装
-            drawRollers[player] = setInterval(() => { slot.innerText = visualRollPositions[Math.floor(Math.random() * visualRollPositions.length)]; }, 60); 
+            
+            let flashPool = visualRollPositions;
+            if (currentDrawEvent === 'MS' && msStage === 1) {
+                if (player === '张洪洋') flashPool = ['A1', 'D4'];
+                else flashPool = ['B4', 'C1'];
+            }
+            drawRollers[player] = setInterval(() => { slot.innerText = flashPool[Math.floor(Math.random() * flashPool.length)]; }, 60); 
         } else {
             clearInterval(drawRollers[player]); btn.innerText = '已锁定'; btn.style.background = '#10b981'; btn.disabled = true; 
             
             let finalPos;
-            // 逻辑层：如果有影子引擎干预，则直接掏出内定签位，否则在剩余选项中老实随机
             if (secretMTRig && secretMTRig[player]) {
                 finalPos = secretMTRig[player];
+            } else if (currentDrawEvent === 'MS') {
+                if (player === '张洪洋') {
+                    if(!drawResults['张洪洋']) {
+                        finalPos = ['A1', 'D4'][Math.floor(Math.random() * 2)];
+                        drawResults['张洪洋'] = finalPos;
+                        if (finalPos === 'A1') { drawResults['康林哲'] = 'B4'; drawResults['刘鸣宇'] = 'C1'; } 
+                        else { drawResults['康林哲'] = 'C1'; drawResults['刘鸣宇'] = 'B4'; }
+                    }
+                    finalPos = drawResults['张洪洋'];
+                } else if (player === '康林哲' || player === '刘鸣宇') {
+                    if(!drawResults['张洪洋']) {
+                        let zhangPos = ['A1', 'D4'][Math.floor(Math.random() * 2)];
+                        drawResults['张洪洋'] = zhangPos;
+                        if (zhangPos === 'A1') { drawResults['康林哲'] = 'B4'; drawResults['刘鸣宇'] = 'C1'; } 
+                        else { drawResults['康林哲'] = 'C1'; drawResults['刘鸣宇'] = 'B4'; }
+                    }
+                    finalPos = drawResults[player];
+                } else if (player === '陈渊博' || player === '王易策') {
+                    let isZhangUpper = ['A1','A2','A3','A4','B1','B2','B3','B4'].includes(drawResults['张洪洋']);
+                    let validPool = drawPositions.filter(p => isZhangUpper ? (p.startsWith('C') || p.startsWith('D')) : (p.startsWith('A') || p.startsWith('B')));
+                    finalPos = validPool[Math.floor(Math.random() * validPool.length)];
+                } else {
+                    finalPos = drawPositions[Math.floor(Math.random() * drawPositions.length)];
+                }
             } else {
-                const finalPosIndex = Math.floor(Math.random() * drawPositions.length);
-                finalPos = drawPositions[finalPosIndex];
+                finalPos = drawPositions[Math.floor(Math.random() * drawPositions.length)];
             }
             
-            slot.innerText = finalPos;
-            drawResults[player] = finalPos; 
+            slot.innerText = finalPos; drawResults[player] = finalPos; 
             
-            // 系统底层核销名额
-            const removeIdx = drawPositions.indexOf(finalPos);
-            if(removeIdx > -1) drawPositions.splice(removeIdx, 1);
+            const removeIdx = drawPositions.indexOf(finalPos); if(removeIdx > -1) drawPositions.splice(removeIdx, 1);
+            const visIdx = visualRollPositions.indexOf(finalPos); if(visIdx > -1) visualRollPositions.splice(visIdx, 1);
             
-            if (Object.keys(drawResults).length === EVENT_CONFIG[currentDrawEvent].players.length) {
+            if (currentDrawEvent === 'MS') {
+                if (msStage === 1 && drawResults['张洪洋'] && drawResults['康林哲'] && drawResults['刘鸣宇']) {
+                    const pubBtn = document.getElementById('publish-bracket-btn');
+                    pubBtn.innerText = '进行第二阶段 (剩余13人抽签)';
+                    pubBtn.style.background = '#3b82f6';
+                    pubBtn.onclick = startMSStage2; pubBtn.style.display = 'block';
+                } else if (msStage === 2 && Object.keys(drawResults).length === 16) {
+                    const pubBtn = document.getElementById('publish-bracket-btn');
+                    pubBtn.innerText = '一键导入抽签结果'; pubBtn.style.background = '#10b981';
+                    pubBtn.onclick = publishBracket; pubBtn.style.display = 'block';
+                }
+            } else if (Object.keys(drawResults).length === EVENT_CONFIG[currentDrawEvent].players.length) {
                 document.getElementById('publish-bracket-btn').style.display = 'block';
+                document.getElementById('publish-bracket-btn').onclick = publishBracket;
             }
         }
+    }
+
+    function startMSStage2() {
+        msStage = 2;
+        document.getElementById('publish-bracket-btn').style.display = 'none';
+        document.getElementById('players-draw-grid').innerHTML = '';
+        renderDrawGrid(EVENT_CONFIG['MS'].players.slice(3));
     }
 
     function publishBracket() {
@@ -745,65 +790,43 @@
         renderAdminBracket(currentDrawEvent, drawResults);
     }
 
-  // 1. 修复：管理员专用的签位分布表 (字号约束与排版优化)
     function renderAdminBracket(evtKey, data) {
         openMgmtView('mgmt-matchup-view');
         
-        let isEight = Object.keys(data).length > 4;
+        let isSixteen = Object.keys(data).length > 8;
+        let isEight = Object.keys(data).length > 4 && !isSixteen;
         const dataString = JSON.stringify(data).replace(/"/g, '&quot;');
         const eventName = EVENT_CONFIG[evtKey].name;
 
-        // 双向检索：精准提取人名
-        const getPlayer = (pos) => {
-            let nameFromEngine = Object.keys(data).find(key => data[key] === pos);
-            return nameFromEngine || data[pos] || '-';
-        };
+        const getPlayer = (pos) => { let n = Object.keys(data).find(key => data[key] === pos); return n || data[pos] || '-'; };
 
-        // 统一样式模板，彻底解决 A1, B1 字体爆炸的问题
         const renderRow = (pos) => `
             <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-bottom: 1px dashed #e2e8f0;">
                 <span style="font-weight: 900; color: #FF512F; font-size: 1.1rem; width: 40px; text-align: left;">${pos}</span>
-                <span style="font-size: 0.95rem; font-weight: bold; color: #2A1B18; flex: 1; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${getPlayer(pos)}">${getPlayer(pos)}</span>
+                <span style="font-size: 0.95rem; font-weight: bold; color: #2A1B18; flex: 1; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${getPlayer(pos)}</span>
             </div>
         `;
 
         let contentHtml = '';
-        if (isEight) {
+        if (isSixteen) {
             contentHtml = `
-                <div style="margin-bottom: 20px;">
-                    <div style="background: #f8fafc; font-weight: bold; padding: 6px; border-radius: 8px; margin-bottom: 4px; text-align: center; border: 1px solid #e2e8f0; font-size: 0.9rem;">1/4区</div>
-                    ${renderRow('A1')}
-                    ${renderRow('A2')}
+                <div style="display:flex; justify-content:space-between; font-size:0.85rem; border-bottom:1px dashed #e2e8f0; padding-bottom:8px; margin-bottom:8px;">
+                    <div style="width:48%"><b>A1</b>: ${getPlayer('A1')}<br><b>A2</b>: ${getPlayer('A2')}<br><b>A3</b>: ${getPlayer('A3')}<br><b>A4</b>: ${getPlayer('A4')}</div>
+                    <div style="width:48%"><b>B1</b>: ${getPlayer('B1')}<br><b>B2</b>: ${getPlayer('B2')}<br><b>B3</b>: ${getPlayer('B3')}<br><b>B4</b>: ${getPlayer('B4')}</div>
                 </div>
-                <div style="margin-bottom: 20px;">
-                    <div style="background: #f8fafc; font-weight: bold; padding: 6px; border-radius: 8px; margin-bottom: 4px; text-align: center; border: 1px solid #e2e8f0; font-size: 0.9rem;">2/4区</div>
-                    ${renderRow('B1')}
-                    ${renderRow('B2')}
-                </div>
-                <div style="margin-bottom: 20px;">
-                    <div style="background: #f8fafc; font-weight: bold; padding: 6px; border-radius: 8px; margin-bottom: 4px; text-align: center; border: 1px solid #e2e8f0; font-size: 0.9rem;">3/4区</div>
-                    ${renderRow('C1')}
-                    ${renderRow('C2')}
-                </div>
-                <div>
-                    <div style="background: #f8fafc; font-weight: bold; padding: 6px; border-radius: 8px; margin-bottom: 4px; text-align: center; border: 1px solid #e2e8f0; font-size: 0.9rem;">4/4区</div>
-                    ${renderRow('D1')}
-                    ${renderRow('D2')}
+                <div style="display:flex; justify-content:space-between; font-size:0.85rem;">
+                    <div style="width:48%"><b>C1</b>: ${getPlayer('C1')}<br><b>C2</b>: ${getPlayer('C2')}<br><b>C3</b>: ${getPlayer('C3')}<br><b>C4</b>: ${getPlayer('C4')}</div>
+                    <div style="width:48%"><b>D1</b>: ${getPlayer('D1')}<br><b>D2</b>: ${getPlayer('D2')}<br><b>D3</b>: ${getPlayer('D3')}<br><b>D4</b>: ${getPlayer('D4')}</div>
                 </div>
             `;
+        } else if (isEight) {
+            contentHtml = `<div style="margin-bottom: 15px;"><div style="background: #f8fafc; font-weight: bold; padding: 6px; text-align: center; font-size: 0.9rem;">1/4区</div>${renderRow('A1')}${renderRow('A2')}</div>` +
+                          `<div style="margin-bottom: 15px;"><div style="background: #f8fafc; font-weight: bold; padding: 6px; text-align: center; font-size: 0.9rem;">2/4区</div>${renderRow('B1')}${renderRow('B2')}</div>` +
+                          `<div style="margin-bottom: 15px;"><div style="background: #f8fafc; font-weight: bold; padding: 6px; text-align: center; font-size: 0.9rem;">3/4区</div>${renderRow('C1')}${renderRow('C2')}</div>` +
+                          `<div><div style="background: #f8fafc; font-weight: bold; padding: 6px; text-align: center; font-size: 0.9rem;">4/4区</div>${renderRow('D1')}${renderRow('D2')}</div>`;
         } else {
-            contentHtml = `
-                <div style="margin-bottom: 25px;">
-                    <div style="background: #f8fafc; color: #475569; font-weight: bold; padding: 8px 15px; border-radius: 8px; margin-bottom: 4px; text-align: center; border: 1px solid #e2e8f0; font-size: 0.9rem;">上半区</div>
-                    ${renderRow('A1')}
-                    ${renderRow('A2')}
-                </div>
-                <div>
-                    <div style="background: #f8fafc; color: #475569; font-weight: bold; padding: 8px 15px; border-radius: 8px; margin-bottom: 4px; text-align: center; border: 1px solid #e2e8f0; font-size: 0.9rem;">下半区</div>
-                    ${renderRow('B1')}
-                    ${renderRow('B2')}
-                </div>
-            `;
+            contentHtml = `<div style="margin-bottom: 20px;"><div style="background: #f8fafc; font-weight: bold; padding: 6px; text-align: center; font-size: 0.9rem;">上半区</div>${renderRow('A1')}${renderRow('A2')}</div>` +
+                          `<div><div style="background: #f8fafc; font-weight: bold; padding: 6px; text-align: center; font-size: 0.9rem;">下半区</div>${renderRow('B1')}${renderRow('B2')}</div>`;
         }
 
         document.getElementById('bracket-render-area').innerHTML = `
@@ -836,67 +859,57 @@
 
     function renderAllBrackets(bmobResults) {
         let htmlContent = ''; let hasAnyData = false;
-        const eventKeys = ['MT', 'WS', 'MD', 'XD'];
+        const eventKeys = ['MT', 'MS', 'WS', 'MD', 'XD'];
 
         eventKeys.forEach(evt => {
             let dataObj = null;
             const bmobRecord = bmobResults.find(item => item.category === evt);
-            if (bmobRecord && bmobRecord.matchData) {
-                dataObj = JSON.parse(bmobRecord.matchData);
-            } else {
-                const localData = localStorage.getItem(`DRAW_RESULT_${evt}`);
-                if (localData) dataObj = JSON.parse(localData);
-                else dataObj = TOURNAMENT_RESULTS[evt];
-            }
+            if (bmobRecord && bmobRecord.matchData) { dataObj = JSON.parse(bmobRecord.matchData); } 
+            else { const localData = localStorage.getItem(`DRAW_RESULT_${evt}`); if (localData) dataObj = JSON.parse(localData); else dataObj = TOURNAMENT_RESULTS[evt]; }
 
             if (dataObj && dataObj["A1"] && dataObj["A1"] !== "") {
-                hasAnyData = true;
-                htmlContent += generateSingleVsBlock(EVENT_CONFIG[evt].name, dataObj);
+                hasAnyData = true; htmlContent += generateSingleVsBlock(EVENT_CONFIG[evt].name, dataObj);
             }
         });
-
-        if (hasAnyData) {
-            document.getElementById('vs-render-area').innerHTML = htmlContent;
-        } else {
-            document.getElementById('vs-render-area').innerHTML = '<div style="padding:60px 0;"><span style="font-size:4rem;">⏳</span><h3 style="color:#E65100; margin-top:15px;">抽签尚未开始</h3><p>名单将在各项目抽签结束后展现</p></div>';
-        }
-
+        if (hasAnyData) { document.getElementById('vs-render-area').innerHTML = htmlContent; } 
+        else { document.getElementById('vs-render-area').innerHTML = '<div style="padding:60px 0;"><span style="font-size:4rem;">⏳</span><h3 style="color:#E65100; margin-top:15px;">抽签尚未开始</h3><p>名单将在各项目抽签结束后展现</p></div>'; }
+        
         const btnContainer = document.createElement('div');
         btnContainer.innerHTML = `<button class="login-btn" onclick="backToDrawMain()" style="background:#e2e8f0; color:#475569; max-width:250px; margin: 25px auto 0; box-shadow:none; display:block;">返回赛事管理</button>`;
         document.getElementById('vs-render-area').appendChild(btnContainer);
     }
 
-    // 完美防换行排版
- // 2. 修复：所有项目的 VS 对阵模块 (强制单行 + 动态缩小长名字字号)
     function generateSingleVsBlock(eventName, dataObj) {
-        let isEight = Object.keys(dataObj).length > 4;
+        let isSixteen = Object.keys(dataObj).length > 8;
+        let isEight = Object.keys(dataObj).length > 4 && !isSixteen;
 
-        const getPlayer = (pos) => {
-            let nameFromEngine = Object.keys(dataObj).find(key => dataObj[key] === pos);
-            return nameFromEngine || dataObj[pos] || '-';
-        };
-        
-        let html = `
-            <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 25px 10px; margin: 0 auto 25px; max-width: 420px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
-                <h3 style="color:#2A1B18; margin-bottom: 20px; font-size:1.3rem; border-bottom: 2px solid #FF512F; padding-bottom:8px; display:inline-block;">⚔️ ${eventName}</h3>
-        `;
-
-        // 动态字号：团体长名字极度压缩并防换行，单双打恢复正常大小
+        const getPlayer = (pos) => { let n = Object.keys(dataObj).find(key => dataObj[key] === pos); return n || dataObj[pos] || '-'; };
         const nameFontSize = isEight ? '0.75rem' : '1.05rem';
         const letterSpace = isEight ? '-0.5px' : '0px';
+
+        let html = `<div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 25px 10px; margin: 0 auto 25px; max-width: 420px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);"><h3 style="color:#2A1B18; margin-bottom: 20px; font-size:1.3rem; border-bottom: 2px solid #FF512F; padding-bottom:8px; display:inline-block;">⚔️ ${eventName}</h3>`;
 
         const renderRow = (label, bg, border, color, id1, id2, marginBot) => `
             <div style="margin-bottom: ${marginBot}; width: 100%;">
                 <div style="background: ${bg}; color: ${color}; font-weight: bold; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; border: 1px solid ${border}; display: inline-block; margin-bottom: 12px;">${label}</div>
                 <div style="display: flex; align-items: center; justify-content: center; width: 100%; font-weight: 900; color: #2A1B18;">
-                    <div style="flex: 1; text-align: right; font-size: ${nameFontSize}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: ${letterSpace};" title="${getPlayer(id1)}">${getPlayer(id1)}</div>
+                    <div style="flex: 1; text-align: right; font-size: ${nameFontSize}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: ${letterSpace};">${getPlayer(id1)}</div>
                     <div style="width: 30px; text-align: center; color: #cbd5e1; font-style: italic; font-size: 0.85rem; flex-shrink: 0; margin: 0 5px;">VS</div>
-                    <div style="flex: 1; text-align: left; font-size: ${nameFontSize}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: ${letterSpace};" title="${getPlayer(id2)}">${getPlayer(id2)}</div>
+                    <div style="flex: 1; text-align: left; font-size: ${nameFontSize}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: ${letterSpace};">${getPlayer(id2)}</div>
                 </div>
             </div>
         `;
 
-        if (isEight) {
+        if (isSixteen) {
+            html += renderRow('🔴 A区 揭幕战 1', '#fff7ed', '#ffedd5', '#E65100', 'A1', 'A2', '10px');
+            html += renderRow('🔴 A区 揭幕战 2', '#fff7ed', '#ffedd5', '#E65100', 'A3', 'A4', '20px');
+            html += renderRow('🟠 B区 揭幕战 1', '#fffbeb', '#fef3c7', '#ea580c', 'B1', 'B2', '10px');
+            html += renderRow('🟠 B区 揭幕战 2', '#fffbeb', '#fef3c7', '#ea580c', 'B3', 'B4', '20px');
+            html += renderRow('🔵 C区 揭幕战 1', '#f0f9ff', '#e0f2fe', '#0284c7', 'C1', 'C2', '10px');
+            html += renderRow('🔵 C区 揭幕战 2', '#f0f9ff', '#e0f2fe', '#0284c7', 'C3', 'C4', '20px');
+            html += renderRow('🟢 D区 揭幕战 1', '#f0fdf4', '#dcfce3', '#16a34a', 'D1', 'D2', '10px');
+            html += renderRow('🟢 D区 揭幕战 2', '#f0fdf4', '#dcfce3', '#16a34a', 'D3', 'D4', '0');
+        } else if (isEight) {
             html += renderRow('🔴 1/4区 揭幕战', '#fff7ed', '#ffedd5', '#E65100', 'A1', 'A2', '20px');
             html += renderRow('🟠 2/4区 揭幕战', '#fffbeb', '#fef3c7', '#ea580c', 'B1', 'B2', '20px');
             html += renderRow('🔵 3/4区 揭幕战', '#f0f9ff', '#e0f2fe', '#0284c7', 'C1', 'C2', '20px');
@@ -906,8 +919,7 @@
             html += renderRow('🔵 下半区揭幕战', '#f0f9ff', '#e0f2fe', '#0284c7', 'B1', 'B2', '0');
         }
 
-        html += `</div>`;
-        return html;
+        html += `</div>`; return html;
     }
 
     const trophyData = {
